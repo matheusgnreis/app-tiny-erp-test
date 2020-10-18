@@ -147,6 +147,15 @@ const app = {
       },
       hide: true
     },
+    new_orders: {
+      schema: {
+        type: 'boolean',
+        default: true,
+        title: 'Exportar novos pedidos',
+        description: 'Criar novos pedidos no Tiny automaticamente'
+      },
+      hide: true
+    },
     new_products: {
       schema: {
         type: 'boolean',
@@ -160,8 +169,8 @@ const app = {
       schema: {
         type: 'boolean',
         default: true,
-        title: 'Exportar estoques',
-        description: 'Atualizar estoques no Tiny automaticamente'
+        title: 'Importar estoques',
+        description: 'Atualizar estoques na plataforma, necessário módulo "API para estoque em tempo real" no Tiny'
       },
       hide: true
     },
@@ -188,6 +197,15 @@ const app = {
               pattern: '^[a-f0-9]{24}$',
               title: 'ID do produto'
             }
+          },
+          order_ids: {
+            title: 'Pedidos a exportar',
+            type: 'array',
+            items: {
+              type: 'string',
+              pattern: '^[a-f0-9]{24}$',
+              title: 'ID do pedido'
+            }
           }
         }
       },
@@ -208,13 +226,13 @@ const app = {
               description: 'ATENÇÃO: O produto será sobrescrito na plataforma se já existir com o mesmo SKU'
             }
           },
-          order_ids: {
+          order_numbers: {
             title: 'Pedidos a importar',
             type: 'array',
             items: {
               type: 'string',
               title: 'ID do pedido no Tiny',
-              description: 'Número em "Nosso pedido" no painel do Tiny'
+              description: 'Número único do pedido de venda no Tiny'
             }
           }
         }
@@ -285,12 +303,11 @@ procedures.push({
   title: app.title,
 
   triggers: [
-    /* Receive notifications when new order is created:
+    // Receive notifications when new order is created:
     {
       resource: 'orders',
       action: 'create',
     },
-    */
 
     // Receive notifications when order financial/fulfillment status changes:
     {
@@ -302,16 +319,7 @@ procedures.push({
       field: 'fulfillment_status',
     },
 
-    // Receive notifications when products/variations stock quantity changes:
-    {
-      resource: 'products',
-      field: 'quantity',
-    },
-    {
-      resource: 'products',
-      subresource: 'variations',
-      field: 'quantity',
-    },
+    // Receive notifications when products/variations prices changes:
     {
       resource: 'products',
       field: 'price',
