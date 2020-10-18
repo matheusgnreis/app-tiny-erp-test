@@ -7,8 +7,8 @@
 
 const app = {
   app_id: 105922,
-  title: 'My Awesome E-Com Plus App',
-  slug: 'my-awesome-app',
+  title: 'Tiny ERP',
+  slug: 'tiny-erp',
   type: 'external',
   state: 'active',
   authentication: true,
@@ -54,8 +54,8 @@ const app = {
       'POST'           // Create procedures to receive webhooks
     ],
     products: [
-      // 'GET',           // Read products with public and private fields
-      // 'POST',          // Create products
+      'GET',           // Read products with public and private fields
+      'POST',          // Create products
       // 'PATCH',         // Edit products
       // 'PUT',           // Overwrite products
       // 'DELETE',        // Delete products
@@ -82,8 +82,8 @@ const app = {
       // 'DELETE',        // Delete customers
     ],
     orders: [
-      // 'GET',           // List/read orders with public and private fields
-      // 'POST',          // Create orders
+      'GET',           // List/read orders with public and private fields
+      'POST',          // Create orders
       // 'PATCH',         // Edit orders
       // 'PUT',           // Overwrite orders
       // 'DELETE',        // Delete orders
@@ -100,13 +100,13 @@ const app = {
      * Prefer using 'fulfillments' and 'payment_history' subresources to manipulate update order status.
      */
     'orders/fulfillments': [
-      // 'GET',           // List/read order fulfillment and tracking events
-      // 'POST',          // Create fulfillment event with new status
+      'GET',           // List/read order fulfillment and tracking events
+      'POST',          // Create fulfillment event with new status
       // 'DELETE',        // Delete fulfillment event
     ],
     'orders/payments_history': [
-      // 'GET',           // List/read order payments history events
-      // 'POST',          // Create payments history entry with new status
+      'GET',           // List/read order payments history events
+      'POST',          // Create payments history entry with new status
       // 'DELETE',        // Delete payments history entry
     ],
 
@@ -116,11 +116,11 @@ const app = {
      */
     'products/quantity': [
       // 'GET',           // Read product available quantity
-      // 'PUT',           // Set product stock quantity
+      'PUT',           // Set product stock quantity
     ],
     'products/variations/quantity': [
       // 'GET',           // Read variaton available quantity
-      // 'PUT',           // Set variation stock quantity
+      'PUT',           // Set variation stock quantity
     ],
     'products/price': [
       // 'GET',           // Read product current sale price
@@ -135,6 +135,136 @@ const app = {
      * You can also set any other valid resource/subresource combination.
      * Ref.: https://developers.e-com.plus/docs/api/#/store/
      */
+  },
+
+  admin_settings: {
+    tiny_api_token: {
+      schema: {
+        type: 'string',
+        maxLength: 255,
+        title: 'Token da API Tiny',
+        description: 'Onde encontrar o token: https://www.tiny.com.br/ajuda/api/api2-gerar-token-api'
+      },
+      hide: true
+    },
+    new_products: {
+      schema: {
+        type: 'boolean',
+        default: false,
+        title: 'Exportar novos produtos',
+        description: 'Criar novos produtos no Tiny automaticamente'
+      },
+      hide: true
+    },
+    update_quantity: {
+      schema: {
+        type: 'boolean',
+        default: true,
+        title: 'Exportar estoques',
+        description: 'Atualizar estoques no Tiny automaticamente'
+      },
+      hide: true
+    },
+    update_price: {
+      schema: {
+        type: 'boolean',
+        default: false,
+        title: 'Exportar preços',
+        description: 'Atualizar preços no Tiny automaticamente'
+      },
+      hide: true
+    },
+    exportation: {
+      schema: {
+        title: 'Exportação manual',
+        description: 'Fila a exportar para o Tiny, serão removidos automaticamente após exportação',
+        type: 'object',
+        properties: {
+          product_ids: {
+            title: 'Produtos a exportar',
+            type: 'array',
+            items: {
+              type: 'string',
+              pattern: '^[a-f0-9]{24}$',
+              title: 'ID do produto'
+            }
+          }
+        }
+      },
+      hide: false
+    },
+    importation: {
+      schema: {
+        title: 'Importação manual',
+        description: 'Fila a importar do Tiny, serão removidos automaticamente após importação',
+        type: 'object',
+        properties: {
+          skus: {
+            title: 'Produtos a importar',
+            type: 'array',
+            items: {
+              type: 'string',
+              title: 'SKU do produto no Tiny',
+              description: 'ATENÇÃO: O produto será sobrescrito na plataforma se já existir com o mesmo SKU'
+            }
+          },
+          order_ids: {
+            title: 'Pedidos a importar',
+            type: 'array',
+            items: {
+              type: 'string',
+              title: 'ID do pedido no Tiny',
+              description: 'Número em "Nosso pedido" no painel do Tiny'
+            }
+          }
+        }
+      },
+      hide: false
+    },
+    logs: {
+      schema: {
+        title: 'Logs',
+        type: 'array',
+        maxItems: 300,
+        items: {
+          title: 'Registro de log',
+          type: 'object',
+          properties: {
+            resource: {
+              type: 'string',
+              maxLength: 255,
+              title: 'Recurso'
+            },
+            resource_id: {
+              type: 'string',
+              pattern: '^[a-f0-9]{24}$',
+              title: 'ID do recurso'
+            },
+            tiny_id: {
+              type: 'string',
+              maxLength: 255,
+              title: 'ID do recurso no Tiny'
+            },
+            timestamp: {
+              type: 'string',
+              format: 'date-time',
+              title: 'Horário'
+            },
+            success: {
+              type: 'boolean',
+              default: true,
+              title: 'Sucesso'
+            },
+            notes: {
+              type: 'string',
+              maxLength: 5000,
+              title: 'Notas'
+            }
+          }
+        }
+      },
+      hide: true
+    }
   }
 }
 
@@ -147,6 +277,7 @@ const procedures = []
 
 /**
  * Uncomment and edit code above to configure `triggers` and receive respective `webhooks`:
+ */
 
 const { baseUri } = require('./__env')
 
@@ -154,11 +285,12 @@ procedures.push({
   title: app.title,
 
   triggers: [
-    // Receive notifications when new order is created:
+    /* Receive notifications when new order is created:
     {
       resource: 'orders',
       action: 'create',
     },
+    */
 
     // Receive notifications when order financial/fulfillment status changes:
     {
@@ -178,10 +310,25 @@ procedures.push({
     {
       resource: 'products',
       subresource: 'variations',
-      field: 'quantity'
+      field: 'quantity',
+    },
+    {
+      resource: 'products',
+      field: 'price',
+    },
+    {
+      resource: 'products',
+      subresource: 'variations',
+      field: 'price',
     },
 
-    // Receive notifications when cart is edited:
+    // Receive notifications when new product is created:
+    {
+      resource: 'products',
+      action: 'create',
+    },
+
+    /* Receive notifications when cart is edited:
     {
       resource: 'carts',
       action: 'change',
@@ -194,6 +341,7 @@ procedures.push({
     },
 
     // Feel free to create custom combinations with any Store API resource, subresource, action and field.
+    */
   ],
 
   webhooks: [
@@ -208,6 +356,7 @@ procedures.push({
   ]
 })
 
+/*
  * You may also edit `routes/ecom/webhook.js` to treat notifications properly.
  */
 
