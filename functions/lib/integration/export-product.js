@@ -16,7 +16,9 @@ module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreate
       const tiny = new Tiny(tinyToken)
 
       const job = tiny.post('/produtos.pesquisa.php', { pesquisa: product.sku })
-        .then(({ produtos }) => {
+        .then(retorno => {
+          console.log(retorno)
+          const { produtos } = retorno
           let originalTinyProduct
           if (Array.isArray(produtos)) {
             originalTinyProduct = produtos.find(({ codigo }) => product.sku === String(codigo))
