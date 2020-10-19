@@ -25,6 +25,15 @@ module.exports = function (token) {
       timeout: 30000,
       ...options
     })
+      .then(response => {
+        const { retorno } = response.data
+        if (retorno.status === 'Erro') {
+          const err = new Error('Tiny error response')
+          err.response = response
+          throw err
+        }
+        return retorno
+      })
   }
 
   return this
