@@ -32,6 +32,8 @@ module.exports = function (token) {
             response.status = 401
           } else if (retorno.codigo_erro === 6) {
             response.status = 503
+          } else if (retorno.codigo_erro === 20) {
+            response.status = 404
           }
           err.response = response
           err.config = response.config

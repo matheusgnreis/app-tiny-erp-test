@@ -16,6 +16,13 @@ module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreate
       const tiny = new Tiny(tinyToken)
 
       const job = tiny.post('/pedidos.pesquisa.php', { numeroEcommerce: String(order.number) })
+        .catch(err => {
+          if (err.response && err.response.status === 404) {
+            return {}
+          }
+          throw err
+        })
+
         .then(({ pedidos }) => {
           let originalTinyOrder
           if (Array.isArray(pedidos)) {
