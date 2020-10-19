@@ -24,7 +24,7 @@ module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreate
               return null
             }
           }
-          const tinyBody = parseOrder(order, tinyOrder, appData)
+          const tinyBody = parseOrder(order)
           if (!tinyOrder) {
             return tiny.post('/pedido.incluir.php', tinyBody)
           }

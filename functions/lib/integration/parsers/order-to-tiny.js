@@ -1,144 +1,178 @@
 const ecomUtils = require('@ecomplus/utils')
 
-module.exports = (product, originalTinyProduct, appData) => {
-  const hasVariations = product.variations && product.variations.length
+module.exports = (order, appData) => {
+  const orderRef = String(order.number) || order._id
 
-  const tinyProduct = {
-    sequencia: 1,
-    origem: 0,
-    situacao: product.available && product.visible ? 'A' : 'I',
-    tipo: 'P',
-    classe_produto: hasVariations ? 'V' : 'S',
-    codigo: product.sku,
-    nome: ecomUtils.name(product, 'pt_br').substring(0, 120),
-    unidade: originalTinyProduct && originalTinyProduct.unidade
-      ? originalTinyProduct.unidade
-      : product.measurement && product.measurement.unit !== 'oz' && product.measurement.unit !== 'ct'
-        ? product.measurement.unit.substring(0, 3).toUpperCase()
-        : 'UN'
+  const tinyOrder = {
+    ...appData.tiny_order_data,
+    numero_pedido_ecommerce: orderRef,
+    data_pedido: new Date(order.opened_at || order.created_at).toLocaleDateString('pt-BR'),
+    ecommerce: 'E-Com Plus',
+    itens: []
   }
 
-  if (ecomUtils.onPromotion(product)) {
-    tinyProduct.preco = product.base_price
-    tinyProduct.preco_promocional = ecomUtils.price(product)
+  const buyer = order.buyers && order.buyers[0]
+  const shippingLine = order.shipping_lines && order.shipping_lines[0]
+  const transaction = order.transactions && order.transactions[0]
+  const shippingAddress = shippingLine && shippingLine.to
+  const billingAddress = transaction && transaction.billing_address
+
+  const parseAddress = (address, tinyObject) => {
+    ;[
+      ['street', 'endereco', 50],
+      ['number', 'numero', 10],
+      ['complement', 'complemento', 50],
+      ['borough', 'bairro', 30],
+      ['zip', 'cep', 10],
+      ['city', 'cidade', 30],
+      ['province_code', 'uf', 30]
+    ].forEach(([addressField, tinyField, maxLength]) => {
+      tinyObject[tinyField] = address[addressField].substring(0, maxLength)
+    })
+  }
+
+  if (buyer) {
+    const tinyCustomer = {
+      codigo: buyer._id,
+      nome: (buyer.corporate_name || ecomUtils.fullName(buyer)).substring(0, 30) ||
+        `Comprador de #${orderRef}`,
+      tipo_pessoa: buyer.registry_type === 'j' ? 'J' : 'F'
+    }
+    if (buyer.display_name) {
+      tinyCustomer.nome_fantasia = buyer.display_name.substring(0, 30)
+    }
+    if (buyer.doc_number && buyer.doc_number.length <= 18) {
+      tinyCustomer.cpf_cnpj = buyer.doc_number
+    }
+    if (buyer.inscription_number && buyer.inscription_number.length <= 18) {
+      tinyCustomer.ie = buyer.inscription_number
+    }
+    if (buyer.main_email && buyer.main_email.length <= 50) {
+      tinyCustomer.email = buyer.main_email
+    }
+    if (shippingAddress) {
+      parseAddress(billingAddress || shippingAddress, tinyCustomer)
+    }
+    const phone = buyer.phones && buyer.phones[0]
+    if (phone) {
+      tinyCustomer.fone = phone.country_code ? `+${phone.country_code} ` : ''
+      tinyCustomer.fone += phone.number
+    }
+    tinyOrder.cliente = tinyCustomer
   } else {
-    tinyProduct.preco = product.price
-  }
-  if (product.cost_price) {
-    tinyProduct.preco_custo = product.cost_price
-  }
-  if (product.min_quantity) {
-    tinyProduct.unidade_por_caixa = product.min_quantity < 1000
-      ? String(product.min_quantity) : '999'
-  }
-
-  if (product.short_description) {
-    tinyProduct.descricao_complementar = product.short_description
-  }
-  if (product.warranty) {
-    tinyProduct.garantia = product.warranty.substring(0, 20)
-  }
-
-  if (product.mpn && product.mpn.length) {
-    tinyProduct.ncm = product.mpn[0]
-  }
-  if (product.gtin && product.gtin.length) {
-    tinyProduct.gtin = product.gtin[0]
-    if (product.gtin[1]) {
-      tinyProduct.gtin_embalagem = product.gtin[1]
+    tinyOrder.cliente = {
+      nome: `Comprador de #${orderRef}`
     }
   }
 
-  if (product.weight && product.weight.value) {
-    tinyProduct.peso_bruto = product.weight.value
-    switch (product.weight.unit) {
-      case 'mg':
-        tinyProduct.peso_bruto /= 1000000
-        break
-      case 'g':
-        tinyProduct.peso_bruto /= 1000
-    }
-  }
-  if (product.dimensions) {
-    for (const side in product.dimensions) {
-      if (product.dimensions[side] && product.dimensions[side].value) {
-        let field = side === 'width' ? 'largura'
-          : side === 'height' ? 'altura'
-            : 'comprimento'
-        field += '_embalagem'
-        tinyProduct[field] = product.dimensions[side].value
-        switch (product.dimensions[side].unit) {
-          case 'mm':
-            tinyProduct[field] *= 0.1
-            break
-          case 'm':
-            tinyProduct[field] *= 100
-        }
-      }
+  if (shippingAddress && billingAddress) {
+    tinyOrder.endereco_entrega = {}
+    parseAddress(shippingAddress, tinyOrder.endereco_entrega)
+    if (shippingAddress.name) {
+      tinyOrder.endereco_entrega.nome_destinatario = shippingAddress.name.substring(0, 60)
     }
   }
 
-  if (product.brands && product.brands.length) {
-    tinyProduct.marca = product.brands[0].name
-  }
-  if (product.category_tree) {
-    tinyProduct.categoria = product.category_tree.replace(/\s?>\s?/g, ' >> ')
-  } else if (product.categories && product.categories.length) {
-    tinyProduct.categoria = product.categories.map(({ name }) => name).join(' >> ')
-  }
-
-  if (product.pictures && product.pictures.length) {
-    tinyProduct.anexos = []
-    product.pictures.forEach(({ zoom, big, normal }) => {
-      const img = (zoom || big || normal)
-      if (img) {
-        tinyProduct.anexos.push({
-          anexo: img.url
+  if (order.items) {
+    order.items.forEach(item => {
+      if (item.quantity) {
+        const itemRef = (item.sku || item._id).substring(0, 20)
+        tinyOrder.itens.push({
+          item: {
+            codigo: itemRef,
+            descricao: item.name ? item.name.substring(0, 120) : itemRef,
+            unidade: 'UN',
+            quantidade: item.quantity,
+            valor_unitario: ecomUtils.price(item)
+          }
         })
       }
     })
   }
 
-  if (originalTinyProduct) {
-    tinyProduct.id = originalTinyProduct.id
-    if (!appData.update_price) {
-      ;['preco', 'preco_promocional', 'preco_custo'].forEach(field => {
-        if (typeof originalTinyProduct[field] === 'number') {
-          tinyProduct[field] = originalTinyProduct[field]
-        }
-      })
+  if (order.payment_method_label) {
+    tinyOrder.meio_pagamento = order.payment_method_label
+  }
+  if (transaction) {
+    switch (transaction.payment_method.code) {
+      case 'credit_card':
+        tinyOrder.forma_pagamento = 'credito'
+        break
+      case 'banking_billet':
+        tinyOrder.forma_pagamento = 'boleto'
+        break
+      case 'account_deposit':
+        tinyOrder.forma_pagamento = 'deposito'
+        break
+      case 'online_debit':
+      case 'debit_card':
+      case 'balance_on_intermediary':
+        tinyOrder.forma_pagamento = 'debito'
+        break
+      default:
+        tinyOrder.forma_pagamento = 'multiplas'
     }
-  } else {
-    tinyProduct.estoque_atual = product.quantity || 0
+    if (!tinyOrder.meio_pagamento && transaction.payment_method.name) {
+      tinyOrder.meio_pagamento = transaction.payment_method.name.substring(0, 100)
+    }
   }
 
-  if (hasVariations) {
-    tinyProduct.variacoes = []
-    product.variations.forEach((variation, i) => {
-      const tinyVariation = {
-        codigo: variation.sku || `${product.sku}-${(i + 1)}`,
-        grade: {}
+  if (order.shipping_method_label) {
+    tinyOrder.forma_frete = order.shipping_method_label
+  }
+  if (shippingLine) {
+    tinyOrder.forma_envio = 'X'
+    if (shippingLine.app && shippingLine.app.carrier) {
+      const { carrier } = shippingLine.app
+      if (/correios/i.test(carrier)) {
+        tinyOrder.forma_envio = 'C'
+      } else if (/b2w/i.test(carrier)) {
+        tinyOrder.forma_envio = 'B'
+      } else if (/mercado envios/i.test(carrier)) {
+        tinyOrder.forma_envio = 'M'
+      } else {
+        tinyOrder.forma_envio = 'T'
       }
-      if (!originalTinyProduct) {
-        tinyVariation.estoque_atual = variation.quantity || 0
+    }
+    if (
+      (!tinyOrder.forma_envio || tinyOrder.forma_envio === 'X' || tinyOrder.forma_envio === 'T') &&
+      shippingLine.app && shippingLine.app.service_name && /(pac|sedex)/i.test(shippingLine.app.service_name)
+    ) {
+      tinyOrder.forma_envio = 'C'
+    }
+    if (!tinyOrder.forma_frete && shippingLine.app && shippingLine.app.label) {
+      tinyOrder.forma_frete = shippingLine.app.label
+    }
+  } else {
+    tinyOrder.forma_envio = 'S'
+  }
+
+  const { amount } = order
+  if (amount) {
+    if (typeof amount.freight === 'number') {
+      tinyOrder.valor_frete = amount.freight
+      if (amount.tax) {
+        tinyOrder.valor_frete += amount.tax
       }
-      for (const gridId in variation.specifications) {
-        const gridOptions = variation.specifications[gridId]
-        if (gridOptions && gridOptions.length) {
-          gridOptions.forEach(({ text }, i) => {
-            tinyVariation.grade[i === 0 ? gridId : `${gridId}_${(i + 1)}`] = text
-          })
-        }
+      if (amount.extra) {
+        tinyOrder.valor_frete += amount.extra
       }
-      tinyProduct.variacoes.push({
-        variacao: tinyVariation
-      })
-    })
+    }
+    if (amount.discount) {
+      tinyOrder.valor_desconto = amount.discount
+    }
+  }
+
+  if (order.notes) {
+    tinyOrder.obs = order.notes.substring(0, 100)
+  }
+  if (order.staff_notes) {
+    tinyOrder.obs_internas = order.staff_notes.substring(0, 100)
   }
 
   return {
     produtos: [{
-      produto: tinyProduct
+      produto: tinyOrder
     }]
   }
 }

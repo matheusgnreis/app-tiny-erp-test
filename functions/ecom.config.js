@@ -239,6 +239,22 @@ const app = {
       },
       hide: false
     },
+    tiny_order_data: {
+      schema: {
+        title: 'Configuração para novos pedidos no Tiny',
+        description: 'IDs pré-definidos para pedidos exportados da plataforma para o Tiny',
+        type: 'object',
+        properties: {
+          id_ecommerce: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 999999,
+            title: 'ID do e-commerce cadastrado no Tiny'
+          }
+        }
+      },
+      hide: true
+    },
     logs: {
       schema: {
         title: 'Logs',
