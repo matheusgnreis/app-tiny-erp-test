@@ -35,6 +35,8 @@ module.exports = function (token) {
             response.status = 503
           }
           err.response = response
+          err.config = response.config
+          err.request = response.request
           throw err
         }
         return retorno
