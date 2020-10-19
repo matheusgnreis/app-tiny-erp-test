@@ -1,7 +1,7 @@
 const ecomClient = require('@ecomplus/client')
 const errorHandling = require('../store-api/error-handling')
 const Tiny = require('../tiny/constructor')
-const parseOrder = require('./parsers/order-to-tiny')
+const parseOrder = require('./parsers/order-to-tiny/')
 const handleJob = require('./handle-job')
 
 module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreateNew) => {
