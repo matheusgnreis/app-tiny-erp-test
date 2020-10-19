@@ -170,9 +170,5 @@ module.exports = (order, appData) => {
     tinyOrder.obs_internas = order.staff_notes.substring(0, 100)
   }
 
-  return {
-    produtos: [{
-      produto: tinyOrder
-    }]
-  }
+  return tinyOrder
 }

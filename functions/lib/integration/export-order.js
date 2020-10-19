@@ -17,16 +17,20 @@ module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreate
 
       const job = tiny.post('/pedidos.pesquisa.php', { numeroEcommerce: String(order.number) })
         .then(({ pedidos }) => {
-          let tinyOrder
+          let originalTinyOrder
           if (Array.isArray(pedidos)) {
-            tinyOrder = pedidos.find(tinyOrder => order.number === Number(tinyOrder.numero_ecommerce))
-            if (!tinyOrder && !canCreateNew) {
+            originalTinyOrder = pedidos.find(tinyOrder => order.number === Number(tinyOrder.numero_ecommerce))
+            if (!originalTinyOrder && !canCreateNew) {
               return null
             }
           }
-          const tinyBody = parseOrder(order)
-          if (!tinyOrder) {
-            return tiny.post('/pedido.incluir.php', tinyBody)
+          const tinyOrder = parseOrder(order)
+          if (!originalTinyOrder) {
+            return tiny.post('/pedido.incluir.php', {
+              pedido: {
+                pedido: tinyOrder
+              }
+            })
           }
           return null
         })

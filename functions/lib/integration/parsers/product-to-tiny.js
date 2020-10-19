@@ -136,9 +136,5 @@ module.exports = (product, originalTinyProduct, appData) => {
     })
   }
 
-  return {
-    produtos: [{
-      produto: tinyProduct
-    }]
-  }
+  return tinyProduct
 }

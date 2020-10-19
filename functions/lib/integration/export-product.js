@@ -17,16 +17,22 @@ module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreate
 
       const job = tiny.post('/produtos.pesquisa.php', { pesquisa: product.sku })
         .then(({ produtos }) => {
-          let tinyProduct
+          let originalTinyProduct
           if (Array.isArray(produtos)) {
-            tinyProduct = produtos.find(({ codigo }) => product.sku === String(codigo))
-            if (!tinyProduct && !canCreateNew) {
+            originalTinyProduct = produtos.find(({ codigo }) => product.sku === String(codigo))
+            if (!originalTinyProduct && !canCreateNew) {
               return null
             }
           }
-          const tinyBody = parseProduct(product, tinyProduct, appData)
-          return tinyBody
-            ? tiny.post(tinyProduct ? '/produto.alterar.php' : '/produto.incluir.php', tinyBody)
+          const tinyProduct = parseProduct(product, originalTinyProduct, appData)
+          return tinyProduct
+            ? tiny.post(originalTinyProduct ? '/produto.alterar.php' : '/produto.incluir.php', {
+              produto: {
+                produtos: [{
+                  produto: tinyProduct
+                }]
+              }
+            })
             : null
         })
       handleJob({ appSdk, storeId }, queueEntry, job)
