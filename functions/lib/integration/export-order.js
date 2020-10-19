@@ -31,7 +31,7 @@ module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreate
               return null
             }
           }
-          const tinyOrder = parseOrder(order)
+          const tinyOrder = parseOrder(order, appData)
           if (!originalTinyOrder) {
             return tiny.post('/pedido.incluir.php', {
               pedido: {
