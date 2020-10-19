@@ -1,20 +1,21 @@
-const qs = require('qs')
 const axios = require('axios')
+const xmlJs = require('xml-js')
 
 module.exports = function (token) {
   this.request = options => {
     // https://www.tiny.com.br/ajuda/api/api2
-    const body = {
-      token,
-      formato: 'JSON'
-    }
+    let data = `token=${token}&formato=JSON`
     if (options.data) {
-      Object.assign(body, options.data)
+      for (const field in options.data) {
+        if (typeof options.data[field] === 'object') {
+          data += `&${field}=${xmlJs.js2xml(options.data[field])}`
+        }
+      }
     }
     return axios({
       ...options,
       baseURL: 'https://api.tiny.com.br/api2/',
-      data: qs.stringify(body)
+      data
     })
   }
   return this
