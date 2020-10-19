@@ -1,5 +1,4 @@
 const axios = require('axios')
-const xmlJs = require('xml-js')
 
 module.exports = function (token) {
   this.post = (url, body, options) => {
@@ -10,7 +9,7 @@ module.exports = function (token) {
         if (body[field]) {
           switch (typeof body[field]) {
             case 'object':
-              data += `&${field}=${xmlJs.js2xml(body[field])}`
+              data += `&${field}=${JSON.stringify(body[field])}`
               break
             case 'string':
             case 'number':
