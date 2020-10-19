@@ -29,6 +29,11 @@ module.exports = function (token) {
         const { retorno } = response.data
         if (retorno.status === 'Erro') {
           const err = new Error('Tiny error response')
+          if (retorno.codigo_erro <= 2) {
+            response.status = 401
+          } else if (retorno.codigo_erro === 6) {
+            response.status = 503
+          }
           err.response = response
           throw err
         }
