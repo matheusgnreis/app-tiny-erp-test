@@ -52,6 +52,15 @@
       },
       "hide": true
     },
+    "new_orders": {
+      "schema": {
+        "type": "boolean",
+        "default": true,
+        "title": "Exportar novos pedidos",
+        "description": "Criar novos pedidos no Tiny automaticamente"
+      },
+      "hide": true
+    },
     "new_products": {
       "schema": {
         "type": "boolean",
@@ -65,8 +74,8 @@
       "schema": {
         "type": "boolean",
         "default": true,
-        "title": "Exportar estoques",
-        "description": "Atualizar estoques no Tiny automaticamente"
+        "title": "Importar estoques",
+        "description": "Atualizar estoques na plataforma, necessário módulo \"API para estoque em tempo real\" no Tiny"
       },
       "hide": true
     },
@@ -93,6 +102,15 @@
               "pattern": "^[a-f0-9]{24}$",
               "title": "ID do produto"
             }
+          },
+          "order_ids": {
+            "title": "Pedidos a exportar",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{24}$",
+              "title": "ID do pedido"
+            }
           }
         }
       },
@@ -113,13 +131,13 @@
               "description": "ATENÇÃO: O produto será sobrescrito na plataforma se já existir com o mesmo SKU"
             }
           },
-          "order_ids": {
+          "order_numbers": {
             "title": "Pedidos a importar",
             "type": "array",
             "items": {
               "type": "string",
               "title": "ID do pedido no Tiny",
-              "description": "Número em \"Nosso pedido\" no painel do Tiny"
+              "description": "Número único do pedido de venda no Tiny"
             }
           }
         }
