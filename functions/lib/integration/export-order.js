@@ -1,19 +1,15 @@
-const ecomClient = require('@ecomplus/client')
 const errorHandling = require('../store-api/error-handling')
 const Tiny = require('../tiny/constructor')
 const parseOrder = require('./parsers/order-to-tiny/')
 const parseStatus = require('./parsers/order-to-tiny/status')
 const handleJob = require('./handle-job')
 
-module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreateNew) => {
+module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew) => {
   const orderId = queueEntry.nextId
-  return ecomClient.store({
-    storeId,
-    url: `/orders/${orderId}.json`
-  })
 
-    .then(({ data }) => {
-      const order = data
+  return appSdk.apiRequest(storeId, `/orders/${orderId}.json`, 'GET', null, auth)
+    .then(({ response }) => {
+      const order = response.data
       const tiny = new Tiny(tinyToken)
 
       const job = tiny.post('/pedidos.pesquisa.php', { numeroEcommerce: String(order.number) })

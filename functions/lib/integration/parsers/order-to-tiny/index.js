@@ -173,8 +173,5 @@ module.exports = (order, appData) => {
     tinyOrder.obs_internas = order.staff_notes.substring(0, 100)
   }
 
-  console.log(JSON.stringify(order))
-  console.log(JSON.stringify(tinyOrder))
-
   return tinyOrder
 }
