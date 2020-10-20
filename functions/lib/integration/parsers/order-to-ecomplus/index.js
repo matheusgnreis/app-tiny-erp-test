@@ -9,6 +9,7 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
 
   if (shippingLines && shippingLines.length) {
     const shippingLine = shippingLines[0]
+    console.log(JSON.stringify(shippingLine))
     if (
       tinyOrder.codigo_rastreamento &&
       (!shippingLine.tracking_codes || !shippingLine.tracking_codes.length)
@@ -16,11 +17,13 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
       const tracking = {
         code: tinyOrder.codigo_rastreamento
       }
+      console.log(JSON.stringify(tracking))
       if (tinyOrder.url_rastreamento) {
         tracking.link = tinyOrder.url_rastreamento
       }
       shippingLine.tracking_codes = [tracking]
     }
+    console.log(JSON.stringify(partialOrder))
 
     if (tinyOrder.id_nota_fiscal > 0) {
       console.log(2, JSON.stringify(partialOrder))
