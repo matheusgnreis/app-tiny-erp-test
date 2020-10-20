@@ -44,10 +44,14 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         url: '/items.json',
         data: dsl
       }).then(({ data }) => {
-        const { _id, _source } = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]
-        const product = { _id, ..._source }
-        if (product.variations && product.variations.length) {
-          return ecomClient.store({ url: `/products/${_id}.json` })
+        const hit = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]
+        let product
+        if (hit) {
+          const { _id, _source } = hit
+          product = { _id, ..._source }
+        }
+        if (product && product.variations && product.variations.length) {
+          return ecomClient.store({ url: `/products/${product._id}.json` })
             .then(({ data }) => {
               const variation = data.variations.find(variation => sku === variation.sku)
               if (variation) {
