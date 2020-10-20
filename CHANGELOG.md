@@ -2,6 +2,60 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.0.0 (2020-10-20)
+
+
+### Features
+
+* **auth-callback:** add application "self" data trigger ([814df87](https://github.com/ecomplus/application-starter/commit/814df87b23dd791e5884e220664025a07fc0afc8))
+* **ecom-config:** set app title, auth scope, admin settings and procedures ([91ddc6a](https://github.com/ecomplus/application-starter/commit/91ddc6ac79e5be1e96e6e9a29223ddf8226d4f0b))
+* **export-order:** parsing ecom financial/fulfillment status to tiny ([8647880](https://github.com/ecomplus/application-starter/commit/864788029e9ed7a5f27608970e3a09d7ab78b98a))
+* **export-orders:** handling order status update ([de014a4](https://github.com/ecomplus/application-starter/commit/de014a46ecd15604e41e29a1860b00f196ed4059))
+* **export-orders:** parsing and exporting new orders to tiny ([0d3e41c](https://github.com/ecomplus/application-starter/commit/0d3e41cceec6908a45eb0532a099b8202103d846))
+* **export-product:** handling product parse and export to tiny ([5bddae7](https://github.com/ecomplus/application-starter/commit/5bddae7bd06694acc815ebfc357ac7613306da7a))
+* **import-order:** handling import for order status, tracking and invoices ([0cd56b1](https://github.com/ecomplus/application-starter/commit/0cd56b1687463290e2f8cd07c134fc56434a93eb))
+* **import-product:** handling product importation or stock quantity updates ([39ca05c](https://github.com/ecomplus/application-starter/commit/39ca05cca0debfd62057efa7294f99276fa27087))
+* **sync-from-tiny:** active sync one product when stock queue is empty ([4f9b13f](https://github.com/ecomplus/application-starter/commit/4f9b13f1132972308be67217f37162773a9f8057))
+* **sync-from-tiny:** scheduled function to update status reading tiny queue ([2720abe](https://github.com/ecomplus/application-starter/commit/2720abe37591172d6dc106701873f0afcaac1115))
+* **tiny-client:** abstracting response data handling ([0945b2b](https://github.com/ecomplus/application-starter/commit/0945b2b05c415ac50e591afb0a40dde34a6cbd82))
+* **tiny-client:** constructor with axios request abstraction ([176a54f](https://github.com/ecomplus/application-starter/commit/176a54f8d43c9b2ea197af7a3b25185f50b81bcc))
+* **update-app-data:** lib abstraction to update app data on store api ([6501c76](https://github.com/ecomplus/application-starter/commit/6501c768609bb4556d71a1f976570b28530862f4))
+* **webhook:** setup webhook endpoint and integration handlers ([e72af52](https://github.com/ecomplus/application-starter/commit/e72af52c47ffe9eea83a17188f1cc355ba21b555))
+
+
+### Bug Fixes
+
+* **deps:** add @google-cloud/firestore to direct deps ([4eedd81](https://github.com/ecomplus/application-starter/commit/4eedd81af864faa0586c3a1a0ac51ead8f8c3658))
+* **deps:** add form-data to direct pkg dependencies ([51ed98f](https://github.com/ecomplus/application-starter/commit/51ed98f74873d5d90272d621ae9ba4d303406fb2))
+* **deps:** dedupe ([541f0ce](https://github.com/ecomplus/application-starter/commit/541f0ce56bb76be72d3b61b832c305ad8af56b3a))
+* **deps:** remove qs, add xml-js ([efbc084](https://github.com/ecomplus/application-starter/commit/efbc084d4ffa310df5733eaa723855df481c8bbc))
+* **ecom-config:** fix admin settings queues and procedure triggers for erp flux ([0f9aca0](https://github.com/ecomplus/application-starter/commit/0f9aca09ed38d345aa6ee9897b5bd4bb62ea178c))
+* **export:** fix setting up tiny request params ([4c82ed2](https://github.com/ecomplus/application-starter/commit/4c82ed2e0ce2b18f1f94506a7d046ec3e2a3d573))
+* **export-order:** fix passing app data to order parser ([cbac364](https://github.com/ecomplus/application-starter/commit/cbac364685f7499c93c88b694bc038ec8fd5f659))
+* **export-order:** fix rechecking order number match on tiny api response ([e8cf595](https://github.com/ecomplus/application-starter/commit/e8cf595ad4d922ed47b65ed3fb5c4708494ee2ef))
+* **export-order:** fix setting order id to update status ([6c7df14](https://github.com/ecomplus/application-starter/commit/6c7df1434de34013f7039cb9fd6ed2a9fb6452f3))
+* **export-order:** get order with authentication ([fee4cdd](https://github.com/ecomplus/application-starter/commit/fee4cdd602e1b944b8eabfdf9879af4abb9f65d6))
+* **export-order:** setting tiny order status ([5809ada](https://github.com/ecomplus/application-starter/commit/5809ada393ea1817f859a3760b7f47b869b093c1))
+* **export-product:** fix checking if product is already registered by sku (codigo) ([40d08cc](https://github.com/ecomplus/application-starter/commit/40d08ccbb901691a586960f57b40d6e4969a97d6))
+* **exports:** fix handling empty search request to tiny api ([7e1640e](https://github.com/ecomplus/application-starter/commit/7e1640ed128b596b15c547eac41cd3dd1bbac54c))
+* **exports:** fix handling search results from tiny api ([3286374](https://github.com/ecomplus/application-starter/commit/32863747a9221eaa351bf8ed60c72f016ec4ad0e))
+* **import-product:** fix handling tiny api search result ([240ac98](https://github.com/ecomplus/application-starter/commit/240ac9803b3b09dc7174d0d92fbe460b5e2dc530))
+* **import-product:** properly set product._id ([5abf9c0](https://github.com/ecomplus/application-starter/commit/5abf9c0c9a65d9724b65146864ccb3452f580bf3))
+* **import-products:** delete tiny stock updates tmp docs ([3b7855f](https://github.com/ecomplus/application-starter/commit/3b7855f14e4cae4dc81c54899384470a907737c3))
+* **import-products:** fix handling import variations ([9ee78a3](https://github.com/ecomplus/application-starter/commit/9ee78a317e5239fc49c1145e50113e9f8b976b18))
+* **import-products:** fix handling import variations ([06907ba](https://github.com/ecomplus/application-starter/commit/06907bacff4e5a63d7e3fa7369674e60656f0fc6))
+* **import-products:** fix handling import variations ([7a07da4](https://github.com/ecomplus/application-starter/commit/7a07da4c9dcdd157f0f69653ef1171726a5e9e9b))
+* **parse-order:** prevent substring from number or undefined ([70093cb](https://github.com/ecomplus/application-starter/commit/70093cbbefad53bf02edde2a769871bac2bd1a0a))
+* **parse-order:** stop using locale to parse date ([952ab67](https://github.com/ecomplus/application-starter/commit/952ab677696ab352fbd6561228861eb13549dc39))
+* **product-parse:** fix parsing ecomplus <-> tiny description ([cd6b5cd](https://github.com/ecomplus/application-starter/commit/cd6b5cd3235054fec5f986f3518d1b2d0120244f))
+* **sync-from-tiny:** fix handling search results from tiny api ([269bce4](https://github.com/ecomplus/application-starter/commit/269bce44b9058ab91f67df87d0c2766421c03ab7))
+* **sync-from-tiny:** fix mocking tiny stock list after active sync ([fbcfa77](https://github.com/ecomplus/application-starter/commit/fbcfa7713599ad6f792b618e82e60563f8f9c9bf))
+* **sync-from-tiny:** prevent destructing undefined on promise handler ([3dc01d6](https://github.com/ecomplus/application-starter/commit/3dc01d65d88aa6ff5e4955ddf940f7855eb50d26))
+* **tiny-client:** fix mocking axios error after tiny error response ([5ab6321](https://github.com/ecomplus/application-starter/commit/5ab6321ca37eb668843971918eed946c17dd90b7))
+* **tiny-client:** parse some error codes to http status code ([82d451b](https://github.com/ecomplus/application-starter/commit/82d451b17a050b7806bf061943d20ab0faf63cb1))
+* **tiny-client:** parse tiny error code to integer ([d8b4d03](https://github.com/ecomplus/application-starter/commit/d8b4d03bbe2928b158da1f9abe373ac8dd33ed57))
+* **tiny-client:** parsing data fields to xml ([661f221](https://github.com/ecomplus/application-starter/commit/661f22117f107d23fd3c4acc7527ff694b8fdb50))
+
 ## [1.0.0-starter.15](https://github.com/ecomplus/application-starter/compare/v1.0.0-starter.14...v1.0.0-starter.15) (2020-07-26)
 
 
