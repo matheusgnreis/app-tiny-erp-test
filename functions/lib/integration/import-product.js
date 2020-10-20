@@ -47,8 +47,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         const product = { _id, ..._source }
         if (product.variations && product.variations.length) {
           return ecomClient.store({ url: `/products/${_id}.json` })
-            .then(product => {
-              const variation = product.variations.find(variation => sku === variation.sku)
+            .then(({ data }) => {
+              const variation = data.variations.find(variation => sku === variation.sku)
               if (variation) {
                 return {
                   product,
