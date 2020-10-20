@@ -63,7 +63,10 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                         produto
                       })
                         .then(() => {
-                          skus.push(String(produto.codigo))
+                          const sku = String(produto.codigo)
+                          if (!skus.includes(sku)) {
+                            skus.push(sku)
+                          }
                           resolve()
                         })
                         .catch(console.error)
