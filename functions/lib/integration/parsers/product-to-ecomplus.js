@@ -63,6 +63,7 @@ const tryImageUpload = (storeId, auth, originImgUrl, product) => new Promise(res
 })
 
 module.exports = (tinyProduct, storeId, auth) => new Promise((resolve, reject) => {
+  console.log(JSON.stringify(tinyProduct))
   const sku = tinyProduct.codigo || String(tinyProduct.id)
   const name = (tinyProduct.nome || sku).trim()
   let slug = removeAccents(name.toLowerCase())
