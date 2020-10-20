@@ -68,18 +68,14 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                                 const tinyProduct = produtos
                                   .find(({ produto }) => product.sku === String(produto.codigo))
                                 if (tinyProduct) {
-                                  return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
+                                  return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.produto.id })
                                     .then(({ produto }) => ({ produtos: [{ produto }] }))
                                 }
                               }
                             })
                             .catch(err => {
                               if (!err.response || err.response.status !== 404) {
-                                if (typeof err.toJSON === 'function') {
-                                  console.error(JSON.stringify(err.toJSON()))
-                                } else {
-                                  console.error(err)
-                                }
+                                console.error(err)
                               }
                             })
                         }
