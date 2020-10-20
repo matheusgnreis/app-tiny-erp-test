@@ -32,9 +32,8 @@ module.exports = (product, originalTinyProduct, appData) => {
       ? String(product.min_quantity) : '999'
   }
 
-  const description = product.body_html || product.body_text || product.short_description
-  if (description) {
-    tinyProduct.descricao_complementar = description
+  if (product.short_description) {
+    tinyProduct.descricao_complementar = product.short_description
   }
   if (product.warranty) {
     tinyProduct.garantia = product.warranty.substring(0, 20)
