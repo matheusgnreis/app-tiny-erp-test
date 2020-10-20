@@ -21,6 +21,7 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
     }
 
     if (tinyOrder.id_nota_fiscal > 0) {
+      console.log(2, JSON.stringify(partialOrder))
       shippingLine.invoices = []
       return tiny.post('/nota.fiscal.obter.php', { id: tinyOrder.id_nota_fiscal })
         .then(tinyInvoice => {
@@ -31,6 +32,7 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
               serial_number: String(tinyInvoice.nota_fiscal.serie)
             })
           }
+          console.log(3)
           resolve(partialOrder)
         })
         .catch(reject)
