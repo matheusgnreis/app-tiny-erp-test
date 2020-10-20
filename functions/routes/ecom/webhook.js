@@ -128,7 +128,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                     const action = actions[i]
                     if (typeof integrationConfig[action] === 'object' && integrationConfig[action]) {
                       const queue = Object.keys(integrationConfig[action])[0]
-                      const handler = integrationHandlers[action][queue.startsWith('__') ? queue.slice(2) : queue]
+                      const isHiddenQueue = queue.startsWith('__')
+                      const handler = integrationHandlers[action][isHiddenQueue ? queue.slice(2) : queue]
                       const ids = integrationConfig[action][queue]
                       if (Array.isArray(ids) && handler) {
                         const nextId = ids[0]
@@ -148,7 +149,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                             { action, queue, nextId, key, documentRef },
                             appData,
                             canCreateNew,
-                            admin
+                            isHiddenQueue
                           ).then(() => ({ appData, action, queue }))
                         }
                       }

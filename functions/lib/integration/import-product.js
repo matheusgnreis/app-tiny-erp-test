@@ -1,12 +1,13 @@
+const { firestore } = require('firebase-admin')
 const ecomClient = require('@ecomplus/client')
 const Tiny = require('../tiny/constructor')
 const parseProduct = require('./parsers/product-to-ecomplus')
 const handleJob = require('./handle-job')
 
-module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, admin) => {
+module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, isHiddenQueue) => {
   const sku = String(queueEntry.nextId)
 
-  return admin.firestore().collection('tiny_stock_updates')
+  return firestore().collection('tiny_stock_updates')
     .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
     .limit(10)
     .get().then(querySnapshot => {
@@ -79,7 +80,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           const { product, variationId } = payload
           const tiny = new Tiny(tinyToken)
 
-          if (tinyStockUpdate && !product) {
+          if (tinyStockUpdate && !product && isHiddenQueue) {
             handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
             return
           }
@@ -109,7 +110,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           }
 
           let job
-          if (tinyStockUpdate) {
+          if (tinyStockUpdate && isHiddenQueue) {
             job = handleTinyStock(tinyStockUpdate)
           } else {
             job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
@@ -118,6 +119,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                   let tinyProduct = produtos.find(({ produto }) => sku === String(produto.codigo))
                   if (tinyProduct) {
                     tinyProduct = tinyProduct.produto
+                    if (tinyStockUpdate) {
+                      return handleTinyStock(tinyStockUpdate, tinyProduct)
+                    }
                     return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
                       .then(tinyStock => handleTinyStock(tinyStock, tinyProduct))
                   }

@@ -1,3 +1,4 @@
+const { firestore } = require('firebase-admin')
 const Tiny = require('../tiny/constructor')
 const parseOrder = require('./parsers/order-to-ecomplus/')
 const parseStatus = require('./parsers/order-to-ecomplus/status')
@@ -13,7 +14,7 @@ const getLastStatus = records => {
   return statusRecord && statusRecord.status
 }
 
-module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, admin) => {
+module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew) => {
   const tinyOrderNumber = queueEntry.nextId
   const tiny = new Tiny(tinyToken)
 
@@ -22,7 +23,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
       .then(({ pedido }) => {
         const { situacao } = pedido
 
-        const documentRef = admin.firestore().doc(`tiny_orders/${storeId}_${tinyOrderId}`)
+        const documentRef = firestore().doc(`tiny_orders/${storeId}_${tinyOrderId}`)
         return documentRef.get().then(documentSnapshot => {
           if (
             documentSnapshot.exists &&
@@ -83,7 +84,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 documentRef.set({
                   storeId,
                   situacao,
-                  updatedAt: admin.firestore.Timestamp.fromDate(new Date())
+                  updatedAt: firestore.Timestamp.fromDate(new Date())
                 })
               } catch (err) {
                 console.error(err)
