@@ -1,4 +1,3 @@
-const { firestore } = require('firebase-admin')
 const Tiny = require('../tiny/constructor')
 const parseOrder = require('./parsers/order-to-ecomplus/')
 const parseStatus = require('./parsers/order-to-ecomplus/status')
@@ -23,7 +22,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
       .then(({ pedido }) => {
         const { situacao } = pedido
 
-        const documentRef = firestore().doc(`tiny_orders/${storeId}_${tinyOrderId}`)
+        const documentRef = admin.firestore().doc(`tiny_orders/${storeId}_${tinyOrderId}`)
         return documentRef.get().then(documentSnapshot => {
           if (
             documentSnapshot.exists &&
@@ -32,7 +31,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             return null
           }
 
-          let listEndpoint = '/orders.json?fields=_id,payments_history,fulfillments,shipping_lines'
+          let listEndpoint = '/orders.json?limit=1&fields=_id,payments_history,fulfillments,shipping_lines'
           if (pedido.numero_ecommerce) {
             listEndpoint += `&number=${pedido.numero_ecommerce}`
           } else {
@@ -83,7 +82,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 documentRef.set({
                   storeId,
                   situacao,
-                  updatedAt: firestore.Timestamp.fromDate(new Date())
+                  updatedAt: admin.firestore.Timestamp.fromDate(new Date())
                 })
               } catch (err) {
                 console.error(err)
@@ -100,8 +99,13 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
   } else {
     job = tiny.post('/pedidos.pesquisa.php', { numero: tinyOrderNumber })
       .then(({ pedidos }) => {
-        const tinyOrder = pedidos.find(({ pedido }) => Number(tinyOrderNumber) === pedido.numero)
-        return getTinyOrder(tinyOrder.pedido.id)
+        console.log(JSON.stringify(pedidos))
+        const tinyOrder = pedidos.find(({ pedido }) => Number(tinyOrderNumber) === Number(pedido.numero))
+        if (tinyOrder) {
+          return getTinyOrder(tinyOrder.pedido.id)
+        } else {
+          return null
+        }
       })
   }
 
