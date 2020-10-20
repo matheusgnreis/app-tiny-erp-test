@@ -21,7 +21,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     return tiny.post('/pedido.obter.php', { id: Number(tinyOrderId) })
       .then(({ pedido }) => {
         const { situacao } = pedido
-        console.log({ situacao })
 
         const documentRef = admin.firestore().doc(`tiny_orders/${storeId}_${tinyOrderId}`)
         return documentRef.get().then(documentSnapshot => {
@@ -29,6 +28,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             documentSnapshot.exists &&
             documentSnapshot.get('situacao') === situacao
           ) {
+            console.log(`>> Ignoring Tiny order #${tinyOrderId} with same status`)
             return null
           }
 
@@ -38,7 +38,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           } else {
             listEndpoint += `hidden_metafields.value=${tinyOrderId}_tiny`
           }
-          console.log(listEndpoint)
           return appSdk.apiRequest(storeId, listEndpoint, 'GET', null, auth)
 
             .then(({ response }) => {
@@ -102,7 +101,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     job = tiny.post('/pedidos.pesquisa.php', { numero: tinyOrderNumber })
       .then(({ pedidos }) => {
         const tinyOrder = pedidos.find(({ pedido }) => Number(tinyOrderNumber) === Number(pedido.numero))
-        console.log(JSON.stringify(tinyOrder))
         if (tinyOrder) {
           return getTinyOrder(tinyOrder.pedido.id)
         } else {
