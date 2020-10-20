@@ -147,7 +147,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                             tinyToken,
                             { action, queue, nextId, key, documentRef },
                             appData,
-                            canCreateNew
+                            canCreateNew,
+                            admin
                           ).then(() => ({ appData, action, queue }))
                         }
                       }
