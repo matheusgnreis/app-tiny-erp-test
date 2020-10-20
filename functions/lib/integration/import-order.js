@@ -49,6 +49,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               const order = result[0]
 
               return parseOrder(pedido, order.shipping_lines, tiny).then(partialOrder => {
+                console.log(4, JSON.stringify(partialOrder))
                 const promises = []
                 if (partialOrder && Object.keys(partialOrder).length) {
                   promises.push(appSdk
