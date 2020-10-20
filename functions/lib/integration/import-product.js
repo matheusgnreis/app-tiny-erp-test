@@ -43,7 +43,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         url: '/items.json',
         data: dsl
       }).then(({ data }) => {
-        const product = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]._source
+        const { _id, _source } = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]
+        const product = { _id, ..._source }
         const hasVariations = Boolean(product.variations && product.variations.length)
         let variationId
         if (hasVariations) {
