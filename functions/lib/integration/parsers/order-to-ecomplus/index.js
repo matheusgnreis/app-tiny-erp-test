@@ -36,5 +36,8 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
     }
   }
 
+  console.log(JSON.stringify(tinyOrder))
+  console.log(JSON.stringify(partialOrder))
+
   resolve(partialOrder)
 })
