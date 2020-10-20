@@ -19,7 +19,7 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
       shippingLine.tracking_codes = [tracking]
     }
 
-    if (tinyOrder.id_nota_fiscal) {
+    if (tinyOrder.id_nota_fiscal > 0) {
       shippingLine.invoices = []
       return tiny.post('/nota.fiscal.obter.php', { id: tinyOrder.id_nota_fiscal })
         .then(tinyInvoice => {
