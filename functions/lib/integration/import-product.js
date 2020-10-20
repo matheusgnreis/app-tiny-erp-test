@@ -86,6 +86,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           }
 
           const handleTinyStock = ({ produto }, tinyProduct) => {
+            console.log(JSON.stringify(product))
             const quantity = Number(produto.saldo)
             if (product) {
               if (!isNaN(quantity)) {
@@ -102,7 +103,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
             return tiny.post('/produto.obter.php', { id: tinyProduct.id })
               .then(({ produto }) => {
+                console.log(JSON.stringify(produto))
                 return parseProduct(produto, storeId, auth).then(product => {
+                  console.log(JSON.stringify(product))
                   product.quantity = quantity
                   return appSdk.apiRequest(storeId, '/products.json', 'POST', product, auth)
                 })
