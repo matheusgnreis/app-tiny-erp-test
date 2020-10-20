@@ -1,4 +1,5 @@
 const { firestore } = require('firebase-admin')
+const ecomClient = require('@ecomplus/client')
 const { setup } = require('@ecomplus/application-sdk')
 const getAppData = require('../store-api/get-app-data')
 const updateAppData = require('../store-api/update-app-data')
@@ -39,13 +40,60 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
           tiny.post('/lista.atualizacoes.estoque', { dataAlteracao: formatDate(starDate) })
             .catch(err => {
               if (err.response && err.response.status === 404) {
+                return ecomClient.store({
+                  url: '/products.json'
+                })
+
+                  .then(({ data }) => {
+                    const { result } = data
+                    if (result && result.length) {
+                      const documentRef = firestore().doc(`last_active_sync_product/${storeId}`)
+                      return documentRef.get().then(documentSnapshot => {
+                        const sortedProducts = result
+                          .filter(({ sku }) => sku)
+                          .sort((a, b) => a._id < b._id ? -1 : 1)
+                        let product
+                        if (documentSnapshot.exists) {
+                          product = sortedProducts.find(({ _id }) => _id > documentSnapshot.get('_id')) ||
+                            sortedProducts[0]
+                        } else {
+                          product = sortedProducts[0]
+                        }
+
+                        if (product) {
+                          documentRef.set(product).catch(console.error)
+                          return tiny.post('/produtos.pesquisa.php', { pesquisa: product.sku })
+                            .then(({ produtos }) => {
+                              if (Array.isArray(produtos)) {
+                                const tinyProduct = produtos
+                                  .find(({ produto }) => product.sku === String(produto.codigo))
+                                if (tinyProduct) {
+                                  return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
+                                    .then(({ produto }) => ({ produtos: { produto } }))
+                                }
+                              }
+                            })
+                            .catch(err => {
+                              if (!err.response || err.response.status !== 404) {
+                                console.error(err)
+                              }
+                            })
+                        }
+                      })
+                    }
+                  })
               }
+
               console.error(err)
+              return {}
             })
 
             .then(({ produtos }) => {
               if (produtos && produtos.length) {
-                const skus = []
+                let skus = appData.importation && appData.importation.__skus
+                if (!Array.isArray(skus)) {
+                  skus = []
+                }
                 const promises = []
                 produtos.forEach(({ produto }) => {
                   if (produto.codigo) {
@@ -63,14 +111,18 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                   }
                 })
 
-                return Promise.all(promises).then(() => {
-                  console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
-                  return updateAppData({ appSdk, storeId }, {
-                    importation: {
-                      __skus: skus
-                    }
+                if (promises.length) {
+                  return Promise.all(promises).then(() => {
+                    console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
+                    return updateAppData({ appSdk, storeId }, {
+                      importation: {
+                        __skus: skus
+                      }
+                    })
                   })
-                })
+                } else {
+                  return Promise.resolve()
+                }
               }
             })
 
