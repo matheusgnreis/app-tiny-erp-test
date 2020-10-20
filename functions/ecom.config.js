@@ -231,7 +231,7 @@ const app = {
             type: 'array',
             items: {
               type: 'string',
-              title: 'ID do pedido no Tiny',
+              title: 'Número do pedido no Tiny',
               description: 'Número único do pedido de venda no Tiny'
             }
           }
