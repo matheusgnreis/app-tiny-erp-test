@@ -128,3 +128,9 @@ server.use(express.static('public'))
 
 exports[functionName] = functions.https.onRequest(server)
 console.log(`-- Starting '${app.title}' E-Com Plus app with Function '${functionName}'`)
+
+// schedule sync from Tiny API to local Firestore and Store API
+const syncFromTiny = require('./lib/integration/sync-from-tiny')
+const cron = 'every 3 mins'
+exports.scheduledSync = functions.pubsub.schedule(cron).onRun(syncFromTiny)
+console.log(`-- Sheduled active sync from Tiny API '${cron}'`)
