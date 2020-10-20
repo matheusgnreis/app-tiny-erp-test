@@ -155,7 +155,7 @@ module.exports = (tinyProduct, storeId, auth) => new Promise((resolve, reject) =
             name: `${name} / ${specTexts.join(' / ')}`.substring(0, 100),
             sku: codigo,
             specifications,
-            price: preco
+            price: parseFloat(preco || 0)
           })
         }
       }
