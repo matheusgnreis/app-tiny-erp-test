@@ -51,7 +51,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           if (variation) {
             variationId = variation._id
           } else {
-            const msg = `${sku} corresponse a um produto com variações, especifique o SKU da variação para importar.`
+            const msg = `${sku} corresponde a um produto com variações, especifique o SKU da variação para importar.`
             const err = new Error(msg)
             err.isConfigError = true
             handleJob({ appSdk, storeId }, queueEntry, Promise.reject(err))
@@ -95,8 +95,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
             .then(({ produtos }) => {
               if (Array.isArray(produtos)) {
-                const tinyProduct = produtos.find(({ produto }) => sku === String(produto.codigo))
+                let tinyProduct = produtos.find(({ produto }) => sku === String(produto.codigo))
                 if (tinyProduct) {
+                  tinyProduct = tinyProduct.produto
                   return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
                     .then(tinyStock => handleTinyStock(tinyStock, tinyProduct))
                 }
