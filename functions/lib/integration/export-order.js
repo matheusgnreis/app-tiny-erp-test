@@ -44,7 +44,7 @@ module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreate
           const tinyStatus = parseStatus(order)
           if (tinyStatus) {
             return tiny.post('/pedido.alterar.situacao', {
-              id: tinyOrder.id,
+              id: originalTinyOrder.id,
               situacao: tinyStatus
             })
           }
