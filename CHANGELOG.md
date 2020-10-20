@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/ecomplus/application-starter/compare/v1.0.0...v1.0.1) (2020-10-20)
+
+
+### Bug Fixes
+
+* **auth-scope:** request auth to PATCH orders and products ([b0bee9b](https://github.com/ecomplus/application-starter/commit/b0bee9b3b35f7664c5f63d217fcd46b7c7444dac))
+* **export-product:** pass only 'short_description' to tiny product ([dbe8798](https://github.com/ecomplus/application-starter/commit/dbe879833317b836ca32e3a452e1c616fa01913d))
+* **import-order:** catch invoice read request errror ([64b9024](https://github.com/ecomplus/application-starter/commit/64b90241cb65c3eae6e2d9a089eeea3bbae7f87e))
+* **import-order:** must set partial order 'shipping_lines' when object changes ([9583040](https://github.com/ecomplus/application-starter/commit/958304032c71d0e4c9a07724cd1f6428c7a88f98))
+* **import-order:** passing tiny instance to order parser (read invoice) ([b6d7521](https://github.com/ecomplus/application-starter/commit/b6d75214126ec1aeef4c07977b037b58394be9f5))
+* **import-order:** skip getting invoice if id not gt 0 ([3308bba](https://github.com/ecomplus/application-starter/commit/3308bbaa74c3a73097c19f090dd1d1b632fb3f83))
+* **import-orders:** fix integration handler return ([825e82e](https://github.com/ecomplus/application-starter/commit/825e82e6111f8822914ea83905905b67a32846c2))
+* **import-product:** check hidden queue to skip new product import ([44b71fa](https://github.com/ecomplus/application-starter/commit/44b71fa9928ea737cb9dbd1aa1702ab5ac7e51eb))
+* **import-product:** fix parsing tiny product variations ([5aafcce](https://github.com/ecomplus/application-starter/commit/5aafcce6f959f4837b59d50c340ce616db964785))
+* **import-product:** fix setting variation price (parse float) ([105ac12](https://github.com/ecomplus/application-starter/commit/105ac12f22ba15f79a937dd019f2266a51be2c52))
+* **import-product:** prevent erro with SKU not found ([ad52175](https://github.com/ecomplus/application-starter/commit/ad521750166905ee87a881a9210f4381415803b1))
+* **import-product:** validate gtin from tiny product source ([de432fe](https://github.com/ecomplus/application-starter/commit/de432fee1d891329539aa0487ac2239d482ab7fb))
+* **import-products:** continue with !payload.product (new product) ([177fe73](https://github.com/ecomplus/application-starter/commit/177fe738a2b09268841af16d62b0cabfe86fdd2c))
+* **import-products:** select up to 10 stock update docs to delete old ones ([7db8703](https://github.com/ecomplus/application-starter/commit/7db87037ca11a0397e068f3c3ae2a37dfc65f990))
+
 ## 1.0.0 (2020-10-20)
 
 
