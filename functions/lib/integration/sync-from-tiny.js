@@ -69,7 +69,7 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                                   .find(({ produto }) => product.sku === String(produto.codigo))
                                 if (tinyProduct) {
                                   return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
-                                    .then(({ produto }) => ({ produtos: { produto } }))
+                                    .then(({ produto }) => ({ produtos: [{ produto }] }))
                                 }
                               }
                             })
