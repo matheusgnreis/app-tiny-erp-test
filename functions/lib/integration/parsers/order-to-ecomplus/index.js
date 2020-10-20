@@ -5,6 +5,8 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
     partialOrder.staff_notes = tinyOrder.obs_interna
   }
 
+  console.log(JSON.stringify(shippingLines))
+
   if (shippingLines && shippingLines.length) {
     const shippingLine = shippingLines[0]
     if (
