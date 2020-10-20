@@ -46,7 +46,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               }
               const order = result[0]
 
-              return parseOrder(pedido, order.shipping_lines).then(partialOrder => {
+              return parseOrder(pedido, order.shipping_lines, tiny).then(partialOrder => {
                 const promises = []
                 if (partialOrder && Object.keys(partialOrder).length) {
                   promises.push(appSdk
@@ -99,7 +99,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
   } else {
     job = tiny.post('/pedidos.pesquisa.php', { numero: tinyOrderNumber })
       .then(({ pedidos }) => {
-        console.log(JSON.stringify(pedidos))
         const tinyOrder = pedidos.find(({ pedido }) => Number(tinyOrderNumber) === Number(pedido.numero))
         if (tinyOrder) {
           return getTinyOrder(tinyOrder.pedido.id)
