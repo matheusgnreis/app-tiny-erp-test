@@ -24,7 +24,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           let originalTinyOrder
           if (Array.isArray(pedidos)) {
             originalTinyOrder = pedidos.find(({ pedido }) => order.number === Number(pedido.numero_ecommerce))
-            if (!originalTinyOrder && !canCreateNew) {
+            if (originalTinyOrder) {
+              originalTinyOrder = originalTinyOrder.pedido
+            } else if (!canCreateNew) {
               return null
             }
           }

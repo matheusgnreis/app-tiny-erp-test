@@ -27,7 +27,9 @@ module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreate
           let originalTinyProduct
           if (Array.isArray(produtos)) {
             originalTinyProduct = produtos.find(({ produto }) => product.sku === String(produto.codigo))
-            if (!originalTinyProduct && !canCreateNew) {
+            if (originalTinyProduct) {
+              originalTinyProduct = originalTinyProduct.produto
+            } else if (!canCreateNew) {
               return null
             }
           }
