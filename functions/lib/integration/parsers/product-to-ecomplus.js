@@ -63,7 +63,6 @@ const tryImageUpload = (storeId, auth, originImgUrl, product) => new Promise(res
 })
 
 module.exports = (tinyProduct, storeId, auth) => new Promise((resolve, reject) => {
-  console.log(JSON.stringify(tinyProduct))
   const sku = tinyProduct.codigo || String(tinyProduct.id)
   const name = (tinyProduct.nome || sku).trim()
   let slug = removeAccents(name.toLowerCase())
@@ -92,9 +91,10 @@ module.exports = (tinyProduct, storeId, auth) => new Promise((resolve, reject) =
   if (tinyProduct.ncm) {
     product.mpn = [tinyProduct.ncm]
   }
-  if (tinyProduct.gtin) {
+  const validateGtin = gtin => typeof gtin === 'string' && /^([0-9]{8}|[0-9]{12,14})$/.test(gtin)
+  if (validateGtin(tinyProduct.gtin)) {
     product.gtin = [tinyProduct.gtin]
-    if (tinyProduct.gtin_embalagem) {
+    if (validateGtin(tinyProduct.gtin_embalagem)) {
       product.gtin.push(tinyProduct.gtin_embalagem)
     }
   }
