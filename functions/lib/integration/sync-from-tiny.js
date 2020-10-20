@@ -88,7 +88,11 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
               return {}
             })
 
-            .then(({ produtos }) => {
+            .then(payload => {
+              if (!payload) {
+                return
+              }
+              const { produtos } = payload
               if (produtos && produtos.length) {
                 let skus = appData.importation && appData.importation.__skus
                 if (!Array.isArray(skus)) {
