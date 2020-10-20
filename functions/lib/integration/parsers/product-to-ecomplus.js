@@ -126,7 +126,8 @@ module.exports = (tinyProduct, storeId, auth) => new Promise((resolve, reject) =
 
   if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
     product.variations = []
-    tinyProduct.variacoes.forEach(({ codigo, preco, grade }) => {
+    tinyProduct.variacoes.forEach(({ variacao }) => {
+      const { codigo, preco, grade } = variacao
       if (grade) {
         const specifications = {}
         const specTexts = []
