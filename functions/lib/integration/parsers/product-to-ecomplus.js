@@ -80,8 +80,8 @@ module.exports = (tinyProduct, storeId, auth) => new Promise((resolve, reject) =
     cost_price: tinyProduct.preco_custo,
     price: tinyProduct.preco_promocional || tinyProduct.preco,
     base_price: tinyProduct.preco,
-    short_description: tinyProduct.descricao_complementar,
-    warranty: tinyProduct.garantia
+    warranty: tinyProduct.garantia,
+    body_html: tinyProduct.descricao_complementar
   }
 
   if (tinyProduct.unidade_por_caixa) {
