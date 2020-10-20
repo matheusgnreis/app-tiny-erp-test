@@ -22,6 +22,7 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
         tracking.link = tinyOrder.url_rastreamento
       }
       shippingLine.tracking_codes = [tracking]
+      console.log(JSON.stringify(shippingLine))
     }
     console.log(JSON.stringify(partialOrder))
 
