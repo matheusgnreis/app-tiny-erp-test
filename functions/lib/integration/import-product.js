@@ -13,6 +13,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
       let tinyStockUpdate
       querySnapshot.forEach(documentSnapshot => {
         tinyStockUpdate = documentSnapshot.data()
+        documentSnapshot.ref.delete().catch(console.error)
       })
       return tinyStockUpdate
     })
@@ -72,7 +73,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             return payload
           }
           const { product, variationId } = payload
-          console.log(payload)
           const tiny = new Tiny(tinyToken)
 
           if (tinyStockUpdate && !product) {
