@@ -75,7 +75,9 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                             })
                             .catch(err => {
                               if (!err.response || err.response.status !== 404) {
-                                console.error(JSON.stringify(err))
+                                const err = new Error('Unexpected response from Tiny API')
+                                err.data = err.response && JSON.stringify(err.response.data)
+                                console.error(err)
                               }
                             })
                         }
