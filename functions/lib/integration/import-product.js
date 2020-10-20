@@ -72,6 +72,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             return payload
           }
           const { product, variationId } = payload
+          console.log(payload)
           const tiny = new Tiny(tinyToken)
 
           if (tinyStockUpdate && !product) {
@@ -88,6 +89,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                   endpoint += `/variations/${variationId}`
                 }
                 endpoint += '/quantity.json'
+                console.log(endpoint, { quantity })
                 return appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth)
               }
               return null
