@@ -1,5 +1,6 @@
 const ecomUtils = require('@ecomplus/utils')
 const parseStatus = require('./status')
+const formatDate = require('../../helpers/format-tiny-date')
 
 module.exports = (order, appData) => {
   const orderRef = String(order.number) || order._id
@@ -7,7 +8,7 @@ module.exports = (order, appData) => {
   const tinyOrder = {
     ...appData.tiny_order_data,
     numero_pedido_ecommerce: orderRef,
-    data_pedido: new Date(order.opened_at || order.created_at).toLocaleDateString('pt-BR'),
+    data_pedido: formatDate(new Date(order.opened_at || order.created_at)),
     ecommerce: 'E-Com Plus',
     situacao: parseStatus(order),
     itens: []
@@ -171,6 +172,8 @@ module.exports = (order, appData) => {
   if (order.staff_notes) {
     tinyOrder.obs_internas = order.staff_notes.substring(0, 100)
   }
+
+  console.log(tinyOrder)
 
   return tinyOrder
 }
