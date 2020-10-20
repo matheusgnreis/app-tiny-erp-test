@@ -67,11 +67,14 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
           let notes
           if (!isError) {
             if (payload) {
-              const { data, status } = payload
+              const { data, status, config } = payload
               if (data && data._id) {
                 logEntry.resource_id = data._id
               }
               notes = `Status ${status}`
+              if (config) {
+                notes += ` [${config.url}]`
+              }
             }
           } else {
             const { config, response } = payload
