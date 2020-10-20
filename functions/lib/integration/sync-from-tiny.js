@@ -75,7 +75,7 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                             })
                             .catch(err => {
                               if (!err.response || err.response.status !== 404) {
-                                console.error(err)
+                                console.error(JSON.stringify(err))
                               }
                             })
                         }
