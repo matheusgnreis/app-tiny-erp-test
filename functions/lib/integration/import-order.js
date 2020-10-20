@@ -21,6 +21,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     return tiny.post('/pedido.obter.php', { id: Number(tinyOrderId) })
       .then(({ pedido }) => {
         const { situacao } = pedido
+        console.log({ situacao })
 
         const documentRef = admin.firestore().doc(`tiny_orders/${storeId}_${tinyOrderId}`)
         return documentRef.get().then(documentSnapshot => {
@@ -101,6 +102,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     job = tiny.post('/pedidos.pesquisa.php', { numero: tinyOrderNumber })
       .then(({ pedidos }) => {
         const tinyOrder = pedidos.find(({ pedido }) => Number(tinyOrderNumber) === Number(pedido.numero))
+        console.log(JSON.stringify(tinyOrder))
         if (tinyOrder) {
           return getTinyOrder(tinyOrder.pedido.id)
         } else {
