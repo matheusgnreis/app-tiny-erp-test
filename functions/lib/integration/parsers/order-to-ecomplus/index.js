@@ -1,4 +1,4 @@
-module.exports = (tinyOrder, shippingLines, tiny) => new Promise(resolve => {
+module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, reject) => {
   const partialOrder = {}
   if (tinyOrder.obs_interna) {
     partialOrder.staff_notes = tinyOrder.obs_interna
@@ -32,6 +32,7 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise(resolve => {
           }
           resolve(partialOrder)
         })
+        .catch(reject)
     }
   }
 
