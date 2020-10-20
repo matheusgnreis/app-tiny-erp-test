@@ -8,7 +8,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
   return admin.firestore().collection('tiny_stock_updates')
     .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
-    .limit(1)
+    .limit(10)
     .get().then(querySnapshot => {
       let tinyStockUpdate
       querySnapshot.forEach(documentSnapshot => {
