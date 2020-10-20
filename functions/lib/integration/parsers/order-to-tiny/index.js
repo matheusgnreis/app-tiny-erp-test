@@ -30,7 +30,9 @@ module.exports = (order, appData) => {
       ['city', 'cidade', 30],
       ['province_code', 'uf', 30]
     ].forEach(([addressField, tinyField, maxLength]) => {
-      tinyObject[tinyField] = address[addressField].substring(0, maxLength)
+      if (address[addressField]) {
+        tinyObject[tinyField] = String(address[addressField]).substring(0, maxLength)
+      }
     })
   }
 
