@@ -23,6 +23,7 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
       }
       shippingLine.tracking_codes = [tracking]
       console.log(JSON.stringify(shippingLine))
+      partialOrder.shipping_lines = shippingLines
     }
     console.log(JSON.stringify(partialOrder))
 
@@ -39,6 +40,7 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
             })
           }
           console.log(3)
+          partialOrder.shipping_lines = shippingLines
           resolve(partialOrder)
         })
         .catch(reject)
