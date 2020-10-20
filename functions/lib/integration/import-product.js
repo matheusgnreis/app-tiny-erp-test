@@ -1,13 +1,12 @@
-const { firestore } = require('firebase-admin')
 const ecomClient = require('@ecomplus/client')
 const Tiny = require('../tiny/constructor')
 const parseProduct = require('./parsers/product-to-ecomplus')
 const handleJob = require('./handle-job')
 
-module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew) => {
+module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, admin) => {
   const sku = String(queueEntry.nextId)
 
-  return firestore().collection('tiny_stock_updates')
+  return admin.firestore().collection('tiny_stock_updates')
     .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
     .limit(1)
     .get().then(querySnapshot => {
