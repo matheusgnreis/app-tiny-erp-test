@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/ecomplus/application-starter/compare/v1.1.0...v1.1.1) (2020-10-21)
+
+
+### Bug Fixes
+
+* **export-order:** validate custom fields from tiny order data object ([f77df14](https://github.com/ecomplus/application-starter/commit/f77df1466413d8da36ffbdffbac1c3532da7db58))
+
 ## [1.1.0](https://github.com/ecomplus/application-starter/compare/v1.0.1...v1.1.0) (2020-10-21)
 
 
