@@ -175,7 +175,24 @@ module.exports = (order, appData) => {
   }
 
   if (appData.tiny_order_data) {
-    Object.assign(tinyOrder, appData.tiny_order_data)
+    for (const field in appData.tiny_order_data) {
+      let value = appData.tiny_order_data[field]
+      switch (value) {
+        case undefined:
+        case '':
+        case null:
+          break
+        default:
+          if (typeof value === 'string') {
+            value = value.trim()
+            if (value) {
+              tinyOrder[field] = value
+            }
+          } else {
+            tinyOrder[field] = value
+          }
+      }
+    }
   }
 
   return tinyOrder
