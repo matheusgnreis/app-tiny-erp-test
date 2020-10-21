@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.2](https://github.com/ecomplus/application-starter/compare/v1.1.1...v1.1.2) (2020-10-21)
+
+
+### Bug Fixes
+
+* **import-product:** read variations from full tiny product (not from search result) ([969f3b9](https://github.com/ecomplus/application-starter/commit/969f3b9bb6ceb906b3d592aa807fad69498fc056))
+
 ### [1.1.1](https://github.com/ecomplus/application-starter/compare/v1.1.0...v1.1.1) (2020-10-21)
 
 
