@@ -108,7 +108,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                   product.quantity = quantity
                   const promise = appSdk.apiRequest(storeId, '/products.json', 'POST', product, auth)
 
-                  if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
+                  if (Array.isArray(produto.variacoes) && produto.variacoes.length) {
                     promise.then(() => {
                       return getAppData({ appSdk, storeId, auth })
                         .then(appData => {
@@ -117,7 +117,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                             skus = []
                           }
                           let isQueuedVariations = false
-                          tinyProduct.variacoes.forEach(({ variacao }) => {
+                          produto.variacoes.forEach(({ variacao }) => {
                             const { codigo } = variacao
                             if (!skus.includes(codigo)) {
                               isQueuedVariations = true
