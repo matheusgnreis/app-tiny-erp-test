@@ -1,5 +1,7 @@
 const { firestore } = require('firebase-admin')
 const ecomClient = require('@ecomplus/client')
+const getAppData = require('../store-api/get-app-data')
+const updateAppData = require('../store-api/update-app-data')
 const Tiny = require('../tiny/constructor')
 const parseProduct = require('./parsers/product-to-ecomplus')
 const handleJob = require('./handle-job')
@@ -104,7 +106,36 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               .then(({ produto }) => {
                 return parseProduct(produto, storeId, auth).then(product => {
                   product.quantity = quantity
-                  return appSdk.apiRequest(storeId, '/products.json', 'POST', product, auth)
+                  const promise = appSdk.apiRequest(storeId, '/products.json', 'POST', product, auth)
+
+                  if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
+                    promise.then(() => {
+                      return getAppData({ appSdk, storeId, auth })
+                        .then(appData => {
+                          let skus = appData.importation && appData.importation.__Skus
+                          if (!Array.isArray(skus)) {
+                            skus = []
+                          }
+                          let isQueuedVariations = false
+                          tinyProduct.variacoes.forEach(({ variacao }) => {
+                            const { codigo } = variacao
+                            if (!skus.includes(codigo)) {
+                              isQueuedVariations = true
+                              skus.push(codigo)
+                            }
+                          })
+                          return isQueuedVariations
+                            ? updateAppData({ appSdk, storeId, auth }, {
+                              importation: {
+                                __Skus: skus
+                              }
+                            })
+                            : true
+                        })
+                    }).catch(console.error)
+                  }
+
+                  return promise
                 })
               })
           }
