@@ -129,8 +129,10 @@ exports.post = ({ appSdk, admin }, req, res) => {
                     if (typeof integrationConfig[action] === 'object' && integrationConfig[action]) {
                       const queue = Object.keys(integrationConfig[action])[0]
                       const isHiddenQueue = queue.startsWith('__')
-                      const handler = integrationHandlers[action][isHiddenQueue ? queue.slice(2) : queue]
+                      const handlerName = isHiddenQueue ? queue.slice(2).toLowerCase() : queue
+                      const handler = integrationHandlers[action][handlerName]
                       const ids = integrationConfig[action][queue]
+
                       if (Array.isArray(ids) && handler) {
                         const nextId = ids[0]
                         const key = `${action}/${queue}/${nextId}`
