@@ -242,7 +242,7 @@ const app = {
     tiny_order_data: {
       schema: {
         title: 'Configuração para novos pedidos no Tiny',
-        description: 'IDs pré-definidos para pedidos exportados da plataforma para o Tiny',
+        description: 'Predefinições para pedidos exportados da plataforma para o Tiny',
         type: 'object',
         properties: {
           id_ecommerce: {
@@ -250,6 +250,37 @@ const app = {
             minimum: 1,
             maximum: 999999,
             title: 'ID do e-commerce cadastrado no Tiny'
+          },
+          id_vendedor: {
+            type: 'integer',
+            minimum: 1,
+            maximum: 999999,
+            title: 'ID do vendedor cadastrado no Tiny'
+          },
+          nome_vendedor: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Nome do vendedor'
+          },
+          valor_frete: {
+            type: 'number',
+            minimum: 0,
+            maximum: 999999,
+            title: 'Fixar valor do frete',
+            description: 'Por padrão será enviado o frete original de cada pedido'
+          },
+          frete_por_conta: {
+            type: 'string',
+            enum: ['R', 'D'],
+            title: 'Frete por conta',
+            description: '"R"-Remetente, "D"-Destinatário'
+          },
+          valor_desconto: {
+            type: 'number',
+            minimum: 0,
+            maximum: 999999,
+            title: 'Fixar valor do desconto',
+            description: 'Por padrão será enviado o desconto original de cada pedido'
           }
         }
       },

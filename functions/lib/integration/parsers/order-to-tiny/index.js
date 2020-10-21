@@ -6,7 +6,6 @@ module.exports = (order, appData) => {
   const orderRef = String(order.number) || order._id
 
   const tinyOrder = {
-    ...appData.tiny_order_data,
     numero_pedido_ecommerce: orderRef,
     data_pedido: formatDate(new Date(order.opened_at || order.created_at)),
     ecommerce: 'E-Com Plus',
@@ -173,6 +172,10 @@ module.exports = (order, appData) => {
   }
   if (order.staff_notes) {
     tinyOrder.obs_internas = order.staff_notes.substring(0, 100)
+  }
+
+  if (appData.tiny_order_data) {
+    Object.assign(tinyOrder, appData.tiny_order_data)
   }
 
   return tinyOrder
