@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/ecomplus/application-starter/compare/v1.0.1...v1.1.0) (2020-10-21)
+
+
+### Features
+
+* **admin-settings:** mock some more tiny order config options ([758ba35](https://github.com/ecomplus/application-starter/commit/758ba35d5bbeddec81e33d77a489888e69e78fc9))
+
+
+### Bug Fixes
+
+* **import-product:** queue variation stock update after new product (with variations) import ([08c10be](https://github.com/ecomplus/application-starter/commit/08c10beb93f5df612a737318f36711536cb37838))
+* **webhook:** parse queue name to lower case to check on handlers ([682ddc8](https://github.com/ecomplus/application-starter/commit/682ddc85b66b03b32ead237b6a5a1200032678db))
+
 ### [1.0.1](https://github.com/ecomplus/application-starter/compare/v1.0.0...v1.0.1) (2020-10-20)
 
 
