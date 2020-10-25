@@ -2,7 +2,7 @@ const ecomUtils = require('@ecomplus/utils')
 const parseStatus = require('./status')
 const formatDate = require('../../helpers/format-tiny-date')
 
-module.exports = (order, appData) => {
+module.exports = (order, appData, storeId) => {
   const orderRef = String(order.number) || order._id
 
   const tinyOrder = {
@@ -126,26 +126,33 @@ module.exports = (order, appData) => {
   }
   if (shippingLine) {
     tinyOrder.forma_envio = 'X'
-    if (shippingLine.app && shippingLine.app.carrier) {
+    if (shippingLine.app) {
       const { carrier } = shippingLine.app
-      if (/correios/i.test(carrier)) {
-        tinyOrder.forma_envio = 'C'
-      } else if (/b2w/i.test(carrier)) {
-        tinyOrder.forma_envio = 'B'
-      } else if (/mercado envios/i.test(carrier)) {
-        tinyOrder.forma_envio = 'M'
+      if (carrier === 'Loggi' && storeId === 1166) {
+        // mocked exception (https://github.com/ecomplus/app-tiny-erp/issues/5)
+        // keeps forma_envio `X`
       } else {
-        tinyOrder.forma_envio = 'T'
+        if (carrier) {
+          if (/correios/i.test(carrier)) {
+            tinyOrder.forma_envio = 'C'
+          } else if (/b2w/i.test(carrier)) {
+            tinyOrder.forma_envio = 'B'
+          } else if (/mercado envios/i.test(carrier)) {
+            tinyOrder.forma_envio = 'M'
+          } else {
+            tinyOrder.forma_envio = 'T'
+          }
+        }
+        if (
+          (!tinyOrder.forma_envio || tinyOrder.forma_envio === 'X' || tinyOrder.forma_envio === 'T') &&
+          shippingLine.app.service_name && /(pac|sedex)/i.test(shippingLine.app.service_name)
+        ) {
+          tinyOrder.forma_envio = 'C'
+        }
       }
-    }
-    if (
-      (!tinyOrder.forma_envio || tinyOrder.forma_envio === 'X' || tinyOrder.forma_envio === 'T') &&
-      shippingLine.app && shippingLine.app.service_name && /(pac|sedex)/i.test(shippingLine.app.service_name)
-    ) {
-      tinyOrder.forma_envio = 'C'
-    }
-    if (!tinyOrder.forma_frete && shippingLine.app && shippingLine.app.label) {
-      tinyOrder.forma_frete = shippingLine.app.label
+      if (!tinyOrder.forma_frete && shippingLine.app.label) {
+        tinyOrder.forma_frete = shippingLine.app.label
+      }
     }
   } else {
     tinyOrder.forma_envio = 'S'
