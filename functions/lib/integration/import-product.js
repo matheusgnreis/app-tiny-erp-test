@@ -71,14 +71,18 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         })
 
           .then(product => {
-            if (product && product.variations && product.variations.length) {
+            const hasVariations = product && product.variations && product.variations.length
+            if (hasVariations) {
               const variation = product.variations.find(variation => sku === variation.sku)
               if (variation) {
                 return {
                   product,
-                  variationId: variation._id
+                  variationId: variation._id,
+                  hasVariations
                 }
-              } else {
+              } else if (isHiddenQueue) {
+                return null
+              } else if (!appData.update_product) {
                 const msg = sku +
                   ' corresponde a um produto com variações, especifique o SKU da variação para importar.'
                 const err = new Error(msg)
@@ -87,14 +91,14 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 return null
               }
             }
-            return { product }
+            return { product, hasVariations }
           })
 
           .then(payload => {
             if (!payload) {
               return payload
             }
-            const { product, variationId } = payload
+            const { product, variationId, hasVariations } = payload
             const tiny = new Tiny(tinyToken)
 
             if (tinyStockUpdate && !product && isHiddenQueue) {
@@ -128,7 +132,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     endpoint = '/products.json'
                   }
                   return parseProduct(produto, storeId, auth, method === 'POST').then(product => {
-                    product.quantity = quantity
+                    if (!isNaN(quantity)) {
+                      product.quantity = quantity
+                    }
                     const promise = appSdk.apiRequest(storeId, endpoint, method, product, auth)
 
                     if (Array.isArray(produto.variacoes) && produto.variacoes.length) {
@@ -177,11 +183,15 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     let tinyProduct = produtos.find(({ produto }) => sku === String(produto.codigo))
                     if (tinyProduct) {
                       tinyProduct = tinyProduct.produto
-                      if (tinyStockUpdate) {
-                        return handleTinyStock(tinyStockUpdate, tinyProduct)
+                      if (!hasVariations || variationId) {
+                        if (tinyStockUpdate) {
+                          return handleTinyStock(tinyStockUpdate, tinyProduct)
+                        }
+                        return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
+                          .then(tinyStock => handleTinyStock(tinyStock, tinyProduct))
+                      } else {
+                        return handleTinyStock({ produto: {} }, tinyProduct)
                       }
-                      return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
-                        .then(tinyStock => handleTinyStock(tinyStock, tinyProduct))
                     }
                   }
 
