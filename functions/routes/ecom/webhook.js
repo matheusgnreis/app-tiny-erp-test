@@ -183,7 +183,17 @@ exports.post = ({ appSdk, admin }, req, res) => {
               // trigger ignored by app configuration
               res.send(ECHO_SKIP)
             } else {
-              console.error(err)
+              if (err.response) {
+                const error = new Error('Webhook process request error')
+                error.config = JSON.stringify(err.config)
+                error.response = JSON.stringify({
+                  status: err.response.status,
+                  data: err.response.data
+                })
+                console.error(error)
+              } else {
+                console.error(err)
+              }
               // request to Store API with error response
               // return error status code
               res.status(500)

@@ -8,6 +8,7 @@ const handleJob = require('./handle-job')
 
 module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, isHiddenQueue) => {
   const [sku, productId] = String(queueEntry.nextId).split(';:')
+  console.log(JSON.stringify({ sku, productId }))
 
   return firestore().collection('tiny_stock_updates')
     .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
