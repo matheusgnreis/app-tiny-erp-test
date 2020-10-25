@@ -8,7 +8,6 @@ const handleJob = require('./handle-job')
 
 module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, isHiddenQueue) => {
   const [sku, productId] = String(queueEntry.nextId).split(';:')
-  console.log(JSON.stringify({ sku, productId }))
 
   return firestore().collection('tiny_stock_updates')
     .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
@@ -27,7 +26,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         ? ecomClient.store({
           url: `/products/${productId}.json`
         }).catch(err => {
-          if (err.response && err.response.status === 404) {
+          if (err.response && err.response.status >= 400 && err.response.status < 500) {
             return null
           }
           throw err
@@ -57,7 +56,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           }
         }).then(({ data }) => {
           const hit = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]
-          console.log(JSON.stringify(hit))
           if (hit) {
             const { _id, _source } = hit
             if (_source.variations && _source.variations.length) {
@@ -144,7 +142,10 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                             let isQueuedVariations = false
                             produto.variacoes.forEach(({ variacao }) => {
                               const { codigo } = variacao
-                              const skuAndId = `${codigo};:${product._id}`
+                              let skuAndId = codigo
+                              if (productId) {
+                                skuAndId += `;:${productId}`
+                              }
                               if (!skus.includes(codigo) && !skus.includes(skuAndId)) {
                                 isQueuedVariations = true
                                 skus.push(skuAndId)
