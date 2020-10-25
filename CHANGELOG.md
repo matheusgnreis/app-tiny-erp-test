@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/ecomplus/application-starter/compare/v1.1.2...v1.2.0) (2020-10-25)
+
+
+### Features
+
+* **import-product:** optionally update products info (PATCH) ([012360b](https://github.com/ecomplus/application-starter/commit/012360b2ba2beffe40e50e6836050458bb1c306c))
+
+
+### Bug Fixes
+
+* **import-product:** fix adding variations to internal import queue ([b80af30](https://github.com/ecomplus/application-starter/commit/b80af306add9c192959f799e62855ed2ae6f3dc6))
+* **import-product:** fix getting dimensions fields from tiny product ([#7](https://github.com/ecomplus/application-starter/issues/7)) ([62970de](https://github.com/ecomplus/application-starter/commit/62970de6193e6c4b81b566e7b4dee606f73c8812))
+* **import-product:** fix importing/updating products with variations (find variation) ([c3f05b6](https://github.com/ecomplus/application-starter/commit/c3f05b6b7087fd70f606f878d92de6f231c67bab))
+* **import-product:** queue variation stock import preseting product id ([9cb4f65](https://github.com/ecomplus/application-starter/commit/9cb4f65bae7dccda6b0628bb02907e5310ada5b3)), closes [#6](https://github.com/ecomplus/application-starter/issues/6)
+
 ### [1.1.2](https://github.com/ecomplus/application-starter/compare/v1.1.1...v1.1.2) (2020-10-21)
 
 
