@@ -56,6 +56,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           }
         }).then(({ data }) => {
           const hit = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]
+          console.log(JSON.stringify(hit))
           if (hit) {
             const { _id, _source } = hit
             if (_source.variations && _source.variations.length) {

@@ -107,13 +107,12 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     }
   }
 
-  console.log(JSON.stringify(tinyProduct))
   ;[
     ['largura', 'width'],
     ['altura', 'height'],
     ['comprimento', 'length']
   ].forEach(([lado, side]) => {
-    const dimension = tinyProduct[`${lado}_embalagem`]
+    const dimension = tinyProduct[`${lado}_embalagem`] || tinyProduct[`${lado}Embalagem`]
     if (dimension > 0) {
       if (!product.dimensions) {
         product.dimensions = {}
@@ -124,7 +123,6 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
       }
     }
   })
-  console.log(JSON.stringify(product.dimensions))
 
   if (isNew) {
     if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
