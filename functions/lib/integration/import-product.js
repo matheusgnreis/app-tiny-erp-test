@@ -108,7 +108,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
             const handleTinyStock = ({ produto }, tinyProduct) => {
               const quantity = Number(produto.saldo)
-              if (product) {
+              if (product && !appData.update_product) {
                 if (!isNaN(quantity)) {
                   let endpoint = `/products/${product._id}`
                   if (variationId) {
@@ -123,9 +123,17 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
               return tiny.post('/produto.obter.php', { id: tinyProduct.id })
                 .then(({ produto }) => {
-                  return parseProduct(produto, storeId, auth).then(product => {
+                  let method, endpoint
+                  if (product && product._id) {
+                    method = 'PATCH'
+                    endpoint = `/products/${product._id}.json`
+                  } else {
+                    method = 'POST'
+                    endpoint = '/products.json'
+                  }
+                  return parseProduct(produto, storeId, auth, method === 'POST').then(product => {
                     product.quantity = quantity
-                    const promise = appSdk.apiRequest(storeId, '/products.json', 'POST', product, auth)
+                    const promise = appSdk.apiRequest(storeId, endpoint, method, product, auth)
 
                     if (Array.isArray(produto.variacoes) && produto.variacoes.length) {
                       promise.then(() => {

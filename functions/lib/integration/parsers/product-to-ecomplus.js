@@ -62,7 +62,7 @@ const tryImageUpload = (storeId, auth, originImgUrl, product) => new Promise(res
   return picture
 })
 
-module.exports = (tinyProduct, storeId, auth) => new Promise((resolve, reject) => {
+module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((resolve, reject) => {
   const sku = tinyProduct.codigo || String(tinyProduct.id)
   const name = (tinyProduct.nome || sku).trim()
   let slug = removeAccents(name.toLowerCase())
@@ -124,67 +124,69 @@ module.exports = (tinyProduct, storeId, auth) => new Promise((resolve, reject) =
     }
   })
 
-  if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
-    product.variations = []
-    tinyProduct.variacoes.forEach(({ variacao }) => {
-      const { codigo, preco, grade } = variacao
-      if (grade) {
-        const specifications = {}
-        const specTexts = []
-        for (const tipo in grade) {
-          if (grade[tipo]) {
-            const gridId = removeAccents(tipo.toLowerCase())
-              .replace(/\s+/g, '_')
-              .replace(/[^a-z0-9_]/g, '')
-              .substring(0, 30)
-              .padStart(2, 'i')
-            const spec = {
-              text: grade[tipo]
+  if (isNew) {
+    if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
+      product.variations = []
+      tinyProduct.variacoes.forEach(({ variacao }) => {
+        const { codigo, preco, grade } = variacao
+        if (grade) {
+          const specifications = {}
+          const specTexts = []
+          for (const tipo in grade) {
+            if (grade[tipo]) {
+              const gridId = removeAccents(tipo.toLowerCase())
+                .replace(/\s+/g, '_')
+                .replace(/[^a-z0-9_]/g, '')
+                .substring(0, 30)
+                .padStart(2, 'i')
+              const spec = {
+                text: grade[tipo]
+              }
+              specTexts.push(spec.text)
+              if (gridId !== 'colors') {
+                spec.value = removeAccents(spec.text.toLowerCase()).substring(0, 100)
+              }
+              specifications[gridId] = [spec]
             }
-            specTexts.push(spec.text)
-            if (gridId !== 'colors') {
-              spec.value = removeAccents(spec.text.toLowerCase()).substring(0, 100)
-            }
-            specifications[gridId] = [spec]
+          }
+
+          if (specTexts.length) {
+            product.variations.push({
+              _id: ecomUtils.randomObjectId(),
+              name: `${name} / ${specTexts.join(' / ')}`.substring(0, 100),
+              sku: codigo,
+              specifications,
+              price: parseFloat(preco || 0)
+            })
           }
         }
-
-        if (specTexts.length) {
-          product.variations.push({
-            _id: ecomUtils.randomObjectId(),
-            name: `${name} / ${specTexts.join(' / ')}`.substring(0, 100),
-            sku: codigo,
-            specifications,
-            price: parseFloat(preco || 0)
-          })
-        }
-      }
-    })
-  }
-
-  if (Array.isArray(tinyProduct.imagens_externas)) {
-    product.pictures = []
-    tinyProduct.imagens_externas.forEach(imagemExterna => {
-      if (imagemExterna.imagem_externa) {
-        const { url } = imagemExterna.imagem_externa
-        if (url) {
-          product.pictures.push({ zoom: { url } })
-        }
-      }
-    })
-  }
-
-  if (tinyProduct.anexos) {
-    if (!product.pictures) {
-      product.pictures = []
+      })
     }
-    const promises = []
-    tinyProduct.anexos.forEach(({ anexo }) => {
-      if (typeof anexo === 'string' && anexo.startsWith('http')) {
-        promises.push(tryImageUpload(storeId, auth, anexo, product))
+
+    if (Array.isArray(tinyProduct.imagens_externas)) {
+      product.pictures = []
+      tinyProduct.imagens_externas.forEach(imagemExterna => {
+        if (imagemExterna.imagem_externa) {
+          const { url } = imagemExterna.imagem_externa
+          if (url) {
+            product.pictures.push({ zoom: { url } })
+          }
+        }
+      })
+    }
+
+    if (tinyProduct.anexos) {
+      if (!product.pictures) {
+        product.pictures = []
       }
-    })
-    return Promise.all(promises).then(() => resolve(product))
+      const promises = []
+      tinyProduct.anexos.forEach(({ anexo }) => {
+        if (typeof anexo === 'string' && anexo.startsWith('http')) {
+          promises.push(tryImageUpload(storeId, auth, anexo, product))
+        }
+      })
+      return Promise.all(promises).then(() => resolve(product))
+    }
   }
 
   resolve(product)
