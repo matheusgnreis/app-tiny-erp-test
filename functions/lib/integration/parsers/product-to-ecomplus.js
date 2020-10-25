@@ -107,6 +107,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     }
   }
 
+  console.log(JSON.stringify(tinyProduct))
   ;[
     ['largura', 'width'],
     ['altura', 'height'],
@@ -123,6 +124,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
       }
     }
   })
+  console.log(JSON.stringify(product.dimensions))
 
   if (isNew) {
     if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
