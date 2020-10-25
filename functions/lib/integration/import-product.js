@@ -58,6 +58,10 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           const hit = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]
           if (hit) {
             const { _id, _source } = hit
+            if (_source.variations && _source.variations.length) {
+              return ecomClient.store({ url: `/products/${_id}.json` })
+                .then(({ data }) => data)
+            }
             return {
               _id,
               ..._source
@@ -67,29 +71,21 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         })
 
           .then(product => {
-            if (
-              product &&
-              product.variations &&
-              product.variations.length &&
-              !product.variations[0]._id
-            ) {
-              return ecomClient.store({ url: `/products/${product._id}.json` })
-                .then(({ data }) => {
-                  const variation = data.variations.find(variation => sku === variation.sku)
-                  if (variation) {
-                    return {
-                      product,
-                      variationId: variation._id
-                    }
-                  } else {
-                    const msg = sku +
-                      ' corresponde a um produto com variações, especifique o SKU da variação para importar.'
-                    const err = new Error(msg)
-                    err.isConfigError = true
-                    handleJob({ appSdk, storeId }, queueEntry, Promise.reject(err))
-                    return null
-                  }
-                })
+            if (product && product.variations && product.variations.length) {
+              const variation = product.variations.find(variation => sku === variation.sku)
+              if (variation) {
+                return {
+                  product,
+                  variationId: variation._id
+                }
+              } else {
+                const msg = sku +
+                  ' corresponde a um produto com variações, especifique o SKU da variação para importar.'
+                const err = new Error(msg)
+                err.isConfigError = true
+                handleJob({ appSdk, storeId }, queueEntry, Promise.reject(err))
+                return null
+              }
             }
             return { product }
           })
