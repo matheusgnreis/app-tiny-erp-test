@@ -124,18 +124,14 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
                 if (integrationConfig) {
                   const actions = Object.keys(integrationHandlers)
-                  for (let i = 0; i < actions.length; i++) {
-                    let action = actions[i]
-                    let actionQueues = integrationConfig[action]
-                    if (!actionQueues) {
-                      for (let i = 1; i <= 3; i++) {
-                        action = `${('_'.repeat(i))}${action}`
-                        actionQueues = integrationConfig[action]
-                        if (actionQueues) {
-                          break
-                        }
-                      }
+                  actions.forEach(action => {
+                    for (let i = 1; i <= 3; i++) {
+                      actions.push(`_${action}`)
                     }
+                  })
+                  for (let i = 0; i < actions.length; i++) {
+                    const action = actions[i]
+                    const actionQueues = integrationConfig[action]
 
                     if (typeof actionQueues === 'object' && actionQueues) {
                       for (const queue in actionQueues) {
@@ -189,6 +185,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                   }
                   console.log(JSON.stringify(data))
                   return updateAppData({ appSdk, storeId, auth }, data)
+                } else {
+                  return null
                 }
               }
               res.send(ECHO_SUCCESS)
