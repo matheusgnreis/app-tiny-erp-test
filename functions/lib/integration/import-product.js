@@ -103,6 +103,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               return payload
             }
             const { product, variationId, hasVariations } = payload
+            console.log({ variationId })
             const tiny = new Tiny(tinyToken)
 
             if (tinyStockUpdate && !product && isHiddenQueue) {
@@ -111,6 +112,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             }
 
             const handleTinyStock = ({ produto }, tinyProduct) => {
+              console.log(JSON.stringify(produto))
               const quantity = Number(produto.saldo)
               if (product && (!appData.update_product || variationId)) {
                 if (!isNaN(quantity)) {
