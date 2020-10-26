@@ -64,8 +64,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               return ecomClient.store({
                 storeId,
                 url: `/products/${_id}.json`
-              })
-                .then(({ data }) => data)
+              }).then(({ data }) => data)
             }
             return {
               _id,
@@ -120,7 +119,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     endpoint += `/variations/${variationId}`
                   }
                   endpoint += '/quantity.json'
-                  console.log(endpoint, { quantity })
+                  console.log(`#${storeId} ${endpoint}`, { quantity })
                   return appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth)
                 }
                 return null
@@ -140,6 +139,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     if (!isNaN(quantity)) {
                       product.quantity = quantity
                     }
+                    console.log(`#${storeId} ${method} ${endpoint}`)
                     const promise = appSdk.apiRequest(storeId, endpoint, method, product, auth)
 
                     if (Array.isArray(produto.variacoes) && produto.variacoes.length) {
