@@ -27,6 +27,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           storeId,
           url: `/products/${productId}.json`
         }).then(({ data }) => data).catch(err => {
+          console.error(err)
           if (err.response && err.response.status >= 400 && err.response.status < 500) {
             return null
           }
