@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.4](https://github.com/ecomplus/application-starter/compare/v1.2.3...v1.2.4) (2020-10-26)
+
+
+### Bug Fixes
+
+* **import-product:** fix handling variation id to update variation quantity ([c048684](https://github.com/ecomplus/application-starter/commit/c0486846216d3f305bd09bfb799b7be658b5bffa))
+* **import-product:** fix setting find product promise before job proceed ([80a3394](https://github.com/ecomplus/application-starter/commit/80a3394371b3f7398e0333bec5ad73c6f14f31c5))
+
 ### [1.2.3](https://github.com/ecomplus/application-starter/compare/v1.2.2...v1.2.3) (2020-10-26)
 
 
