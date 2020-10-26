@@ -29,7 +29,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           url: `/products/${productId}.json`
         }).catch(err => {
           if (err.response && err.response.status >= 400 && err.response.status < 500) {
-            console.log(err.response.status)
             return null
           }
           throw err
@@ -80,6 +79,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             const hasVariations = product && product.variations && product.variations.length
             if (hasVariations) {
               const variation = product.variations.find(variation => sku === variation.sku)
+              console.log({ variation })
               if (variation) {
                 return {
                   product,
