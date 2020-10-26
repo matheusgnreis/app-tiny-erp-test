@@ -22,6 +22,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     })
 
     .then(tinyStockUpdate => {
+      console.log({ sku, productId, tinyStockUpdate })
       return productId
         ? ecomClient.store({
           storeId,
