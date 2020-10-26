@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/ecomplus/application-starter/compare/v1.2.1...v1.2.2) (2020-10-26)
+
+
+### Bug Fixes
+
+* **import-product:** must set storeId for requests with ecomClient ([48af81c](https://github.com/ecomplus/application-starter/commit/48af81cdf166edfccc9b199996490a1ecabe7e71))
+
 ### [1.2.1](https://github.com/ecomplus/application-starter/compare/v1.2.0...v1.2.1) (2020-10-25)
 
 
