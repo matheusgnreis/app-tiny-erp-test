@@ -126,7 +126,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                   const actions = Object.keys(integrationHandlers)
                   actions.forEach(action => {
                     for (let i = 1; i <= 3; i++) {
-                      actions.push(`_${action}`)
+                      actions.push(`${('_'.repeat(i))}${action}`)
                     }
                   })
                   for (let i = 0; i < actions.length; i++) {
