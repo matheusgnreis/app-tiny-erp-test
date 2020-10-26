@@ -8,6 +8,7 @@ const handleJob = require('./handle-job')
 
 module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, isHiddenQueue) => {
   const [sku, productId] = String(queueEntry.nextId).split(';:')
+  console.log({ sku, productId })
 
   return firestore().collection('tiny_stock_updates')
     .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
@@ -26,6 +27,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         ? ecomClient.store({
           url: `/products/${productId}.json`
         }).catch(err => {
+          console.log(productId)
           if (err.response && err.response.status >= 400 && err.response.status < 500) {
             return null
           }
@@ -55,6 +57,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             }
           }
         }).then(({ data }) => {
+          console.log(JSON.stringify((data.hits)))
           const hit = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]
           if (hit) {
             const { _id, _source } = hit
@@ -123,6 +126,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
               return tiny.post('/produto.obter.php', { id: tinyProduct.id })
                 .then(({ produto }) => {
+                  console.log(JSON.stringify(produto))
                   let method, endpoint
                   if (product && product._id) {
                     method = 'PATCH'
@@ -138,7 +142,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     const promise = appSdk.apiRequest(storeId, endpoint, method, product, auth)
 
                     if (Array.isArray(produto.variacoes) && produto.variacoes.length) {
-                      promise.then(() => {
+                      promise.then(({ response }) => {
                         return getAppData({ appSdk, storeId, auth })
                           .then(appData => {
                             let skus = appData.importation && appData.importation.__Skus
@@ -149,8 +153,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                             produto.variacoes.forEach(({ variacao }) => {
                               const { codigo } = variacao
                               let skuAndId = codigo
-                              if (productId) {
-                                skuAndId += `;:${productId}`
+                              if (response.data) {
+                                skuAndId += `;:${response.data._id}`
                               }
                               if (!skus.includes(codigo) && !skus.includes(skuAndId)) {
                                 isQueuedVariations = true
@@ -177,8 +181,10 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             if (tinyStockUpdate && isHiddenQueue) {
               job = handleTinyStock(tinyStockUpdate)
             } else {
+              console.log({ sku })
               job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
                 .then(({ produtos }) => {
+                  console.log(JSON.stringify(produtos))
                   if (Array.isArray(produtos)) {
                     let tinyProduct = produtos.find(({ produto }) => sku === String(produto.codigo))
                     if (tinyProduct) {
