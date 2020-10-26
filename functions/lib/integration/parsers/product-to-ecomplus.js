@@ -65,18 +65,11 @@ const tryImageUpload = (storeId, auth, originImgUrl, product) => new Promise(res
 module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((resolve, reject) => {
   const sku = tinyProduct.codigo || String(tinyProduct.id)
   const name = (tinyProduct.nome || sku).trim()
-  let slug = removeAccents(name.toLowerCase())
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-_./]/g, '')
-  if (/[a-z0-9]/.test(slug.charAt(0))) {
-    slug = `p-${slug}`
-  }
 
   const product = {
     available: tinyProduct.situacao === 'A',
     sku,
     name,
-    slug,
     cost_price: tinyProduct.preco_custo,
     price: tinyProduct.preco_promocional || tinyProduct.preco,
     base_price: tinyProduct.preco,
@@ -84,10 +77,18 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     body_html: tinyProduct.descricao_complementar
   }
 
+  if (isNew) {
+    product.slug = removeAccents(name.toLowerCase())
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-_./]/g, '')
+    if (/[a-z0-9]/.test(product.slug.charAt(0))) {
+      product.slug = `p-${product.slug}`
+    }
+  }
+
   if (tinyProduct.unidade_por_caixa) {
     product.min_quantity = Number(tinyProduct.unidade_por_caixa)
   }
-
   if (tinyProduct.ncm) {
     product.mpn = [tinyProduct.ncm]
   }
