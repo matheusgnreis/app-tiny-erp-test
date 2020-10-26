@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.7](https://github.com/ecomplus/application-starter/compare/v1.2.6...v1.2.7) (2020-10-26)
+
+
+### Bug Fixes
+
+* **action-queues:** prevent overwriting action object props on update ([b7d3ba8](https://github.com/ecomplus/application-starter/commit/b7d3ba887eb44a0f4f43df786cd4d7ee0cb3bd46))
+* **import-product:** prevent saving negative item quantity ([bcae64c](https://github.com/ecomplus/application-starter/commit/bcae64c21e1ee4603089233c5c25ade1ddf17fa1))
+* **webhook:** fix mocking integration config after order/product webhooks ([f32e1d9](https://github.com/ecomplus/application-starter/commit/f32e1d993dce5b1528b70b50bdb5d5f91e0e0ac5))
+* **webhooks:** respond with 202 after update app data (queue) only ([32e86f7](https://github.com/ecomplus/application-starter/commit/32e86f724667ee84f0096c9a717410ffc0f85d32))
+
 ### [1.2.6](https://github.com/ecomplus/application-starter/compare/v1.2.5...v1.2.6) (2020-10-26)
 
 
