@@ -104,8 +104,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                         break
                       }
                       integrationConfig = {
-                        exportation: {
-                          __product_ids: [resourceId]
+                        _exportation: {
+                          product_ids: [resourceId]
                         }
                       }
                     }
@@ -114,8 +114,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                     if (trigger.body) {
                       canCreateNew = Boolean(appData.new_orders)
                       integrationConfig = {
-                        exportation: {
-                          __order_ids: [resourceId]
+                        _exportation: {
+                          order_ids: [resourceId]
                         }
                       }
                     }
@@ -128,7 +128,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                     let action = actions[i]
                     let actionQueues = integrationConfig[action]
                     if (!actionQueues) {
-                      for (let i = 1; i <= 2; i++) {
+                      for (let i = 1; i <= 3; i++) {
                         action = `${('_'.repeat(i))}${action}`
                         actionQueues = integrationConfig[action]
                         if (actionQueues) {
@@ -149,7 +149,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           if (
                             typeof nextId === 'string' &&
                             nextId.length &&
-                            runningKey !== key
+                            runningKey !== key &&
+                            handler
                           ) {
                             console.log(`> Starting ${key}`)
                             documentRef.set({ key, count: runningCount + 1 })

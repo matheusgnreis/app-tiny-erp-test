@@ -153,7 +153,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     promise.then(({ response }) => {
                       return getAppData({ appSdk, storeId, auth })
                         .then(appData => {
-                          let skus = appData._importation && appData._importation.skus
+                          let skus = appData.__importation && appData.__importation.skus
                           if (!Array.isArray(skus)) {
                             skus = []
                           }
@@ -174,8 +174,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                           })
                           return isQueuedVariations
                             ? updateAppData({ appSdk, storeId, auth }, {
-                              _importation: {
-                                ...appData._importation,
+                              __importation: {
+                                ...appData.__importation,
                                 skus
                               }
                             })
