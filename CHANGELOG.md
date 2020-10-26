@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.5](https://github.com/ecomplus/application-starter/compare/v1.2.4...v1.2.5) (2020-10-26)
+
+
+### Bug Fixes
+
+* **import-product:** prevent overwriting existent product slug ([80f93d3](https://github.com/ecomplus/application-starter/commit/80f93d31f20200528e7f8cf623364ebf0401d98f))
+
 ### [1.2.4](https://github.com/ecomplus/application-starter/compare/v1.2.3...v1.2.4) (2020-10-26)
 
 
