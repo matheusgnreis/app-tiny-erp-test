@@ -114,9 +114,12 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           }
 
           const handleTinyStock = ({ produto }, tinyProduct) => {
-            const quantity = Number(produto.saldo)
+            let quantity = Number(produto.saldo)
             if (product && (!appData.update_product || variationId)) {
               if (!isNaN(quantity)) {
+                if (quantity < 0) {
+                  quantity = 0
+                }
                 let endpoint = `/products/${product._id}`
                 if (variationId) {
                   endpoint += `/variations/${variationId}`
@@ -141,7 +144,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 }
                 return parseProduct(produto, storeId, auth, method === 'POST').then(product => {
                   if (!isNaN(quantity)) {
-                    product.quantity = quantity
+                    product.quantity = quantity >= 0 ? quantity : 0
                   }
                   console.log(`#${storeId} ${method} ${endpoint}`)
                   const promise = appSdk.apiRequest(storeId, endpoint, method, product, auth)
