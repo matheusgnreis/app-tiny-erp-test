@@ -8,6 +8,7 @@ const handleJob = require('./handle-job')
 
 module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, isHiddenQueue) => {
   const [sku, productId] = String(queueEntry.nextId).split(';:')
+  console.log({ sku, productId })
 
   return firestore().collection('tiny_stock_updates')
     .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
@@ -28,6 +29,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           url: `/products/${productId}.json`
         }).catch(err => {
           if (err.response && err.response.status >= 400 && err.response.status < 500) {
+            console.log(err.response.status)
             return null
           }
           throw err
