@@ -180,14 +180,16 @@ exports.post = ({ appSdk, admin }, req, res) => {
             .then(({ appData, action, queue }) => {
               if (appData && appData[action] && Array.isArray(appData[action][queue])) {
                 res.status(202).send(`> Processed \`${action}.${queue}\``)
-                const data = {
-                  [action]: {
-                    ...appData[action],
-                    [queue]: appData[action][queue].slice(1)
+                if (trigger.resource === 'applications') {
+                  const data = {
+                    [action]: {
+                      ...appData[action],
+                      [queue]: appData[action][queue].slice(1)
+                    }
                   }
+                  console.log(JSON.stringify(data))
+                  return updateAppData({ appSdk, storeId, auth }, data)
                 }
-                console.log(JSON.stringify(data))
-                return updateAppData({ appSdk, storeId, auth }, data)
               }
               res.send(ECHO_SUCCESS)
             })
