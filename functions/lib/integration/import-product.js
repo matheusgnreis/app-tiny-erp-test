@@ -112,7 +112,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
             const handleTinyStock = ({ produto }, tinyProduct) => {
               const quantity = Number(produto.saldo)
-              if (product && !appData.update_product) {
+              if (product && (!appData.update_product || variationId)) {
                 if (!isNaN(quantity)) {
                   let endpoint = `/products/${product._id}`
                   if (variationId) {
@@ -128,9 +128,10 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               return tiny.post('/produto.obter.php', { id: tinyProduct.id })
                 .then(({ produto }) => {
                   let method, endpoint
-                  if (product && product._id) {
+                  let productId = product && product._id
+                  if (productId) {
                     method = 'PATCH'
-                    endpoint = `/products/${product._id}.json`
+                    endpoint = `/products/${productId}.json`
                   } else {
                     method = 'POST'
                     endpoint = '/products.json'
@@ -154,8 +155,11 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                             produto.variacoes.forEach(({ variacao }) => {
                               const { codigo } = variacao
                               let skuAndId = codigo
-                              if (response.data) {
-                                skuAndId += `;:${response.data._id}`
+                              if (!productId) {
+                                productId = response.data && response.data._id
+                              }
+                              if (productId) {
+                                skuAndId += `;:${productId}`
                               }
                               if (!skus.includes(codigo) && !skus.includes(skuAndId)) {
                                 isQueuedVariations = true
