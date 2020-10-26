@@ -125,34 +125,45 @@ exports.post = ({ appSdk, admin }, req, res) => {
                 if (integrationConfig) {
                   const actions = Object.keys(integrationHandlers)
                   for (let i = 0; i < actions.length; i++) {
-                    const action = actions[i]
-                    if (typeof integrationConfig[action] === 'object' && integrationConfig[action]) {
-                      const queue = Object.keys(integrationConfig[action])[0]
-                      const isHiddenQueue = queue.startsWith('__')
-                      const handlerName = (isHiddenQueue ? queue.slice(2) : queue).toLowerCase()
-                      const handler = integrationHandlers[action][handlerName]
-                      const ids = integrationConfig[action][queue]
+                    let action = actions[i]
+                    let actionQueues = integrationConfig[action]
+                    if (!actionQueues) {
+                      for (let i = 1; i <= 2; i++) {
+                        action = `${('_'.repeat(i))}${action}`
+                        actionQueues = integrationConfig[action]
+                        if (actionQueues) {
+                          break
+                        }
+                      }
+                    }
 
-                      if (Array.isArray(ids) && handler) {
-                        const nextId = ids[0]
-                        const key = `${action}/${queue}/${nextId}`
-                        if (
-                          typeof nextId === 'string' &&
-                          nextId.length &&
-                          runningKey !== key
-                        ) {
-                          console.log(`> Starting ${key}`)
-                          documentRef.set({ key, count: runningCount + 1 })
-                            .catch(console.error)
+                    if (typeof actionQueues === 'object' && actionQueues) {
+                      for (const queue in actionQueues) {
+                        const ids = actionQueues[queue]
+                        if (Array.isArray(ids) && ids.length) {
+                          const isHiddenQueue = action.charAt(0) === '_'
+                          const handler = integrationHandlers[action.replace(/^_+/, '')][queue.toLowerCase()]
+                          const nextId = ids[0]
+                          const key = `${action}/${queue}/${nextId}`
 
-                          return handler(
-                            { appSdk, storeId, auth },
-                            tinyToken,
-                            { action, queue, nextId, key, documentRef },
-                            appData,
-                            canCreateNew,
-                            isHiddenQueue
-                          ).then(() => ({ appData, action, queue }))
+                          if (
+                            typeof nextId === 'string' &&
+                            nextId.length &&
+                            runningKey !== key
+                          ) {
+                            console.log(`> Starting ${key}`)
+                            documentRef.set({ key, count: runningCount + 1 })
+                              .catch(console.error)
+
+                            return handler(
+                              { appSdk, storeId, auth },
+                              tinyToken,
+                              { action, queue, nextId, key, documentRef },
+                              appData,
+                              canCreateNew,
+                              isHiddenQueue
+                            ).then(() => ({ appData, action, queue }))
+                          }
                         }
                       }
                     }
@@ -167,16 +178,15 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
             .then(({ appData, action, queue }) => {
               if (appData && appData[action] && Array.isArray(appData[action][queue])) {
+                res.status(202).send(`> Processed \`${action}.${queue}\``)
                 const data = {
                   [action]: {
+                    ...appData[action],
                     [queue]: appData[action][queue].slice(1)
                   }
                 }
                 console.log(JSON.stringify(data))
                 return updateAppData({ appSdk, storeId, auth }, data)
-                  .finally(() => {
-                    res.status(202).send(`> Processed \`${action}.${queue}\``)
-                  })
               }
               res.send(ECHO_SUCCESS)
             })

@@ -50,7 +50,7 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
               }
               const { produtos } = payload
               if (produtos && produtos.length) {
-                let skus = appData.importation && appData.importation.__skus
+                let skus = appData.__importation && appData.__importation.skus
                 if (!Array.isArray(skus)) {
                   skus = []
                 }
@@ -78,8 +78,9 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                   return Promise.all(promises).then(() => {
                     console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
                     return updateAppData({ appSdk, storeId }, {
-                      importation: {
-                        __skus: skus
+                      __importation: {
+                        ...appData.__importation,
+                        skus
                       }
                     })
                   })

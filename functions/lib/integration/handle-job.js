@@ -28,6 +28,7 @@ const queueRetry = (appSession, { action, queue, nextId }, appData, response) =>
         setTimeout(() => {
           updateAppData(appSession, {
             [action]: {
+              ...appData[action],
               [queue]: queueList
             }
           })
