@@ -22,18 +22,18 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     })
 
     .then(tinyStockUpdate => {
-      console.log({ sku, productId, tinyStockUpdate })
-      return productId
+      const findingProduct = productId
         ? ecomClient.store({
           storeId,
           url: `/products/${productId}.json`
-        }).then(({ data }) => data).catch(err => {
-          console.error(err)
-          if (err.response && err.response.status >= 400 && err.response.status < 500) {
-            return null
-          }
-          throw err
         })
+          .then(({ data }) => data)
+          .catch(err => {
+            if (err.response && err.response.status >= 400 && err.response.status < 500) {
+              return null
+            }
+            throw err
+          })
 
         : ecomClient.search({
           storeId,
@@ -76,145 +76,145 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           return null
         })
 
-          .then(product => {
-            console.log(JSON.stringify(product))
-            const hasVariations = product && product.variations && product.variations.length
-            if (hasVariations) {
-              const variation = product.variations.find(variation => sku === variation.sku)
-              if (variation) {
-                return {
-                  product,
-                  variationId: variation._id,
-                  hasVariations
-                }
-              } else if (isHiddenQueue) {
-                return null
-              } else if (!appData.update_product) {
-                const msg = sku +
-                  ' corresponde a um produto com variações, especifique o SKU da variação para importar.'
-                const err = new Error(msg)
-                err.isConfigError = true
-                handleJob({ appSdk, storeId }, queueEntry, Promise.reject(err))
-                return null
+      return findingProduct
+        .then(product => {
+          const hasVariations = product && product.variations && product.variations.length
+          if (hasVariations) {
+            const variation = product.variations.find(variation => sku === variation.sku)
+            if (variation) {
+              return {
+                product,
+                variationId: variation._id,
+                hasVariations
               }
+            } else if (isHiddenQueue) {
+              return null
+            } else if (!appData.update_product) {
+              const msg = sku +
+                ' corresponde a um produto com variações, especifique o SKU da variação para importar.'
+              const err = new Error(msg)
+              err.isConfigError = true
+              handleJob({ appSdk, storeId }, queueEntry, Promise.reject(err))
+              return null
             }
-            return { product, hasVariations }
-          })
+          }
+          return { product, hasVariations }
+        })
 
-          .then(payload => {
-            if (!payload) {
-              return payload
-            }
-            const { product, variationId, hasVariations } = payload
-            const tiny = new Tiny(tinyToken)
+        .then(payload => {
+          if (!payload) {
+            return payload
+          }
+          const { product, variationId, hasVariations } = payload
+          const tiny = new Tiny(tinyToken)
 
-            if (tinyStockUpdate && !product && isHiddenQueue) {
-              handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
-              return
-            }
+          if (tinyStockUpdate && !product && isHiddenQueue) {
+            handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
+            return
+          }
 
-            const handleTinyStock = ({ produto }, tinyProduct) => {
-              const quantity = Number(produto.saldo)
-              if (product && (!appData.update_product || variationId)) {
-                if (!isNaN(quantity)) {
-                  let endpoint = `/products/${product._id}`
-                  if (variationId) {
-                    endpoint += `/variations/${variationId}`
-                  }
-                  endpoint += '/quantity.json'
-                  console.log(`#${storeId} ${endpoint}`, { quantity })
-                  return appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth)
+          const handleTinyStock = ({ produto }, tinyProduct) => {
+            const quantity = Number(produto.saldo)
+            if (product && (!appData.update_product || variationId)) {
+              if (!isNaN(quantity)) {
+                let endpoint = `/products/${product._id}`
+                if (variationId) {
+                  endpoint += `/variations/${variationId}`
                 }
-                return null
+                endpoint += '/quantity.json'
+                console.log(`#${storeId} ${endpoint}`, { quantity })
+                return appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth)
               }
+              return null
+            }
 
-              return tiny.post('/produto.obter.php', { id: tinyProduct.id })
-                .then(({ produto }) => {
-                  let method, endpoint
-                  let productId = product && product._id
-                  if (productId) {
-                    method = 'PATCH'
-                    endpoint = `/products/${productId}.json`
-                  } else {
-                    method = 'POST'
-                    endpoint = '/products.json'
+            return tiny.post('/produto.obter.php', { id: tinyProduct.id })
+              .then(({ produto }) => {
+                let method, endpoint
+                let productId = product && product._id
+                if (productId) {
+                  method = 'PATCH'
+                  endpoint = `/products/${productId}.json`
+                } else {
+                  method = 'POST'
+                  endpoint = '/products.json'
+                }
+                return parseProduct(produto, storeId, auth, method === 'POST').then(product => {
+                  if (!isNaN(quantity)) {
+                    product.quantity = quantity
                   }
-                  return parseProduct(produto, storeId, auth, method === 'POST').then(product => {
-                    if (!isNaN(quantity)) {
-                      product.quantity = quantity
-                    }
-                    console.log(`#${storeId} ${method} ${endpoint}`)
-                    const promise = appSdk.apiRequest(storeId, endpoint, method, product, auth)
+                  console.log(`#${storeId} ${method} ${endpoint}`)
+                  const promise = appSdk.apiRequest(storeId, endpoint, method, product, auth)
 
-                    if (Array.isArray(produto.variacoes) && produto.variacoes.length) {
-                      promise.then(({ response }) => {
-                        return getAppData({ appSdk, storeId, auth })
-                          .then(appData => {
-                            let skus = appData.importation && appData.importation.__Skus
-                            if (!Array.isArray(skus)) {
-                              skus = []
+                  if (Array.isArray(produto.variacoes) && produto.variacoes.length) {
+                    promise.then(({ response }) => {
+                      return getAppData({ appSdk, storeId, auth })
+                        .then(appData => {
+                          let skus = appData.importation && appData.importation.__Skus
+                          if (!Array.isArray(skus)) {
+                            skus = []
+                          }
+                          let isQueuedVariations = false
+                          produto.variacoes.forEach(({ variacao }) => {
+                            const { codigo } = variacao
+                            let skuAndId = codigo
+                            if (!productId) {
+                              productId = response.data && response.data._id
                             }
-                            let isQueuedVariations = false
-                            produto.variacoes.forEach(({ variacao }) => {
-                              const { codigo } = variacao
-                              let skuAndId = codigo
-                              if (!productId) {
-                                productId = response.data && response.data._id
-                              }
-                              if (productId) {
-                                skuAndId += `;:${productId}`
-                              }
-                              if (!skus.includes(codigo) && !skus.includes(skuAndId)) {
-                                isQueuedVariations = true
-                                skus.push(skuAndId)
+                            if (productId) {
+                              skuAndId += `;:${productId}`
+                            }
+                            if (!skus.includes(codigo) && !skus.includes(skuAndId)) {
+                              isQueuedVariations = true
+                              skus.push(skuAndId)
+                            }
+                          })
+                          return isQueuedVariations
+                            ? updateAppData({ appSdk, storeId, auth }, {
+                              importation: {
+                                __Skus: skus
                               }
                             })
-                            return isQueuedVariations
-                              ? updateAppData({ appSdk, storeId, auth }, {
-                                importation: {
-                                  __Skus: skus
-                                }
-                              })
-                              : true
-                          })
-                      }).catch(console.error)
-                    }
-
-                    return promise
-                  })
-                })
-            }
-
-            let job
-            if (tinyStockUpdate && isHiddenQueue) {
-              job = handleTinyStock(tinyStockUpdate)
-            } else {
-              job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
-                .then(({ produtos }) => {
-                  if (Array.isArray(produtos)) {
-                    let tinyProduct = produtos.find(({ produto }) => sku === String(produto.codigo))
-                    if (tinyProduct) {
-                      tinyProduct = tinyProduct.produto
-                      if (!hasVariations || variationId) {
-                        if (tinyStockUpdate) {
-                          return handleTinyStock(tinyStockUpdate, tinyProduct)
-                        }
-                        return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
-                          .then(tinyStock => handleTinyStock(tinyStock, tinyProduct))
-                      } else {
-                        return handleTinyStock({ produto: {} }, tinyProduct)
-                      }
-                    }
+                            : true
+                        })
+                    }).catch(console.error)
                   }
 
-                  const msg = `SKU ${sku} não encontrado no Tiny`
-                  const err = new Error(msg)
-                  err.isConfigError = true
-                  throw new Error(err)
+                  return promise
                 })
-            }
+              })
+          }
 
-            handleJob({ appSdk, storeId }, queueEntry, job)
-          })
+          let job
+          if (tinyStockUpdate && isHiddenQueue) {
+            job = handleTinyStock(tinyStockUpdate)
+          } else {
+            job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
+              .then(({ produtos }) => {
+                if (Array.isArray(produtos)) {
+                  let tinyProduct = produtos.find(({ produto }) => sku === String(produto.codigo))
+                  if (tinyProduct) {
+                    tinyProduct = tinyProduct.produto
+                    if (!hasVariations || variationId) {
+                      if (tinyStockUpdate) {
+                        return handleTinyStock(tinyStockUpdate, tinyProduct)
+                      }
+                      return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
+                        .then(tinyStock => handleTinyStock(tinyStock, tinyProduct))
+                    } else {
+                      return handleTinyStock({ produto: {} }, tinyProduct)
+                    }
+                  }
+                }
+
+                const msg = `SKU ${sku} não encontrado no Tiny`
+                const err = new Error(msg)
+                err.isConfigError = true
+                throw new Error(err)
+              })
+          }
+
+          handleJob({ appSdk, storeId }, queueEntry, job)
+        })
     })
 }
