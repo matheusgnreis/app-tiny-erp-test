@@ -81,7 +81,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     product.slug = removeAccents(name.toLowerCase())
       .replace(/\s+/g, '-')
       .replace(/[^a-z0-9-_./]/g, '')
-    if (/[a-z0-9]/.test(product.slug.charAt(0))) {
+    if (!/[a-z0-9]/.test(product.slug.charAt(0))) {
       product.slug = `p-${product.slug}`
     }
   }
