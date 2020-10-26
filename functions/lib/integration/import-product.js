@@ -27,7 +27,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         ? ecomClient.store({
           storeId,
           url: `/products/${productId}.json`
-        }).catch(err => {
+        }).then(({ data }) => data).catch(err => {
           if (err.response && err.response.status >= 400 && err.response.status < 500) {
             return null
           }
