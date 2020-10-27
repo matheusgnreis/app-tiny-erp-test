@@ -28,12 +28,15 @@ exports.post = ({ appSdk, admin }, req, res) => {
    */
   const trigger = req.body
 
+  const resourceId = trigger.resource_id || trigger.inserted_id
+  console.log(`> Webhook #${storeId} ${resourceId} [${trigger.resource}]`)
+
   const documentRef = admin.firestore().doc(`running/${storeId}`)
   documentRef.get()
 
     .then(documentSnapshot => new Promise(resolve => {
       let runningCount, runningKeys
-      const key = trigger.resource
+      const key = `${trigger.resource}/${resourceId}`
       if (
         documentSnapshot.exists &&
         Date.now() - documentSnapshot.updateTime.toDate().getTime() < 7000
@@ -86,9 +89,6 @@ exports.post = ({ appSdk, admin }, req, res) => {
             }
 
             /* DO YOUR CUSTOM STUFF HERE */
-
-            const resourceId = trigger.resource_id || trigger.inserted_id
-            console.log(`> Webhook #${storeId} ${resourceId} [${trigger.resource}]`)
 
             const tinyToken = appData.tiny_api_token
             if (typeof tinyToken === 'string' && tinyToken) {
