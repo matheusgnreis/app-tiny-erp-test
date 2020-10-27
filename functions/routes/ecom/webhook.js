@@ -42,6 +42,9 @@ exports.post = ({ appSdk, admin }, req, res) => {
           throw new Error('Too much requests')
         }
         runningKeys = documentSnapshot.get('keys')
+        if (runningKeys && runningKeys.length === 1 && runningKeys[0] === '-') {
+          throw new Error('Concurrent request not queued yet')
+        }
       }
       if (!runningCount) {
         runningCount = 0
@@ -139,10 +142,9 @@ exports.post = ({ appSdk, admin }, req, res) => {
                       if (Array.isArray(ids) && ids.length) {
                         const isHiddenQueue = action.charAt(0) === '_'
                         const mustUpdateAppQueue = trigger.resource === 'applications'
-                        const handlerName = action.replace(/^_+/, '')
-                        const handler = integrationHandlers[handlerName][queue.toLowerCase()]
+                        const handler = integrationHandlers[action.replace(/^_+/, '')][queue.toLowerCase()]
                         const nextId = ids[0]
-                        const key = `${handlerName}/${queue}`
+                        const key = `${action}/${queue}`
 
                         if (
                           typeof nextId === 'string' &&
