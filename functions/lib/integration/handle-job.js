@@ -47,9 +47,6 @@ const queueRetry = (appSession, { action, queue, nextId }, appData, response) =>
 const log = ({ appSdk, storeId }, queueEntry, payload) => {
   const isError = payload instanceof Error
   const isImportation = queueEntry.action === 'importation'
-  if (!isError && isImportation) {
-    return null
-  }
 
   appSdk.getAuth(storeId)
     .then(auth => {
@@ -139,10 +136,12 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               .catch(console.error)
           }
 
-          logs.unshift(logEntry)
-          return updateAppData({ appSdk, storeId, auth }, {
-            logs: logs.slice(0, 200)
-          }, true)
+          if (isError || !isImportation) {
+            logs.unshift(logEntry)
+            return updateAppData({ appSdk, storeId, auth }, {
+              logs: logs.slice(0, 200)
+            }, true)
+          }
         })
     })
     .catch(console.error)

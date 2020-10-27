@@ -14,7 +14,7 @@ const integrationHandlers = {
 }
 
 const SKIP_TRIGGER_NAME = 'SkipTrigger'
-const ECHO_SUCCESS = 'SUCCESS'
+// const ECHO_SUCCESS = 'SUCCESS'
 const ECHO_SKIP = 'SKIP'
 const ECHO_API_ERROR = 'STORE_API_ERR'
 
@@ -147,7 +147,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           runningKey !== key &&
                           handler
                         ) {
-                          console.log(`> Starting ${key}`)
+                          console.log(`> Starting ${key}/${nextId}`)
                           documentRef.set({ key, count: runningCount + 1 })
                             .catch(console.error)
 
@@ -175,10 +175,11 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
           .then(({ appData, action, queue }) => {
             if (appData && appData[action] && Array.isArray(appData[action][queue])) {
-              res.status(202).send(`> Processed \`${action}.${queue}\``)
+              res.status(202)
             } else {
-              res.send(ECHO_SUCCESS)
+              res.status(200)
             }
+            res.send(`> Processed \`${action}.${queue}\``)
           })
       })
 
