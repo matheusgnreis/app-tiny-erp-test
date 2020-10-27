@@ -45,6 +45,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
       }
       if (!runningCount) {
         runningCount = 0
+      }
+      if (!runningKeys) {
         runningKeys = ['-']
       }
 
