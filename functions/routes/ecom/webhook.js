@@ -12,6 +12,7 @@ const integrationHandlers = {
     order_numbers: require('./../../lib/integration/import-order')
   }
 }
+const handleJob = require('./../../lib/integration/handle-job')
 
 const SKIP_TRIGGER_NAME = 'SkipTrigger'
 const ECHO_SUCCESS = 'SUCCESS'
@@ -53,24 +54,14 @@ exports.post = ({ appSdk, admin }, req, res) => {
       if (!runningCount) {
         runningCount = 0
       }
-      if (!runningKeys) {
-        runningKeys = [key]
-      } else {
-        runningKeys.push(key)
-      }
-
-      documentRef.set({
-        keys: runningKeys,
-        count: runningCount + 1
-      }).catch(console.error)
 
       setTimeout(() => resolve({
         key,
         documentRef
-      }), runningCount * 7000 + 10)
+      }), runningCount * 1000 + 10)
     }))
 
-    .then(({ key, documentRef }) => {
+    .then(({ documentRef, key, runningKeys, runningCount }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -153,11 +144,40 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           nextId.length &&
                           handler
                         ) {
-                          console.log(`> Starting ${action}/${queue}/${nextId}`)
+                          const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
+                          console.log(`> Starting ${debugFlag}`)
+                          const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
+
+                          if (!Array.isArray(runningKeys)) {
+                            runningKeys = [key]
+                          } else {
+                            runningKeys.push(key)
+                          }
+                          documentRef.set({
+                            keys: runningKeys,
+                            count: runningCount + 1
+                          }).catch(console.error)
+
+                          const resetFallback = setTimeout(() => {
+                            console.log(`<<TIMEOUT>> ${debugFlag}`)
+                            unsubscribe()
+                            handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
+                          }, 30000)
+
+                          let unsubscribe = documentRef.onSnapshot(documentSnapshot => {
+                            if (unsubscribe) {
+                              unsubscribe()
+                              unsubscribe = null
+                            }
+                            clearTimeout(resetFallback)
+                          }, err => {
+                            console.log(`Encountered error: ${err}`)
+                          })
+
                           return handler(
                             { appSdk, storeId, auth },
                             tinyToken,
-                            { action, queue, nextId, key, documentRef, mustUpdateAppQueue },
+                            queueEntry,
                             appData,
                             canCreateNew,
                             isHiddenQueue
