@@ -127,8 +127,13 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               .then(documentSnapshot => {
                 if (documentSnapshot.exists) {
                   const data = documentSnapshot.data()
+                  const keys = data.keys
+                  const keyIndex = keys.indexOf(queueEntry.key)
+                  if (keyIndex > -1) {
+                    keys.splice(keyIndex, 1)
+                  }
                   return queueEntry.documentRef.set({
-                    key: data.key === queueEntry.key ? '~' : data.key,
+                    keys,
                     count: data.count ? data.count - 1 : 0
                   })
                 }

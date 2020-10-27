@@ -32,7 +32,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
   documentRef.get()
 
     .then(documentSnapshot => new Promise(resolve => {
-      let runningCount, runningKey
+      let runningCount, runningKeys
       if (
         documentSnapshot.exists &&
         Date.now() - documentSnapshot.updateTime.toDate().getTime() < 7000
@@ -41,26 +41,26 @@ exports.post = ({ appSdk, admin }, req, res) => {
         if (runningCount > 3) {
           throw new Error('Too much requests')
         }
-        runningKey = documentSnapshot.get('key')
+        runningKeys = documentSnapshot.get('keys')
       }
       if (!runningCount) {
         runningCount = 0
-        runningKey = '-'
+        runningKeys = ['-']
       }
 
       documentRef.set({
-        key: runningKey,
+        keys: runningKeys,
         count: runningCount + 1
       }).catch(console.error)
 
       setTimeout(() => resolve({
-        runningKey,
+        runningKeys,
         runningCount,
         documentRef
       }), runningCount * 7000 + 10)
     }))
 
-    .then(({ runningKey, runningCount, documentRef }) => {
+    .then(({ runningKeys, runningCount, documentRef }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -144,7 +144,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                         if (
                           typeof nextId === 'string' &&
                           nextId.length &&
-                          runningKey !== key &&
+                          !runningKeys.includes(key) &&
                           handler
                         ) {
                           console.log(`> Starting ${key}/${nextId}`)

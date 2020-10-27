@@ -29,15 +29,23 @@ const tryImageUpload = (storeId, auth, originImgUrl, product) => new Promise(res
         .then(({ data, status }) => {
           if (data.picture) {
             for (const imgSize in data.picture) {
-              if (data.picture[imgSize] && data.picture[imgSize].size !== undefined) {
-                delete data.picture[imgSize].size
+              if (data.picture[imgSize]) {
+                if (!data.picture[imgSize].url) {
+                  delete data.picture[imgSize]
+                  continue
+                }
+                if (data.picture[imgSize].size !== undefined) {
+                  delete data.picture[imgSize].size
+                }
+                data.picture[imgSize].alt = `${product.name} (${imgSize})`
               }
-              data.picture[imgSize].alt = `${product.name} (${imgSize})`
             }
-            return resolve({
-              _id: ecomUtils.randomObjectId(),
-              ...data.picture
-            })
+            if (Object.keys(data.picture).length) {
+              return resolve({
+                _id: ecomUtils.randomObjectId(),
+                ...data.picture
+              })
+            }
           }
           const err = new Error('Unexpected Storage API response')
           err.response = { data, status }
