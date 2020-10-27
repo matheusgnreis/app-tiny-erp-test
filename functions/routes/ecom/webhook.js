@@ -33,6 +33,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
     .then(documentSnapshot => new Promise(resolve => {
       let runningCount, runningKeys
+      const key = trigger.resource
       if (
         documentSnapshot.exists &&
         Date.now() - documentSnapshot.updateTime.toDate().getTime() < 7000
@@ -42,30 +43,31 @@ exports.post = ({ appSdk, admin }, req, res) => {
           throw new Error('Too much requests')
         }
         runningKeys = documentSnapshot.get('keys')
-        if (runningKeys && runningKeys.length === 1 && runningKeys[0] === '-') {
-          throw new Error('Concurrent request not queued yet')
+        if (runningKeys && runningKeys.includes(key)) {
+          throw new Error('Concurrent request with same key')
         }
       }
       if (!runningCount) {
         runningCount = 0
       }
       if (!runningKeys) {
-        runningKeys = ['-']
+        runningKeys = [key]
+      } else {
+        runningKeys.push(key)
       }
 
       documentRef.set({
         keys: runningKeys,
-        count: runningCount
+        count: runningCount + 1
       }).catch(console.error)
 
       setTimeout(() => resolve({
-        runningKeys,
-        runningCount,
+        key,
         documentRef
       }), runningCount * 7000 + 10)
     }))
 
-    .then(({ runningKeys, runningCount, documentRef }) => {
+    .then(({ key, documentRef }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -144,21 +146,13 @@ exports.post = ({ appSdk, admin }, req, res) => {
                         const mustUpdateAppQueue = trigger.resource === 'applications'
                         const handler = integrationHandlers[action.replace(/^_+/, '')][queue.toLowerCase()]
                         const nextId = ids[0]
-                        const key = `${action}/${queue}`
 
                         if (
                           typeof nextId === 'string' &&
                           nextId.length &&
-                          !runningKeys.includes(key) &&
                           handler
                         ) {
-                          console.log(`> Starting ${key}/${nextId}`)
-                          documentRef.set({
-                            keys: [...runningKeys, key],
-                            count: runningCount + 1
-                          })
-                            .catch(console.error)
-
+                          console.log(`> Starting ${action}/${queue}/${nextId}`)
                           return handler(
                             { appSdk, storeId, auth },
                             tinyToken,
