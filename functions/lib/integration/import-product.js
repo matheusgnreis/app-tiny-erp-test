@@ -103,7 +103,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         })
 
         .then(payload => {
-          const dispatchNullJob = handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
+          const dispatchNullJob = () => handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
           if (!payload) {
             console.log(`#${storeId} not found ${sku}`)
             dispatchNullJob()
