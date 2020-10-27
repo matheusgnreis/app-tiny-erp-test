@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.8](https://github.com/ecomplus/application-starter/compare/v1.2.7...v1.2.8) (2020-10-27)
+
+
+### Bug Fixes
+
+* **import-product:** ignore process from hidden queue without identified product ([8d0b124](https://github.com/ecomplus/application-starter/commit/8d0b1241417bd0efc62ce8e79da998fb95823bc2))
+* **parse-product:** prefer 'normal' for new external pictures ([23d9069](https://github.com/ecomplus/application-starter/commit/23d90690f2ad61d0ed940f5dbc9c47aa425df5c4))
+* **post-job-handler:** ensure post job even for null promise results ([10a6d38](https://github.com/ecomplus/application-starter/commit/10a6d38dd83056d3495fbec6ab5aa2b95e1990c8))
+* **post-job-handler:** indexOf in place of findIndex to get current id index on queue ([4b95f81](https://github.com/ecomplus/application-starter/commit/4b95f811021c870c1280a0ad140a03098931be04))
+* **post-job-queue:** properlly handling retry and requeue ([a55e897](https://github.com/ecomplus/application-starter/commit/a55e897ba0b1bfd8f7720f57a51679b505d183a8))
+* **queues:** removing queue entry on post job handler only ([a5cd21a](https://github.com/ecomplus/application-starter/commit/a5cd21a26b5b1df9732600e865c6cc1e59028800))
+* **queues:** removing queue entry on post job handler only (don\'t skip importations) ([81fd7c7](https://github.com/ecomplus/application-starter/commit/81fd7c74e9ae4fc6450d9d3a182e5622bbce7c44))
+* **webhook:** ensure running keys is array ([23811c1](https://github.com/ecomplus/application-starter/commit/23811c1703ce569e71e780e390d82b84ebfd8c68))
+* **webhook:** fix checking for internal/hidden action names ([6d97120](https://github.com/ecomplus/application-starter/commit/6d97120153dcb4aa70943e9a6829ebbe54ed3a45))
+* **webhook:** fix checking for internal/hidden action names ([8f8025c](https://github.com/ecomplus/application-starter/commit/8f8025cd42bae9a35b96053c88043f8f70f49eae))
+* **webhook:** fix setting running document keys ([0320983](https://github.com/ecomplus/application-starter/commit/0320983793cb609ec30c0731d32df7db9fed003f))
+* **webhook:** set resource id on running key ([a23ce49](https://github.com/ecomplus/application-starter/commit/a23ce497465f75164c9a62280183411209412e5f))
+* **webhook:** set resource id on running key ([daae83b](https://github.com/ecomplus/application-starter/commit/daae83b234803390da1ebe5930dd8620ccfaae05))
+
 ### [1.2.7](https://github.com/ecomplus/application-starter/compare/v1.2.6...v1.2.7) (2020-10-26)
 
 
