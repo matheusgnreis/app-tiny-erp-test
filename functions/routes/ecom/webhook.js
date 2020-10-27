@@ -139,9 +139,10 @@ exports.post = ({ appSdk, admin }, req, res) => {
                       if (Array.isArray(ids) && ids.length) {
                         const isHiddenQueue = action.charAt(0) === '_'
                         const mustUpdateAppQueue = trigger.resource === 'applications'
-                        const handler = integrationHandlers[action.replace(/^_+/, '')][queue.toLowerCase()]
+                        const handlerName = action.replace(/^_+/, '')
+                        const handler = integrationHandlers[handlerName][queue.toLowerCase()]
                         const nextId = ids[0]
-                        const key = `${action}/${queue}`
+                        const key = `${handlerName}/${queue}`
 
                         if (
                           typeof nextId === 'string' &&
