@@ -7,14 +7,14 @@ const queueRetry = (appSession, { action, queue, nextId }, appData, response) =>
     .firestore()
     .doc(`integration_retries/${retryKey}`)
 
-  documentRef.get()
+  return documentRef.get()
     .then(documentSnapshot => {
       if (documentSnapshot.exists) {
         if (Date.now() - documentSnapshot.updateTime.toDate().getTime() > 5 * 60 * 1000) {
           documentRef.delete().catch(console.error)
         } else {
           console.log(`> Skip retry: ${retryKey}`)
-          return
+          return null
         }
       }
 
@@ -41,7 +41,6 @@ const queueRetry = (appSession, { action, queue, nextId }, appData, response) =>
         }, 7000)
       })
     })
-    .catch(console.error)
 }
 
 const log = ({ appSdk, storeId }, queueEntry, payload) => {
@@ -63,7 +62,7 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
             timestamp: new Date().toISOString()
           }
 
-          let notes
+          let notes, retrying
           if (!isError) {
             if (payload) {
               const { data, status, config } = payload
@@ -75,38 +74,13 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
                 notes += ` [${config.url}]`
               }
             }
-
-            if (queueEntry.mustUpdateAppQueue) {
-              const { action, queue, nextId } = queueEntry
-              const queueList = appData[action][queue]
-              if (Array.isArray(queueList)) {
-                const idIndex = queueList.indexOf(nextId)
-                if (idIndex > -1) {
-                  queueList.splice(idIndex, 1)
-                  const data = {
-                    [action]: {
-                      ...appData[action],
-                      [queue]: queueList
-                    }
-                  }
-                  console.log(`#${storeId} ${JSON.stringify(data)}`)
-                  updateAppData({ appSdk, storeId, auth }, data).catch(err => {
-                    if (err.response && (!err.response.status || err.response.status >= 500)) {
-                      queueRetry({ appSdk, storeId, auth }, queueEntry, appData, err.response)
-                    } else {
-                      console.error(err)
-                    }
-                  })
-                }
-              }
-            }
           } else {
             const { config, response } = payload
             if (response) {
               const { data, status } = response
               notes = `Error: Status ${status} \n${JSON.stringify(data)}`
               if (!status || status >= 500) {
-                queueRetry({ appSdk, storeId, auth }, queueEntry, appData, response)
+                retrying = queueRetry({ appSdk, storeId, auth }, queueEntry, appData, response)
               }
               if (config) {
                 const { url, method, data } = config
@@ -141,6 +115,45 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
                 }
               })
               .catch(console.error)
+          }
+
+          if (queueEntry.mustUpdateAppQueue) {
+            const updateQueue = () => {
+              const { action, queue, nextId } = queueEntry
+              const queueList = appData[action][queue]
+              if (Array.isArray(queueList)) {
+                const idIndex = queueList.indexOf(nextId)
+                if (idIndex > -1) {
+                  queueList.splice(idIndex, 1)
+                  const data = {
+                    [action]: {
+                      ...appData[action],
+                      [queue]: queueList
+                    }
+                  }
+                  console.log(`#${storeId} ${JSON.stringify(data)}`)
+                  updateAppData({ appSdk, storeId, auth }, data).catch(err => {
+                    if (err.response && (!err.response.status || err.response.status >= 500)) {
+                      queueRetry({ appSdk, storeId, auth }, queueEntry, appData, err.response)
+                    } else {
+                      throw err
+                    }
+                  })
+                }
+              }
+            }
+
+            if (retrying) {
+              retrying
+                .then(result => {
+                  if (result !== null) {
+                    updateQueue()
+                  }
+                })
+                .catch(updateQueue)
+            } else {
+              updateQueue()
+            }
           }
 
           if (isError || !isImportation) {
