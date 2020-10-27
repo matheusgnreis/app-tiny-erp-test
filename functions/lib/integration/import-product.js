@@ -110,6 +110,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
           if (!product && isHiddenQueue) {
             handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
+            console.log(`#${storeId} skipping ${sku} / ${productId}`)
             return
           }
 
