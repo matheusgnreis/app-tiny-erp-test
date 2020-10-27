@@ -30,6 +30,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           .then(({ data }) => data)
           .catch(err => {
             if (err.response && err.response.status >= 400 && err.response.status < 500) {
+              console.log(`#${storeId} ${productId} => ${err.response.status}`)
               return null
             }
             throw err
@@ -103,6 +104,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
         .then(payload => {
           if (!payload) {
+            console.log(`#${storeId} not found ${sku}`)
             return payload
           }
           const { product, variationId, hasVariations } = payload
