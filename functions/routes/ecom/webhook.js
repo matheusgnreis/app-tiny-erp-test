@@ -222,7 +222,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
     .catch(err => {
       if (err.name === SKIP_TRIGGER_NAME) {
         // trigger ignored due to current running process
-        res.status(203).send(ECHO_SKIP)
+        res.status(203).send(err.message || ECHO_SKIP)
       } else {
         res.status(502)
         const { message } = err
