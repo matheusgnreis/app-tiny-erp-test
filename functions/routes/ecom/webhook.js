@@ -27,9 +27,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
    * Ref.: https://developers.e-com.plus/docs/api/#/store/triggers/
    */
   const trigger = req.body
-
   const resourceId = trigger.resource_id || trigger.inserted_id
-  console.log(`> Webhook #${storeId} ${resourceId} [${trigger.resource}]`)
 
   const documentRef = admin.firestore().doc(`running/${storeId}`)
   documentRef.get()
@@ -89,6 +87,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
             }
 
             /* DO YOUR CUSTOM STUFF HERE */
+            console.log(`> Webhook #${storeId} ${resourceId} [${trigger.resource}]`)
 
             const tinyToken = appData.tiny_api_token
             if (typeof tinyToken === 'string' && tinyToken) {
