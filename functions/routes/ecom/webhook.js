@@ -45,7 +45,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
           throw new Error('Too much requests')
         }
         runningKeys = documentSnapshot.get('keys')
-        if (runningKeys && runningKeys.includes(key)) {
+        if (documentSnapshot.get('stop') === trigger.resource || (runningKeys && runningKeys.includes(key))) {
           const err = new Error('Concurrent request with same key')
           err.name = SKIP_TRIGGER_NAME
           throw err
@@ -158,7 +158,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           documentRef.set({
                             keys: runningKeys,
                             count: runningCount + 1
-                          }).catch(console.error)
+                          }, { merge: true }).catch(console.error)
 
                           const resetFallback = setTimeout(() => {
                             console.log(`<<TIMEOUT>> ${debugFlag}`)

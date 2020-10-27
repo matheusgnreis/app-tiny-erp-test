@@ -152,7 +152,7 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
                       return queueEntry.documentRef.set({
                         keys,
                         count: data.count ? data.count - 1 : 0
-                      })
+                      }, { merge: true })
                     }
                   }
                 }
