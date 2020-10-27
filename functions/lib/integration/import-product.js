@@ -103,15 +103,17 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         })
 
         .then(payload => {
+          const dispatchNullJob = handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
           if (!payload) {
             console.log(`#${storeId} not found ${sku}`)
+            dispatchNullJob()
             return payload
           }
           const { product, variationId, hasVariations } = payload
           const tiny = new Tiny(tinyToken)
 
           if (!product && isHiddenQueue) {
-            handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
+            dispatchNullJob()
             console.log(`#${storeId} skipping ${sku} / ${productId}`)
             return
           }
