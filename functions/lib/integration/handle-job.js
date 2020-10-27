@@ -20,9 +20,10 @@ const queueRetry = (appSession, { action, queue, nextId }, appData, response) =>
 
       let queueList = appData[action] && appData[action][queue]
       if (!Array.isArray(queueList)) {
-        queueList = []
+        queueList = [nextId]
+      } else if (!queueList.includes(nextId)) {
+        queueList.unshift(nextId)
       }
-      queueList.unshift(nextId)
 
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -75,6 +76,31 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               notes = `Status ${status}`
               if (config) {
                 notes += ` [${config.url}]`
+              }
+            }
+
+            if (queueEntry.mustUpdateAppQueue) {
+              const { action, queue, nextId } = queueEntry
+              const queueList = appData[action][queue]
+              if (Array.isArray(queueList)) {
+                const idIndex = queueList.findIndex(nextId)
+                if (idIndex > -1) {
+                  queueList.splice(idIndex, 1)
+                  const data = {
+                    [action]: {
+                      ...appData[action],
+                      [queue]: queueList
+                    }
+                  }
+                  console.log(`#${storeId} ${JSON.stringify(data)}`)
+                  updateAppData({ appSdk, storeId, auth }, data).catch(err => {
+                    if (err.response && (!err.response.status || err.response.status >= 500)) {
+                      queueRetry({ appSdk, storeId, auth }, queueEntry, appData, err.response)
+                    } else {
+                      console.error(err)
+                    }
+                  })
+                }
               }
             }
           } else {
