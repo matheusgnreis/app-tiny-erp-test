@@ -40,16 +40,16 @@ exports.post = ({ appSdk, admin }, req, res) => {
         documentSnapshot.exists &&
         Date.now() - documentSnapshot.updateTime.toDate().getTime() < 7000
       ) {
+        if (documentSnapshot.get('stop') === trigger.resource) {
+          const err = new Error('Stop for this trigger resource')
+          err.name = SKIP_TRIGGER_NAME
+          throw err
+        }
         runningCount = documentSnapshot.get('count')
         if (runningCount > 2) {
           throw new Error('Too much requests')
         }
         runningKeys = documentSnapshot.get('keys')
-        if (documentSnapshot.get('stop') === trigger.resource || (runningKeys && runningKeys.includes(key))) {
-          const err = new Error('Concurrent request with same key')
-          err.name = SKIP_TRIGGER_NAME
-          throw err
-        }
       }
 
       if (!runningCount) {
@@ -59,15 +59,18 @@ exports.post = ({ appSdk, admin }, req, res) => {
         .catch(console.error)
 
       const proceed = ({ runningCount, runningKeys }) => {
-        setTimeout(() => {
-          documentRef.set({ count: runningCount }, { merge: true })
-            .catch(console.error)
-        }, 500)
-        resolve({
-          documentRef,
-          key,
-          runningKeys
-        })
+        if (runningKeys && runningKeys.includes(key)) {
+          const err = new Error('Concurrent request with same key')
+          err.name = SKIP_TRIGGER_NAME
+          reject(err)
+        } else {
+          resolve({
+            documentRef,
+            key,
+            runningCount,
+            runningKeys
+          })
+        }
       }
 
       const delay = Array.isArray(runningKeys)
@@ -80,13 +83,13 @@ exports.post = ({ appSdk, admin }, req, res) => {
               runningKeys: documentSnapshot.get('keys')
             })
           }).catch(reject)
-        }, delay * 1000)
+        }, delay * 1500)
       } else {
         proceed({ runningCount, runningKeys })
       }
     }))
 
-    .then(({ documentRef, key, runningKeys }) => {
+    .then(({ documentRef, key, runningCount, runningKeys }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -178,8 +181,12 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           } else {
                             runningKeys.push(key)
                           }
-                          documentRef.set({ keys: runningKeys }, { merge: true })
-                            .catch(console.error)
+                          documentRef.set({
+                            count: runningCount,
+                            keys: runningKeys
+                          }, {
+                            merge: true
+                          }).catch(console.error)
 
                           const resetFallback = setTimeout(() => {
                             console.log(`<<TIMEOUT>> ${debugFlag}`)
@@ -218,6 +225,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
             }
 
             // console.log('> Skip webhook:', JSON.stringify(appData))
+            documentRef.set({ count: runningCount }, { merge: true })
+              .catch(console.error)
             // nothing to do
             return {}
           })
