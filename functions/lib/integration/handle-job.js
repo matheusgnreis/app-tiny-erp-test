@@ -80,7 +80,7 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               const { action, queue, nextId } = queueEntry
               const queueList = appData[action][queue]
               if (Array.isArray(queueList)) {
-                const idIndex = queueList.findIndex(nextId)
+                const idIndex = queueList.indexOf(nextId)
                 if (idIndex > -1) {
                   queueList.splice(idIndex, 1)
                   const data = {
