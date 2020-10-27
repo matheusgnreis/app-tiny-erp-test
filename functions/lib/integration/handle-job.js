@@ -144,8 +144,7 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               queueEntry.documentRef.get()
                 .then(documentSnapshot => {
                   if (documentSnapshot.exists) {
-                    const data = documentSnapshot.data()
-                    const { keys } = data
+                    const { keys } = documentSnapshot.data()
                     if (Array.isArray(keys)) {
                       const keyIndex = keys.indexOf(queueEntry.key)
                       if (keyIndex > -1) {
