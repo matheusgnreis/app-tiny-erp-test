@@ -44,7 +44,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         }
         runningKeys = documentSnapshot.get('keys')
         if (runningKeys && runningKeys.includes(key)) {
-          throw new Error('Concurrent request with same key')
+          throw new Error(SKIP_TRIGGER_NAME)
         }
       }
       if (!runningCount) {
@@ -218,11 +218,16 @@ exports.post = ({ appSdk, admin }, req, res) => {
     })
 
     .catch(err => {
-      res.status(502)
-      const { message } = err
-      res.send({
-        error: 'FIRESTORE_ERROR',
-        message
-      })
+      if (err.name === SKIP_TRIGGER_NAME) {
+        // trigger ignored due to current running process
+        res.status(203).send(ECHO_SKIP)
+      } else {
+        res.status(502)
+        const { message } = err
+        res.send({
+          error: 'FIRESTORE_ERROR',
+          message
+        })
+      }
     })
 }
