@@ -36,18 +36,22 @@ exports.post = ({ appSdk, admin }, req, res) => {
     .then(documentSnapshot => new Promise((resolve, reject) => {
       let runningCount, runningKeys
       const key = `${trigger.resource}/${resourceId}`
-      if (
-        documentSnapshot.exists &&
-        Date.now() - documentSnapshot.updateTime.toDate().getTime() < 7000
-      ) {
+      const validateSnapshot = documentSnapshot => {
+        return documentSnapshot.exists &&
+          Date.now() - documentSnapshot.updateTime.toDate().getTime() < 10000
+      }
+
+      if (validateSnapshot(documentSnapshot)) {
         if (documentSnapshot.get('stop') === trigger.resource) {
           const err = new Error('Stop for this trigger resource')
           err.name = SKIP_TRIGGER_NAME
-          throw err
+          return reject(err)
         }
         runningCount = documentSnapshot.get('count')
-        if (runningCount > 2) {
-          throw new Error('Too much requests')
+        if (runningCount > 3) {
+          const err = new Error('Too much requests')
+          err.runningCount = runningCount
+          return reject(err)
         }
         runningKeys = documentSnapshot.get('keys')
       }
@@ -78,10 +82,15 @@ exports.post = ({ appSdk, admin }, req, res) => {
       if (delay > 0) {
         setTimeout(() => {
           documentRef.get().then(documentSnapshot => {
-            proceed({
-              runningCount: documentSnapshot.get('count') || 0,
-              runningKeys: documentSnapshot.get('keys')
-            })
+            const proceedData = validateSnapshot(documentSnapshot)
+              ? {
+                runningCount: documentSnapshot.get('count') || 0,
+                runningKeys: documentSnapshot.get('keys')
+              }
+              : {
+                runningCount: 0
+              }
+            proceed(proceedData)
           }).catch(reject)
         }, delay * 1500)
       } else {
@@ -278,12 +287,14 @@ exports.post = ({ appSdk, admin }, req, res) => {
         // trigger ignored due to current running process
         res.status(203).send(err.message || ECHO_SKIP)
       } else {
-        res.status(502)
-        const { message } = err
-        res.send({
-          error: 'FIRESTORE_ERROR',
-          message
-        })
+        setTimeout(() => {
+          res.status(502)
+          const { message } = err
+          res.send({
+            error: 'FIRESTORE_ERROR',
+            message
+          })
+        }, 750 * (err.runningCount || 0.1))
       }
     })
 }
