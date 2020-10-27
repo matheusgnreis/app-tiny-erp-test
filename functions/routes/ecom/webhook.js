@@ -167,11 +167,14 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           }, 30000)
 
                           let unsubscribe = documentRef.onSnapshot(documentSnapshot => {
-                            if (unsubscribe) {
-                              unsubscribe()
-                              unsubscribe = null
+                            const keys = documentSnapshot.get('keys')
+                            if (!Array.isArray(keys) || !keys.includes(key)) {
+                              if (unsubscribe) {
+                                unsubscribe()
+                                unsubscribe = null
+                              }
+                              clearTimeout(resetFallback)
                             }
-                            clearTimeout(resetFallback)
                           }, err => {
                             console.log(`Encountered error: ${err}`)
                           })
