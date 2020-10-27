@@ -57,11 +57,13 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
       setTimeout(() => resolve({
         key,
-        documentRef
+        documentRef,
+        runningCount,
+        runningKeys
       }), runningCount * 1000 + 10)
     }))
 
-    .then(({ documentRef, key, runningKeys, runningCount }) => {
+    .then(({ documentRef, key, runningCount, runningKeys }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
