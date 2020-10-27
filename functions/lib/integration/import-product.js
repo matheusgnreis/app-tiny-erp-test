@@ -108,7 +108,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           const { product, variationId, hasVariations } = payload
           const tiny = new Tiny(tinyToken)
 
-          if (tinyStockUpdate && !product && isHiddenQueue) {
+          if (!product && isHiddenQueue) {
             handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
             return
           }
