@@ -38,7 +38,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         Date.now() - documentSnapshot.updateTime.toDate().getTime() < 7000
       ) {
         runningCount = documentSnapshot.get('count')
-        if (runningCount > 3) {
+        if (runningCount > 2) {
           throw new Error('Too much requests')
         }
         runningKeys = documentSnapshot.get('keys')
