@@ -140,24 +140,26 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
           }
 
           if (queueEntry.documentRef && queueEntry.documentRef.get) {
-            queueEntry.documentRef.get()
-              .then(documentSnapshot => {
-                if (documentSnapshot.exists) {
-                  const data = documentSnapshot.data()
-                  const { keys } = data
-                  if (Array.isArray(keys)) {
-                    const keyIndex = keys.indexOf(queueEntry.key)
-                    if (keyIndex > -1) {
-                      keys.splice(keyIndex, 1)
-                      return queueEntry.documentRef.set({
-                        keys,
-                        count: data.count ? data.count - 1 : 0
-                      }, { merge: true })
+            setTimeout(() => {
+              queueEntry.documentRef.get()
+                .then(documentSnapshot => {
+                  if (documentSnapshot.exists) {
+                    const data = documentSnapshot.data()
+                    const { keys } = data
+                    if (Array.isArray(keys)) {
+                      const keyIndex = keys.indexOf(queueEntry.key)
+                      if (keyIndex > -1) {
+                        keys.splice(keyIndex, 1)
+                        return queueEntry.documentRef.set({
+                          keys,
+                          count: data.count ? data.count - 1 : 0
+                        }, { merge: true })
+                      }
                     }
                   }
-                }
-              })
-              .finally(checkUpdateQueue)
+                })
+                .finally(checkUpdateQueue)
+            }, 1000)
           } else {
             checkUpdateQueue()
           }
