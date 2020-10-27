@@ -57,7 +57,7 @@ const tryImageUpload = (storeId, auth, originImgUrl, product) => new Promise(res
       console.error(err)
       resolve({
         _id: ecomUtils.randomObjectId(),
-        zoom: {
+        normal: {
           url: originImgUrl,
           alt: product.name
         }
@@ -178,7 +178,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
         if (imagemExterna.imagem_externa) {
           const { url } = imagemExterna.imagem_externa
           if (url) {
-            product.pictures.push({ zoom: { url } })
+            product.pictures.push({ normal: { url } })
           }
         }
       })
