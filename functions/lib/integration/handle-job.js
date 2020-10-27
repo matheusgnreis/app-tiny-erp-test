@@ -149,10 +149,8 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
                       const keyIndex = keys.indexOf(queueEntry.key)
                       if (keyIndex > -1) {
                         keys.splice(keyIndex, 1)
-                        return queueEntry.documentRef.set({
-                          keys,
-                          count: keys.length
-                        }, { merge: true })
+                        return queueEntry.documentRef.set({ keys }, { merge: true })
+                          .catch(console.error)
                       }
                     }
                   }

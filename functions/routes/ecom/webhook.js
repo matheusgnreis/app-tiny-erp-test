@@ -33,7 +33,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
   const documentRef = admin.firestore().doc(`running/${storeId}`)
   documentRef.get()
 
-    .then(documentSnapshot => new Promise(resolve => {
+    .then(documentSnapshot => new Promise((resolve, reject) => {
       let runningCount, runningKeys
       const key = `${trigger.resource}/${resourceId}`
       if (
@@ -55,21 +55,38 @@ exports.post = ({ appSdk, admin }, req, res) => {
       if (!runningCount) {
         runningCount = 0
       }
-      if (!Array.isArray(runningKeys)) {
-        runningKeys = []
-      }
       documentRef.set({ count: runningCount + 1 }, { merge: true })
         .catch(console.error)
 
-      setTimeout(() => resolve({
-        key,
-        documentRef,
-        runningCount,
-        runningKeys
-      }), Math.max(runningCount, runningKeys.length) * 1500 + 10)
+      const proceed = ({ runningCount, runningKeys }) => {
+        setTimeout(() => {
+          documentRef.set({ count: runningCount }, { merge: true })
+            .catch(console.error)
+        }, 500)
+        resolve({
+          documentRef,
+          key,
+          runningKeys
+        })
+      }
+
+      const delay = Array.isArray(runningKeys)
+        ? Math.max(runningCount, runningKeys.length) : runningCount
+      if (delay > 0) {
+        setTimeout(() => {
+          documentRef.get().then(documentSnapshot => {
+            proceed({
+              runningCount: documentSnapshot.get('count') || 0,
+              runningKeys: documentSnapshot.get('keys')
+            })
+          }).catch(reject)
+        }, delay * 1000)
+      } else {
+        proceed({ runningCount, runningKeys })
+      }
     }))
 
-    .then(({ documentRef, key, runningCount, runningKeys }) => {
+    .then(({ documentRef, key, runningKeys }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -156,7 +173,11 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
 
-                          runningKeys.push(key)
+                          if (!Array.isArray(runningKeys)) {
+                            runningKeys = [key]
+                          } else {
+                            runningKeys.push(key)
+                          }
                           documentRef.set({ keys: runningKeys }, { merge: true })
                             .catch(console.error)
 
@@ -195,11 +216,9 @@ exports.post = ({ appSdk, admin }, req, res) => {
                 }
               }
             }
-            // console.log('> Skip webhook:', JSON.stringify(appData))
 
+            // console.log('> Skip webhook:', JSON.stringify(appData))
             // nothing to do
-            documentRef.set({ count: runningCount }, { merge: true })
-              .catch(console.error)
             return {}
           })
 
