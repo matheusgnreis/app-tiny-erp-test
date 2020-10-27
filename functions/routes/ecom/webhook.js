@@ -44,7 +44,9 @@ exports.post = ({ appSdk, admin }, req, res) => {
         }
         runningKeys = documentSnapshot.get('keys')
         if (runningKeys && runningKeys.includes(key)) {
-          throw new Error(SKIP_TRIGGER_NAME)
+          const err = new Error('Concurrent request with same key')
+          err.name = SKIP_TRIGGER_NAME
+          throw err
         }
       }
       if (!runningCount) {
