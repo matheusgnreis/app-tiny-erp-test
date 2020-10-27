@@ -152,14 +152,14 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
                         keys.splice(keyIndex, 1)
                         return queueEntry.documentRef.set({
                           keys,
-                          count: data.count ? data.count - 1 : 0
+                          count: keys.length
                         }, { merge: true })
                       }
                     }
                   }
                 })
                 .finally(checkUpdateQueue)
-            }, 1000)
+            }, 200)
           } else {
             checkUpdateQueue()
           }

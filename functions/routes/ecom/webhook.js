@@ -55,12 +55,15 @@ exports.post = ({ appSdk, admin }, req, res) => {
         runningCount = 0
       }
 
+      documentRef.set({ count: runningCount + 1 }, { merge: true })
+        .catch(console.error)
+
       setTimeout(() => resolve({
         key,
         documentRef,
         runningCount,
         runningKeys
-      }), runningCount * 1000 + 10)
+      }), runningCount * 1500 + 10)
     }))
 
     .then(({ documentRef, key, runningCount, runningKeys }) => {
@@ -155,10 +158,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           } else {
                             runningKeys.push(key)
                           }
-                          documentRef.set({
-                            keys: runningKeys,
-                            count: runningCount + 1
-                          }, { merge: true }).catch(console.error)
+                          documentRef.set({ keys: runningKeys }, { merge: true })
+                            .catch(console.error)
 
                           const resetFallback = setTimeout(() => {
                             console.log(`<<TIMEOUT>> ${debugFlag}`)
@@ -198,6 +199,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
             // console.log('> Skip webhook:', JSON.stringify(appData))
 
             // nothing to do
+            documentRef.set({ count: runningCount }, { merge: true })
+              .catch(console.error)
             return {}
           })
 
