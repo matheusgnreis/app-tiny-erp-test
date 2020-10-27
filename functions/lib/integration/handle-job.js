@@ -144,14 +144,14 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               queueEntry.documentRef.get()
                 .then(documentSnapshot => {
                   if (documentSnapshot.exists) {
-                    const { keys } = documentSnapshot.data()
-                    if (Array.isArray(keys)) {
-                      const keyIndex = keys.indexOf(queueEntry.key)
-                      if (keyIndex > -1) {
-                        keys.splice(keyIndex, 1)
-                        return queueEntry.documentRef.set({ keys }, { merge: true })
-                          .catch(console.error)
-                      }
+                    const data = documentSnapshot.data()
+                    const { key } = queueEntry
+                    if (data[key]) {
+                      return queueEntry.documentRef.set({
+                        [key]: false
+                      }, {
+                        merge: true
+                      }).catch(console.error)
                     }
                   }
                 })

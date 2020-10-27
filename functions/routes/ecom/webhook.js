@@ -34,7 +34,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
   documentRef.get()
 
     .then(documentSnapshot => new Promise((resolve, reject) => {
-      let runningCount, runningKeys
+      let runningCount, isRunningKey
       const key = `${trigger.resource}/${resourceId}`
       const validateSnapshot = documentSnapshot => {
         return documentSnapshot.exists &&
@@ -48,12 +48,16 @@ exports.post = ({ appSdk, admin }, req, res) => {
           return reject(err)
         }
         runningCount = documentSnapshot.get('count')
+        isRunningKey = documentSnapshot.get(key)
         if (runningCount > 3) {
           const err = new Error('Too much requests')
-          err.runningCount = runningCount
+          if (isRunningKey) {
+            err.name = SKIP_TRIGGER_NAME
+          } else {
+            err.runningCount = runningCount
+          }
           return reject(err)
         }
-        runningKeys = documentSnapshot.get('keys')
       }
 
       if (!runningCount) {
@@ -62,8 +66,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
       documentRef.set({ count: runningCount + 1 }, { merge: true })
         .catch(console.error)
 
-      const proceed = ({ runningCount, runningKeys }) => {
-        if (runningKeys && runningKeys.includes(key)) {
+      const proceed = ({ runningCount, isRunningKey }) => {
+        if (isRunningKey) {
           const err = new Error('Concurrent request with same key')
           err.name = SKIP_TRIGGER_NAME
           reject(err)
@@ -71,34 +75,31 @@ exports.post = ({ appSdk, admin }, req, res) => {
           resolve({
             documentRef,
             key,
-            runningCount,
-            runningKeys
+            runningCount
           })
         }
       }
 
-      const delay = Array.isArray(runningKeys)
-        ? Math.max(runningCount, runningKeys.length) : runningCount
-      if (delay > 0) {
+      if (runningCount > 0) {
         setTimeout(() => {
           documentRef.get().then(documentSnapshot => {
             const proceedData = validateSnapshot(documentSnapshot)
               ? {
                 runningCount: documentSnapshot.get('count') || 0,
-                runningKeys: documentSnapshot.get('keys')
+                isRunningKey: documentSnapshot.get(key)
               }
               : {
                 runningCount: 0
               }
             proceed(proceedData)
           }).catch(reject)
-        }, delay * 1500)
+        }, runningCount * 1500)
       } else {
-        proceed({ runningCount, runningKeys })
+        proceed({ runningCount, isRunningKey })
       }
     }))
 
-    .then(({ documentRef, key, runningCount, runningKeys }) => {
+    .then(({ documentRef, key, runningCount }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -185,14 +186,9 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
 
-                          if (!Array.isArray(runningKeys)) {
-                            runningKeys = [key]
-                          } else {
-                            runningKeys.push(key)
-                          }
                           documentRef.set({
                             count: runningCount,
-                            keys: runningKeys
+                            [key]: true
                           }, {
                             merge: true
                           }).catch(console.error)
@@ -204,8 +200,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           }, 30000)
 
                           let unsubscribe = documentRef.onSnapshot(documentSnapshot => {
-                            const keys = documentSnapshot.get('keys')
-                            if (!Array.isArray(keys) || !keys.includes(key)) {
+                            if (!documentSnapshot.exists || !documentSnapshot.get(key)) {
                               if (unsubscribe) {
                                 unsubscribe()
                                 unsubscribe = null
