@@ -63,8 +63,8 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
           }
 
           let notes, retrying
-          if (!isError) {
-            if (payload) {
+          if (payload) {
+            if (!isError) {
               const { data, status, config } = payload
               if (data && data._id) {
                 logEntry.resource_id = data._id
@@ -73,23 +73,23 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               if (config) {
                 notes += ` [${config.url}]`
               }
-            }
-          } else {
-            const { config, response } = payload
-            if (response) {
-              const { data, status } = response
-              notes = `Error: Status ${status} \n${JSON.stringify(data)}`
-              if (!status || status >= 500) {
-                retrying = queueRetry({ appSdk, storeId, auth }, queueEntry, appData, response)
-              }
-              if (config) {
-                const { url, method, data } = config
-                notes += `\n\n-- Request -- \n${method} ${url} \n${JSON.stringify(data)}`
-              }
-            } else if (payload.isConfigError === true) {
-              notes = payload.message
             } else {
-              notes = payload.stack
+              const { config, response } = payload
+              if (response) {
+                const { data, status } = response
+                notes = `Error: Status ${status} \n${JSON.stringify(data)}`
+                if (!status || status >= 500) {
+                  retrying = queueRetry({ appSdk, storeId, auth }, queueEntry, appData, response)
+                }
+                if (config) {
+                  const { url, method, data } = config
+                  notes += `\n\n-- Request -- \n${method} ${url} \n${JSON.stringify(data)}`
+                }
+              } else if (payload.isConfigError === true) {
+                notes = payload.message
+              } else {
+                notes = payload.stack
+              }
             }
           }
           if (notes) {
@@ -120,27 +120,29 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
           if (queueEntry.mustUpdateAppQueue) {
             const updateQueue = () => {
               const { action, queue, nextId } = queueEntry
-              const queueList = appData[action][queue]
+              let queueList = appData[action][queue]
               if (Array.isArray(queueList)) {
                 const idIndex = queueList.indexOf(nextId)
                 if (idIndex > -1) {
                   queueList.splice(idIndex, 1)
-                  const data = {
-                    [action]: {
-                      ...appData[action],
-                      [queue]: queueList
-                    }
-                  }
-                  console.log(`#${storeId} ${JSON.stringify(data)}`)
-                  updateAppData({ appSdk, storeId, auth }, data).catch(err => {
-                    if (err.response && (!err.response.status || err.response.status >= 500)) {
-                      queueRetry({ appSdk, storeId, auth }, queueEntry, appData, err.response)
-                    } else {
-                      throw err
-                    }
-                  })
+                }
+              } else {
+                queueList = []
+              }
+              const data = {
+                [action]: {
+                  ...appData[action],
+                  [queue]: queueList
                 }
               }
+              console.log(`#${storeId} ${JSON.stringify(data)}`)
+              updateAppData({ appSdk, storeId, auth }, data).catch(err => {
+                if (err.response && (!err.response.status || err.response.status >= 500)) {
+                  queueRetry({ appSdk, storeId, auth }, queueEntry, appData, err.response)
+                } else {
+                  throw err
+                }
+              })
             }
 
             if (retrying) {
@@ -170,12 +172,10 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
 const handleJob = (appSession, queueEntry, job) => {
   job
     .then(payload => {
-      if (payload) {
-        if (typeof payload.then === 'function') {
-          handleJob(appSession, queueEntry, payload)
-        } else {
-          log(appSession, queueEntry, payload)
-        }
+      if (payload && typeof payload.then === 'function') {
+        handleJob(appSession, queueEntry, payload)
+      } else {
+        log(appSession, queueEntry, payload)
       }
       return true
     })
