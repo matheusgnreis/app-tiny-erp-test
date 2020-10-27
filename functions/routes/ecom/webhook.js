@@ -150,7 +150,10 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           handler
                         ) {
                           console.log(`> Starting ${key}/${nextId}`)
-                          documentRef.set({ key, count: runningCount + 1 })
+                          documentRef.set({
+                            keys: [...runningKeys, key],
+                            count: runningCount + 1
+                          })
                             .catch(console.error)
 
                           return handler(
