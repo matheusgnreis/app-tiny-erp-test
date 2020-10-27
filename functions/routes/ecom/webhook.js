@@ -51,10 +51,13 @@ exports.post = ({ appSdk, admin }, req, res) => {
           throw err
         }
       }
+
       if (!runningCount) {
         runningCount = 0
       }
-
+      if (!Array.isArray(runningKeys)) {
+        runningKeys = []
+      }
       documentRef.set({ count: runningCount + 1 }, { merge: true })
         .catch(console.error)
 
@@ -63,7 +66,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         documentRef,
         runningCount,
         runningKeys
-      }), runningCount * 1500 + 10)
+      }), Math.max(runningCount, runningKeys.length) * 1500 + 10)
     }))
 
     .then(({ documentRef, key, runningCount, runningKeys }) => {
@@ -153,11 +156,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
 
-                          if (!Array.isArray(runningKeys)) {
-                            runningKeys = [key]
-                          } else {
-                            runningKeys.push(key)
-                          }
+                          runningKeys.push(key)
                           documentRef.set({ keys: runningKeys }, { merge: true })
                             .catch(console.error)
 
