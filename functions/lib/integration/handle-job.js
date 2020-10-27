@@ -127,7 +127,7 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               .then(documentSnapshot => {
                 if (documentSnapshot.exists) {
                   const data = documentSnapshot.data()
-                  const keys = data.keys
+                  const keys = data.keys || []
                   const keyIndex = keys.indexOf(queueEntry.key)
                   if (keyIndex > -1) {
                     keys.splice(keyIndex, 1)
