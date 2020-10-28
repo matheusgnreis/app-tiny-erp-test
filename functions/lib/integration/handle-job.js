@@ -96,69 +96,45 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
             logEntry.notes = notes.substring(0, 5000)
           }
 
-          const checkUpdateQueue = () => {
-            if (queueEntry.mustUpdateAppQueue) {
-              const updateQueue = () => {
-                const { action, queue, nextId } = queueEntry
-                let queueList = appData[action][queue]
-                if (Array.isArray(queueList)) {
-                  const idIndex = queueList.indexOf(nextId)
-                  if (idIndex > -1) {
-                    queueList.splice(idIndex, 1)
-                  }
-                } else {
-                  queueList = []
+          if (queueEntry.mustUpdateAppQueue) {
+            const updateQueue = () => {
+              const { action, queue, nextId } = queueEntry
+              let queueList = appData[action][queue]
+              if (Array.isArray(queueList)) {
+                const idIndex = queueList.indexOf(nextId)
+                if (idIndex > -1) {
+                  queueList.splice(idIndex, 1)
                 }
-                const data = {
-                  [action]: {
-                    ...appData[action],
-                    [queue]: queueList
-                  }
-                }
-                console.log(`#${storeId} ${JSON.stringify(data)}`)
-                updateAppData({ appSdk, storeId, auth }, data).catch(err => {
-                  if (err.response && (!err.response.status || err.response.status >= 500)) {
-                    queueRetry({ appSdk, storeId, auth }, queueEntry, appData, err.response)
-                  } else {
-                    throw err
-                  }
-                })
-              }
-
-              if (retrying) {
-                retrying
-                  .then(result => {
-                    if (result !== null) {
-                      updateQueue()
-                    }
-                  })
-                  .catch(updateQueue)
               } else {
-                updateQueue()
+                queueList = []
               }
+              const data = {
+                [action]: {
+                  ...appData[action],
+                  [queue]: queueList
+                }
+              }
+              console.log(`#${storeId} ${JSON.stringify(data)}`)
+              updateAppData({ appSdk, storeId, auth }, data).catch(err => {
+                if (err.response && (!err.response.status || err.response.status >= 500)) {
+                  queueRetry({ appSdk, storeId, auth }, queueEntry, appData, err.response)
+                } else {
+                  throw err
+                }
+              })
             }
-          }
 
-          if (queueEntry.documentRef && queueEntry.documentRef.get) {
-            setTimeout(() => {
-              queueEntry.documentRef.get()
-                .then(documentSnapshot => {
-                  if (documentSnapshot.exists) {
-                    const data = documentSnapshot.data()
-                    const { key } = queueEntry
-                    if (data[key]) {
-                      return queueEntry.documentRef.set({
-                        [key]: false
-                      }, {
-                        merge: true
-                      }).catch(console.error)
-                    }
+            if (retrying) {
+              retrying
+                .then(result => {
+                  if (result !== null) {
+                    updateQueue()
                   }
                 })
-                .finally(checkUpdateQueue)
-            }, 200)
-          } else {
-            checkUpdateQueue()
+                .catch(updateQueue)
+            } else {
+              updateQueue()
+            }
           }
 
           if (isError || !isImportation) {

@@ -34,27 +34,28 @@ exports.post = ({ appSdk, admin }, req, res) => {
   documentRef.get()
 
     .then(documentSnapshot => new Promise((resolve, reject) => {
-      let runningCount, isRunningKey
+      let runningCount, runningKey
       const key = `${trigger.resource}_${resourceId}`
-      const validateSnapshot = documentSnapshot => {
-        return documentSnapshot.exists &&
-          Date.now() - documentSnapshot.updateTime.toDate().getTime() < 10000
-      }
+      const initKey = `${key}_init`
 
-      const proceed = () => {
+      const countAndProceed = () => {
         if (!runningCount) {
           runningCount = 0
         }
         documentRef.set({
-          count: runningCount + 1
+          count: runningCount + 1,
+          [initKey]: true
         }, {
           merge: true
         }).catch(console.error)
 
         const uncountRequest = (count = 0, isHandling) => {
-          const data = { count }
+          const data = {
+            count,
+            [initKey]: false
+          }
           if (isHandling === true) {
-            data[key] = true
+            data[key] = trigger.datetime
           }
           documentRef.set(data, { merge: true }).catch(console.error)
         }
@@ -64,8 +65,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
           reject(err)
         }
 
-        const proceed = ({ runningCount, isRunningKey }) => {
-          if (isRunningKey) {
+        const proceed = ({ runningCount, runningKey }) => {
+          if (runningKey > trigger.datetime) {
             const err = new Error('Concurrent request with same key')
             err.statusCode = 203
             handleReject(err, runningCount)
@@ -82,10 +83,10 @@ exports.post = ({ appSdk, admin }, req, res) => {
         if (runningCount > 0) {
           setTimeout(() => {
             documentRef.get().then(documentSnapshot => {
-              const proceedData = validateSnapshot(documentSnapshot)
+              const proceedData = documentSnapshot.exists
                 ? {
                   runningCount: documentSnapshot.get('count') || 0,
-                  isRunningKey: documentSnapshot.get(key)
+                  runningKey: documentSnapshot.get(key)
                 }
                 : {
                   runningCount: 0
@@ -94,28 +95,31 @@ exports.post = ({ appSdk, admin }, req, res) => {
             }).catch(handleReject)
           }, runningCount * 1500)
         } else {
-          proceed({ runningCount, isRunningKey })
+          proceed({ runningCount, runningKey })
         }
       }
 
-      if (validateSnapshot(documentSnapshot)) {
-        isRunningKey = documentSnapshot.get(key)
-        if (documentSnapshot.get('stop') === trigger.resource || isRunningKey) {
+      if (
+        documentSnapshot.exists &&
+        Date.now() - documentSnapshot.updateTime.toDate().getTime() < 10000
+      ) {
+        runningKey = documentSnapshot.get(key)
+        if (documentSnapshot.get('stop') === trigger.resource || runningKey > trigger.datetime) {
           const err = new Error()
           err.statusCode = 204
           return reject(err)
         }
         runningCount = documentSnapshot.get('count')
-        if (runningCount > 3) {
+        if (runningCount > 3 || documentSnapshot.get(initKey)) {
           const err = new Error('Too much requests')
           return reject(err)
         }
       } else if (documentSnapshot.exists) {
         return documentRef.delete()
           .catch(console.error)
-          .finally(proceed)
+          .finally(countAndProceed)
       }
-      proceed()
+      countAndProceed()
     }))
 
     .then(({ documentRef, key, runningCount, uncountRequest }) => {
