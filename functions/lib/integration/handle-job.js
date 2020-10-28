@@ -143,17 +143,23 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
             queueEntry.documentRef.get()
               .then(documentSnapshot => {
                 if (documentSnapshot.exists) {
-                  const { count } = documentSnapshot.data()
-                  if (count > 0) {
-                    return queueEntry.documentRef.set({
-                      count: count - 1
-                    }, {
-                      merge: true
-                    }).catch(console.error)
+                  const data = documentSnapshot.data()
+                  if (data[queueEntry.key] === false) {
+                    queueEntry.mustUpdateAppQueue = false
                   }
+                  return queueEntry.documentRef.set({
+                    count: data.count > 0 ? data.count - 1 : 0,
+                    [queueEntry.key]: false
+                  }, {
+                    merge: true
+                  })
                 }
               })
-              .finally(checkUpdateQueue)
+              .then(checkUpdateQueue)
+              .catch(err => {
+                console.error(err)
+                checkUpdateQueue()
+              })
           } else {
             checkUpdateQueue()
           }

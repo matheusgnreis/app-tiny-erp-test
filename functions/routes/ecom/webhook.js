@@ -49,10 +49,15 @@ exports.post = ({ appSdk, admin }, req, res) => {
           merge: !canResetDoc
         }).catch(console.error)
 
-        const uncountRequest = isHandling => {
+        const uncountRequest = (isHandling, payload) => {
           unsubscribe()
           const upset = data => {
-            documentRef.set(data, { merge: true }).catch(console.error)
+            documentRef.set({
+              ...data,
+              ...payload
+            }, {
+              merge: true
+            }).catch(console.error)
           }
           if (isHandling === true) {
             upset({ [key]: trigger.datetime })
@@ -66,14 +71,15 @@ exports.post = ({ appSdk, admin }, req, res) => {
           reject(err)
         }
 
-        const checkProcessKey = () => {
+        const validateDocSnapshot = () => {
           return documentSnapshot.exists &&
             !(documentSnapshot.get(initKey) > timestamp) &&
-            !(documentSnapshot.get(key) >= trigger.datetime)
+            !(documentSnapshot.get(key) >= trigger.datetime) &&
+            documentSnapshot
         }
 
         const proceed = () => {
-          if (!checkProcessKey()) {
+          if (!validateDocSnapshot()) {
             const err = new Error('Concurrent request with same key')
             err.statusCode = 203
             handleReject(err)
@@ -82,12 +88,12 @@ exports.post = ({ appSdk, admin }, req, res) => {
               documentRef,
               key,
               uncountRequest,
-              checkProcessKey
+              validateDocSnapshot
             })
           }
         }
 
-        const proceedTimer = setTimeout(proceed, runningCount * 1500 + (runningKey ? 1000 : 150))
+        const proceedTimer = setTimeout(proceed, runningCount * 1500 + (runningKey ? 450 : 150))
 
         const unsubscribe = documentRef.onSnapshot(newDocumentSnapshot => {
           documentSnapshot = newDocumentSnapshot
@@ -119,7 +125,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
       countAndProceed()
     }))
 
-    .then(({ documentRef, key, uncountRequest, checkProcessKey }) => {
+    .then(({ documentRef, key, uncountRequest, validateDocSnapshot }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -194,7 +200,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                       if (Array.isArray(ids) && ids.length) {
                         const isHiddenQueue = action.charAt(0) === '_'
                         const mustUpdateAppQueue = trigger.resource === 'applications'
-                        const handler = integrationHandlers[action.replace(/^_+/, '')][queue.toLowerCase()]
+                        const handlerName = action.replace(/^_+/, '')
+                        const handler = integrationHandlers[handlerName][queue.toLowerCase()]
                         const nextId = ids[0]
 
                         if (
@@ -202,13 +209,15 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           nextId.length &&
                           handler
                         ) {
-                          if (!checkProcessKey()) {
+                          key += `_${handlerName}_${nextId.replace(/[~./]/g, '_')}`
+                          const documentSnapshot = validateDocSnapshot()
+                          if (!documentSnapshot || documentSnapshot.get(key)) {
                             break
                           }
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
-                          uncountRequest(true)
+                          uncountRequest({ [key]: true })
 
                           return handler(
                             { appSdk, storeId, auth },
