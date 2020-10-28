@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.10](https://github.com/ecomplus/application-starter/compare/v1.2.9...v1.2.10) (2020-10-28)
+
+
+### Bug Fixes
+
+* **webhook:** handling queue fallback when has more ids ([b082756](https://github.com/ecomplus/application-starter/commit/b0827569a2859a08ba3944c9f440361845efd380))
+* **webhook:** set final key with timestamp to further check by time diff ([6e605fa](https://github.com/ecomplus/application-starter/commit/6e605fa51e827d0e9751dcd87190b255ca23c229))
+
 ### [1.2.9](https://github.com/ecomplus/application-starter/compare/v1.2.8...v1.2.9) (2020-10-28)
 
 
