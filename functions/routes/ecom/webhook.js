@@ -157,7 +157,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
               switch (trigger.resource) {
                 case 'applications':
-                  integrationConfig = trigger.body
+                  integrationConfig = appData
                   canCreateNew = true
                   break
                 case 'products':
