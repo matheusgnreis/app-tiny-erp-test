@@ -36,6 +36,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
     .then(documentSnapshot => new Promise((resolve, reject) => {
       let runningCount, isRunningKey
       const key = `${trigger.resource}/${resourceId}`
+      const initKey = `${key}_init`
       const validateSnapshot = documentSnapshot => {
         return documentSnapshot.exists &&
           Date.now() - documentSnapshot.updateTime.toDate().getTime() < 10000
@@ -51,10 +52,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
         isRunningKey = documentSnapshot.get(key)
         if (runningCount > 3) {
           const err = new Error('Too much requests')
-          if (isRunningKey) {
+          if (isRunningKey || documentSnapshot.get(initKey)) {
             err.name = SKIP_TRIGGER_NAME
-          } else {
-            err.runningCount = runningCount
           }
           return reject(err)
         }
@@ -63,8 +62,12 @@ exports.post = ({ appSdk, admin }, req, res) => {
       if (!runningCount) {
         runningCount = 0
       }
-      documentRef.set({ count: runningCount + 1 }, { merge: true })
-        .catch(console.error)
+      documentRef.set({
+        count: runningCount + 1,
+        [initKey]: true
+      }, {
+        merge: true
+      }).catch(console.error)
 
       const proceed = ({ runningCount, isRunningKey }) => {
         if (isRunningKey) {
@@ -75,6 +78,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
           resolve({
             documentRef,
             key,
+            initKey,
             runningCount
           })
         }
@@ -99,7 +103,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
       }
     }))
 
-    .then(({ documentRef, key, runningCount }) => {
+    .then(({ documentRef, key, initKey, runningCount }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -188,7 +192,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
                           documentRef.set({
                             count: runningCount,
-                            [key]: true
+                            [key]: true,
+                            [initKey]: false
                           }, {
                             merge: true
                           }).catch(console.error)
@@ -229,8 +234,12 @@ exports.post = ({ appSdk, admin }, req, res) => {
             }
 
             // console.log('> Skip webhook:', JSON.stringify(appData))
-            documentRef.set({ count: runningCount }, { merge: true })
-              .catch(console.error)
+            documentRef.set({
+              count: runningCount,
+              [initKey]: false
+            }, {
+              merge: true
+            }).catch(console.error)
             // nothing to do
             return {}
           })
@@ -289,7 +298,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
             error: 'FIRESTORE_ERROR',
             message
           })
-        }, 750 * (err.runningCount || 0.1))
+        }, 250)
       }
     })
 }
