@@ -32,9 +32,13 @@ exports.post = ({ appSdk, admin }, req, res) => {
   const resourceId = trigger.resource_id || trigger.inserted_id
 
   if (runnnig[resourceId]) {
-    return res.sendStatus(503)
+    runnnig[resourceId]++
+    const count = runnnig[resourceId]
+    return setTimeout(() => {
+      res.sendStatus(count === runnnig[resourceId] ? 503 : 204)
+    }, 500)
   }
-  runnnig[resourceId] = true
+  runnnig[resourceId] = 1
 
   const documentRef = admin.firestore().doc(`running/${storeId}`)
   documentRef.get()
