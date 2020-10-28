@@ -18,6 +18,7 @@ const SKIP_TRIGGER_NAME = 'SkipTrigger'
 const ECHO_SUCCESS = 'SUCCESS'
 const ECHO_SKIP = 'SKIP'
 const ECHO_API_ERROR = 'STORE_API_ERR'
+const runnnig = {}
 
 exports.post = ({ appSdk, admin }, req, res) => {
   // receiving notification from Store API
@@ -30,6 +31,11 @@ exports.post = ({ appSdk, admin }, req, res) => {
   const trigger = req.body
   const resourceId = trigger.resource_id || trigger.inserted_id
 
+  if (runnnig[resourceId]) {
+    return res.sendStatus(503)
+  }
+  runnnig[resourceId] = true
+
   const documentRef = admin.firestore().doc(`running/${storeId}`)
   documentRef.get()
 
@@ -39,6 +45,64 @@ exports.post = ({ appSdk, admin }, req, res) => {
       const validateSnapshot = documentSnapshot => {
         return documentSnapshot.exists &&
           Date.now() - documentSnapshot.updateTime.toDate().getTime() < 10000
+      }
+
+      const proceed = () => {
+        if (!runningCount) {
+          runningCount = 0
+        }
+        documentRef.set({
+          count: runningCount + 1
+        }, {
+          merge: true
+        }).catch(console.error)
+
+        const uncountRequest = (count = 0, isHandling) => {
+          delete runnnig[resourceId]
+          const data = { count }
+          if (isHandling === true) {
+            data[key] = true
+          }
+          documentRef.set(data, { merge: true }).catch(console.error)
+        }
+
+        const handleReject = (err, count = runningCount) => {
+          uncountRequest(count)
+          reject(err)
+        }
+
+        const proceed = ({ runningCount, isRunningKey }) => {
+          if (isRunningKey) {
+            const err = new Error('Concurrent request with same key')
+            err.name = SKIP_TRIGGER_NAME
+            handleReject(err, runningCount)
+          } else {
+            resolve({
+              documentRef,
+              key,
+              runningCount,
+              uncountRequest
+            })
+          }
+        }
+
+        if (runningCount > 0) {
+          setTimeout(() => {
+            documentRef.get().then(documentSnapshot => {
+              const proceedData = validateSnapshot(documentSnapshot)
+                ? {
+                  runningCount: documentSnapshot.get('count') || 0,
+                  isRunningKey: documentSnapshot.get(key)
+                }
+                : {
+                  runningCount: 0
+                }
+              proceed(proceedData)
+            }).catch(handleReject)
+          }, runningCount * 1500)
+        } else {
+          proceed({ runningCount, isRunningKey })
+        }
       }
 
       if (validateSnapshot(documentSnapshot)) {
@@ -56,62 +120,12 @@ exports.post = ({ appSdk, admin }, req, res) => {
           }
           return reject(err)
         }
+      } else if (documentSnapshot.exists) {
+        return documentRef.delete()
+          .catch(console.error)
+          .finally(proceed)
       }
-
-      if (!runningCount) {
-        runningCount = 0
-      }
-      documentRef.set({
-        count: runningCount + 1,
-        [key]: true
-      }, {
-        merge: true
-      }).catch(console.error)
-
-      const uncountRequest = (count = 0, isHandling) => documentRef.set({
-        count,
-        [key]: Boolean(isHandling)
-      }, {
-        merge: true
-      }).catch(console.error)
-
-      const handleReject = (err, count = runningCount) => {
-        uncountRequest(count)
-        reject(err)
-      }
-
-      const proceed = ({ runningCount, isRunningKey }) => {
-        if (isRunningKey) {
-          const err = new Error('Concurrent request with same key')
-          err.name = SKIP_TRIGGER_NAME
-          handleReject(err, runningCount)
-        } else {
-          resolve({
-            documentRef,
-            key,
-            runningCount,
-            uncountRequest
-          })
-        }
-      }
-
-      if (runningCount > 0) {
-        setTimeout(() => {
-          documentRef.get().then(documentSnapshot => {
-            const proceedData = validateSnapshot(documentSnapshot)
-              ? {
-                runningCount: documentSnapshot.get('count') || 0,
-                isRunningKey: documentSnapshot.get(key)
-              }
-              : {
-                runningCount: 0
-              }
-            proceed(proceedData)
-          }).catch(handleReject)
-        }, runningCount * 1500)
-      } else {
-        proceed({ runningCount, isRunningKey })
-      }
+      proceed()
     }))
 
     .then(({ documentRef, key, runningCount, uncountRequest }) => {
@@ -286,6 +300,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
     })
 
     .catch(err => {
+      delete runnnig[resourceId]
       if (err.name === SKIP_TRIGGER_NAME) {
         // trigger ignored due to current running process
         res.status(203).send(err.message || ECHO_SKIP)
