@@ -88,6 +88,39 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                   return Promise.resolve()
                 }
               }
+
+              let hasWaitingQueue = false
+              const { importation, exportation } = appData
+              if (
+                importation &&
+                (
+                  (Array.isArray(importation.skus) && importation.skus.length) ||
+                  (Array.isArray(importation.order_numbers) && importation.order_numbers.length)
+                )
+              ) {
+                hasWaitingQueue = true
+              } else if (
+                exportation &&
+                (
+                  (Array.isArray(exportation.order_ids) && exportation.order_ids.length) ||
+                  (Array.isArray(exportation.product_ids) && exportation.product_ids.length)
+                )
+              ) {
+                hasWaitingQueue = true
+              }
+
+              if (hasWaitingQueue) {
+                return firestore().doc(`running/${storeId}`).then(documentSnapshot => {
+                  if (
+                    !document.exists ||
+                    Date.now() - documentSnapshot.updateTime.toDate().getTime() > 1000 * 60 * 9
+                  ) {
+                    return updateAppData({ appSdk, storeId }, {
+                      __rand: String(Math.random())
+                    })
+                  }
+                })
+              }
             })
 
             .catch(console.error)
