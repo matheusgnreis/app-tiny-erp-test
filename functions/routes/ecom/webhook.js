@@ -67,7 +67,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         const proceed = ({ runningCount, isRunningKey }) => {
           if (isRunningKey) {
             const err = new Error('Concurrent request with same key')
-            err.name = SKIP_TRIGGER_NAME
+            err.statusCode = 203
             handleReject(err, runningCount)
           } else {
             resolve({
@@ -99,18 +99,15 @@ exports.post = ({ appSdk, admin }, req, res) => {
       }
 
       if (validateSnapshot(documentSnapshot)) {
-        if (documentSnapshot.get('stop') === trigger.resource) {
-          const err = new Error('Stop for this trigger resource')
-          err.name = SKIP_TRIGGER_NAME
+        isRunningKey = documentSnapshot.get(key)
+        if (documentSnapshot.get('stop') === trigger.resource || isRunningKey) {
+          const err = new Error()
+          err.statusCode = 204
           return reject(err)
         }
         runningCount = documentSnapshot.get('count')
-        isRunningKey = documentSnapshot.get(key)
         if (runningCount > 3) {
           const err = new Error('Too much requests')
-          if (trigger.resource === 'applications') {
-            err.name = SKIP_TRIGGER_NAME
-          }
           return reject(err)
         }
       } else if (documentSnapshot.exists) {
@@ -293,9 +290,9 @@ exports.post = ({ appSdk, admin }, req, res) => {
     })
 
     .catch(err => {
-      if (err.name === SKIP_TRIGGER_NAME) {
+      if (err.statusCode) {
         // trigger ignored due to current running process
-        res.status(203).send(err.message || ECHO_SKIP)
+        res.status(err.statusCode).send(err.message)
       } else {
         setTimeout(() => {
           res.status(502)
