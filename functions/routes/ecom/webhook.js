@@ -36,7 +36,6 @@ exports.post = ({ appSdk, admin }, req, res) => {
     .then(documentSnapshot => new Promise((resolve, reject) => {
       let runningCount, isRunningKey
       const key = `${trigger.resource}_${resourceId}`
-      const initKey = `${key}_init`
       const validateSnapshot = documentSnapshot => {
         return documentSnapshot.exists &&
           Date.now() - documentSnapshot.updateTime.toDate().getTime() < 10000
@@ -52,7 +51,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         isRunningKey = documentSnapshot.get(key)
         if (runningCount > 3) {
           const err = new Error('Too much requests')
-          if (isRunningKey || documentSnapshot.get(initKey)) {
+          if (isRunningKey) {
             err.name = SKIP_TRIGGER_NAME
           }
           return reject(err)
@@ -64,21 +63,17 @@ exports.post = ({ appSdk, admin }, req, res) => {
       }
       documentRef.set({
         count: runningCount + 1,
-        [initKey]: true
+        [key]: true
       }, {
         merge: true
       }).catch(console.error)
 
-      const uncountRequest = (count = 0, isHandled) => {
-        const data = {
-          count,
-          [initKey]: false
-        }
-        if (isHandled === true) {
-          data[key] = true
-        }
-        documentRef.set(data, { merge: true }).catch(console.error)
-      }
+      const uncountRequest = (count = 0, isHandling) => documentRef.set({
+        count,
+        [key]: Boolean(isHandling)
+      }, {
+        merge: true
+      }).catch(console.error)
 
       const handleReject = (err, count = runningCount) => {
         uncountRequest(count)
