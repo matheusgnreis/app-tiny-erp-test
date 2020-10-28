@@ -2,6 +2,43 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.9](https://github.com/ecomplus/application-starter/compare/v1.2.8...v1.2.9) (2020-10-28)
+
+
+### Bug Fixes
+
+* **import-product:** dispatch null job is a function ([db1b622](https://github.com/ecomplus/application-starter/commit/db1b62248e72d06abe22d1d08f13938688c4a8e5))
+* **import-products:** debug not founds and dispatch null job ([1462377](https://github.com/ecomplus/application-starter/commit/1462377f5c7d898902ac5b27f0c18bb28506aef5))
+* **post-job-handler:** delay to clear running key ([ffdda4c](https://github.com/ecomplus/application-starter/commit/ffdda4c71749dbfcc1fb5b86906a7bbadac3118e))
+* **post-job-handler:** delay to uncount running processes ([1f247b9](https://github.com/ecomplus/application-starter/commit/1f247b9788b9600928884149e238532e50446f32))
+* **post-job-handler:** stop skipping update queue ([ba15f3e](https://github.com/ecomplus/application-starter/commit/ba15f3e8c7d34a7eae7ca273507cc5a592dc47dc))
+* **queues:** also set init key with timestamp, clear doc reset (no more necessary) ([dfbb41b](https://github.com/ecomplus/application-starter/commit/dfbb41b44ea01c6e6d6c2bb0cb3365555687877d))
+* **queues:** always delay and watch document snapshopt to check init key timestamp ([fc15ed6](https://github.com/ecomplus/application-starter/commit/fc15ed6cff811a73011e4f6e48e68f306ff0ba8b))
+* **queues:** always delay and watch document snapshopt to check init key timestamp ([3301d33](https://github.com/ecomplus/application-starter/commit/3301d337c87f8064dff72629072e885c3718f6cf))
+* **queues:** one more key by action name and next id (bool) ([1cfae7a](https://github.com/ecomplus/application-starter/commit/1cfae7ad8d63ab0fe4934f771b5a9734885f4d4e))
+* **queues:** replace init key with single key ([89e178d](https://github.com/ecomplus/application-starter/commit/89e178dce41a42474b75b417654cd8e3f1b7bfdb))
+* **queues:** set key with trigger datetime, back with init key ([e5dfa03](https://github.com/ecomplus/application-starter/commit/e5dfa038cf93465e037f76080c504bde351321d8))
+* **queues:** uncount request on post job handler only ([bfd4484](https://github.com/ecomplus/application-starter/commit/bfd4484cb38f9bda2c2f2cd8a553027e57cc0f95))
+* **queues:** use key as object property intead of keys array ([122157d](https://github.com/ecomplus/application-starter/commit/122157daf1eee5cf574d06d764843943254e576c))
+* **webhook:** add init key to prevent same time requests ([85fff79](https://github.com/ecomplus/application-starter/commit/85fff791d59692f34d0b277af32afc9b84af4722))
+* **webhook:** add reset queue fallback ([0e48fa5](https://github.com/ecomplus/application-starter/commit/0e48fa58cff0040e490747c4c321753ec51b3089))
+* **webhook:** don't return 502 for applications triggers on too much requests ([e7ff399](https://github.com/ecomplus/application-starter/commit/e7ff39995c8ce4b9e4cf5e4c4cffae54f1d927b1))
+* **webhook:** ensure uncount request on rejection ([0a6bdee](https://github.com/ecomplus/application-starter/commit/0a6bdeede82d10336b9ac8bacd06162a8a9f4a39))
+* **webhook:** fix calling uncount request before handler ([8301eb5](https://github.com/ecomplus/application-starter/commit/8301eb55afa063c5fd9fb5b10e300bb58d4bd324))
+* **webhook:** fix firesatore object keys to valid chars ([fb61c8a](https://github.com/ecomplus/application-starter/commit/fb61c8a77434e3d9658eb56c69cf2f1fc592916a))
+* **webhook:** fix handling queue reset fallback (check snapshot) ([b7a4a47](https://github.com/ecomplus/application-starter/commit/b7a4a4723f196a10902a76927ea700635174b764))
+* **webhook:** fix normalizing key with next id ([7553323](https://github.com/ecomplus/application-starter/commit/75533234d60c807f9e66d190fa5b84fb35569495))
+* **webhook:** fix normalizing key with next id ([1edbc20](https://github.com/ecomplus/application-starter/commit/1edbc2010a6e7635bddac0f9d917c1bb2196704f))
+* **webhook:** fix passing current running keys and count to promise chain ([5b291f7](https://github.com/ecomplus/application-starter/commit/5b291f703d43449d4972a9edfc05c4f23bd8f042))
+* **webhook:** fix reseting running count and checking current keys ([321e122](https://github.com/ecomplus/application-starter/commit/321e122a9f597a01fcd97ccfc24a35565bff0b6a))
+* **webhook:** fix reseting running count and checking current keys ([179bdaa](https://github.com/ecomplus/application-starter/commit/179bdaa8b65ec6cf5c5af13e403304b405417a9a))
+* **webhook:** preset running count before keys ([f63fff6](https://github.com/ecomplus/application-starter/commit/f63fff65e1317d1779fa7edd73d762fb46e4519d))
+* **webhook:** random delay when running key is set ([db1c475](https://github.com/ecomplus/application-starter/commit/db1c475921af85508a4203232f49a48f5e298646))
+* **webhook:** respecting hard stop from running coll ([9bb7cd1](https://github.com/ecomplus/application-starter/commit/9bb7cd106c3689998c6ffe27a4138f2e97455e0e))
+* **webhook:** still watching document and recheck process key before calling handler ([f418abb](https://github.com/ecomplus/application-starter/commit/f418abbf2b83871257e25095cca2736fcf0c3fdb))
+* **webhook:** try controlling running on memory (object) ([d85efce](https://github.com/ecomplus/application-starter/commit/d85efce97ee905105878d56ca7d0121b69811398))
+* **webhook:** try controlling running on memory (object) ([b0fd1ad](https://github.com/ecomplus/application-starter/commit/b0fd1ad12673548a4ac219ea7f7f3acebb113891))
+
 ### [1.2.8](https://github.com/ecomplus/application-starter/compare/v1.2.7...v1.2.8) (2020-10-27)
 
 
