@@ -12,7 +12,6 @@ const integrationHandlers = {
     order_numbers: require('./../../lib/integration/import-order')
   }
 }
-const handleJob = require('./../../lib/integration/handle-job')
 
 const SKIP_TRIGGER_NAME = 'SkipTrigger'
 const ECHO_SUCCESS = 'SUCCESS'
@@ -38,22 +37,19 @@ exports.post = ({ appSdk, admin }, req, res) => {
       const key = `${trigger.resource}_${resourceId}`
       const initKey = `${key}_init`
 
-      const countAndProceed = () => {
+      const countAndProceed = canResetDoc => {
         if (!runningCount) {
           runningCount = 0
         }
         documentRef.set({
           count: runningCount + 1,
-          [initKey]: true
+          [initKey]: Date.now()
         }, {
-          merge: true
+          merge: !canResetDoc
         }).catch(console.error)
 
         const uncountRequest = (count = 0, isHandling) => {
-          const data = {
-            count,
-            [initKey]: false
-          }
+          const data = { count }
           if (isHandling === true) {
             data[key] = trigger.datetime
           }
@@ -99,25 +95,24 @@ exports.post = ({ appSdk, admin }, req, res) => {
         }
       }
 
-      if (
-        documentSnapshot.exists &&
-        Date.now() - documentSnapshot.updateTime.toDate().getTime() < 10000
-      ) {
-        runningKey = documentSnapshot.get(key)
-        if (documentSnapshot.get('stop') === trigger.resource || runningKey > trigger.datetime) {
-          const err = new Error()
-          err.statusCode = 204
-          return reject(err)
+      if (documentSnapshot.exists) {
+        const timestamp = Date.now()
+        const docAge = timestamp - documentSnapshot.updateTime.toDate().getTime()
+        if (docAge < 15000) {
+          runningKey = documentSnapshot.get(key)
+          if (documentSnapshot.get('stop') === trigger.resource || runningKey > trigger.datetime) {
+            const err = new Error()
+            err.statusCode = 204
+            return reject(err)
+          }
+          runningCount = documentSnapshot.get('count')
+          if (runningCount > 3 || timestamp - documentSnapshot.get(initKey) < 1000) {
+            const err = new Error('Too much requests')
+            return reject(err)
+          }
+        } else if (docAge > 60000) {
+          return countAndProceed(true)
         }
-        runningCount = documentSnapshot.get('count')
-        if (runningCount > 3 || documentSnapshot.get(initKey)) {
-          const err = new Error('Too much requests')
-          return reject(err)
-        }
-      } else if (documentSnapshot.exists) {
-        return documentRef.delete()
-          .catch(console.error)
-          .finally(countAndProceed)
       }
       countAndProceed()
     }))
@@ -209,24 +204,6 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
                           uncountRequest(runningCount, true)
-
-                          const resetFallback = setTimeout(() => {
-                            console.log(`<<TIMEOUT>> ${debugFlag}`)
-                            unsubscribe()
-                            handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
-                          }, 30000)
-
-                          let unsubscribe = documentRef.onSnapshot(documentSnapshot => {
-                            if (!documentSnapshot.exists || !documentSnapshot.get(key)) {
-                              if (unsubscribe) {
-                                unsubscribe()
-                                unsubscribe = null
-                              }
-                              clearTimeout(resetFallback)
-                            }
-                          }, err => {
-                            console.log(`Encountered error: ${err}`)
-                          })
 
                           return handler(
                             { appSdk, storeId, auth },
