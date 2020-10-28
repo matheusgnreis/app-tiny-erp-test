@@ -45,7 +45,7 @@ const queueRetry = (appSession, { action, queue, nextId }, appData, response) =>
 
 const log = ({ appSdk, storeId }, queueEntry, payload) => {
   const isError = payload instanceof Error
-  const isImportation = queueEntry.action === 'importation'
+  const isImportation = queueEntry.action.endsWith('importation')
 
   appSdk.getAuth(storeId)
     .then(auth => {
