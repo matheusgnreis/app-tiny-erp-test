@@ -110,7 +110,7 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
               }
 
               if (hasWaitingQueue) {
-                return firestore().doc(`running/${storeId}`).then(documentSnapshot => {
+                return firestore().doc(`running/${storeId}`).get().then(documentSnapshot => {
                   if (
                     !document.exists ||
                     Date.now() - documentSnapshot.updateTime.toDate().getTime() > 1000 * 60 * 3
