@@ -82,7 +82,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
           }
         }
 
-        const proceedTimer = setTimeout(proceed, runningCount * 1500 + 150)
+        const proceedTimer = setTimeout(proceed, runningCount * 1500 + (runningKey ? 1500 : 200))
 
         const unsubscribe = documentRef.onSnapshot(newDocumentSnapshot => {
           documentSnapshot = newDocumentSnapshot
@@ -95,7 +95,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
       if (documentSnapshot.exists) {
         const docAge = timestamp - documentSnapshot.updateTime.toDate().getTime()
-        if (docAge < 15000) {
+        if (docAge < 10000) {
           runningKey = documentSnapshot.get(key)
           if (documentSnapshot.get('stop') === trigger.resource || runningKey > trigger.datetime) {
             const err = new Error()
