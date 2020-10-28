@@ -36,7 +36,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
     .then(documentSnapshot => new Promise((resolve, reject) => {
       let runningCount, isRunningKey
       const key = `${trigger.resource}/${resourceId}`
-      const initKey = `${key}_init`
+      const initKey = `${key}/init`
       const validateSnapshot = documentSnapshot => {
         return documentSnapshot.exists &&
           Date.now() - documentSnapshot.updateTime.toDate().getTime() < 10000
