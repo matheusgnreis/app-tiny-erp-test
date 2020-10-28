@@ -49,16 +49,19 @@ exports.post = ({ appSdk, admin }, req, res) => {
           merge: !canResetDoc
         }).catch(console.error)
 
-        const uncountRequest = (count = 0, isHandling) => {
-          const data = { count }
-          if (isHandling === true) {
-            data[key] = trigger.datetime
+        const uncountRequest = isHandling => {
+          const upset = data => {
+            documentRef.set(data, { merge: true }).catch(console.error)
           }
-          documentRef.set(data, { merge: true }).catch(console.error)
+          if (isHandling === true) {
+            upset({ [key]: trigger.datetime })
+          } else {
+            upset({ count: documentSnapshot.get('count') || 0 })
+          }
         }
 
-        const handleReject = (err, count = runningCount) => {
-          uncountRequest(count)
+        const handleReject = err => {
+          uncountRequest()
           reject(err)
         }
 
@@ -67,22 +70,21 @@ exports.post = ({ appSdk, admin }, req, res) => {
           if (
             !documentSnapshot.exists ||
             documentSnapshot.get(initKey) > timestamp ||
-            runningKey > trigger.datetime
+            documentSnapshot.get(key) >= trigger.datetime
           ) {
             const err = new Error('Concurrent request with same key')
             err.statusCode = 203
-            handleReject(err, runningCount)
+            handleReject(err)
           } else {
             resolve({
               documentRef,
               key,
-              runningCount,
               uncountRequest
             })
           }
         }
 
-        const proceedTimer = setTimeout(proceed, runningCount * 1500 + (runningKey ? 1500 : 200))
+        const proceedTimer = setTimeout(proceed, runningCount * 1500 + (runningKey ? 1000 : 150))
 
         const unsubscribe = documentRef.onSnapshot(newDocumentSnapshot => {
           documentSnapshot = newDocumentSnapshot
@@ -97,7 +99,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         const docAge = timestamp - documentSnapshot.updateTime.toDate().getTime()
         if (docAge < 10000) {
           runningKey = documentSnapshot.get(key)
-          if (documentSnapshot.get('stop') === trigger.resource || runningKey > trigger.datetime) {
+          if (documentSnapshot.get('stop') === trigger.resource || runningKey >= trigger.datetime) {
             const err = new Error()
             err.statusCode = 204
             return reject(err)
@@ -114,7 +116,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
       countAndProceed()
     }))
 
-    .then(({ documentRef, key, runningCount, uncountRequest }) => {
+    .then(({ documentRef, key, uncountRequest }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -200,7 +202,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
-                          uncountRequest(runningCount, true)
+                          uncountRequest(true)
 
                           return handler(
                             { appSdk, storeId, auth },
@@ -220,7 +222,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
             }
 
             // console.log('> Skip webhook:', JSON.stringify(appData))
-            uncountRequest(runningCount)
+            uncountRequest()
             // nothing to do
             return {}
           })
