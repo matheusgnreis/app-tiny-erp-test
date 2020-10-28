@@ -215,7 +215,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           nextId.length &&
                           handler
                         ) {
-                          key += `_${handlerName}_${nextId.replace(/[~./]/g, '_')}`
+                          key += `_${handlerName}_${nextId.replace(/[~./:;]/g, '_')}`
                           const documentSnapshot = validateDocSnapshot()
                           if (!documentSnapshot || documentSnapshot.get(key)) {
                             break
