@@ -223,7 +223,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
-                          uncountRequest({ [key]: true })
+                          uncountRequest(true, { [key]: true })
 
                           return handler(
                             { appSdk, storeId, auth },
