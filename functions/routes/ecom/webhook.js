@@ -106,7 +106,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
           proceed()
           clearTimeout(proceedTimer)
         }, err => {
-          console.log(`Snapshop watcher error: ${err}`)
+          console.log(`Snapshot watcher error: ${err}`)
         })
       }
 
