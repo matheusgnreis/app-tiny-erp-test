@@ -18,7 +18,6 @@ const SKIP_TRIGGER_NAME = 'SkipTrigger'
 const ECHO_SUCCESS = 'SUCCESS'
 const ECHO_SKIP = 'SKIP'
 const ECHO_API_ERROR = 'STORE_API_ERR'
-const runnnig = {}
 
 exports.post = ({ appSdk, admin }, req, res) => {
   // receiving notification from Store API
@@ -30,15 +29,6 @@ exports.post = ({ appSdk, admin }, req, res) => {
    */
   const trigger = req.body
   const resourceId = trigger.resource_id || trigger.inserted_id
-
-  if (runnnig[resourceId]) {
-    runnnig[resourceId]++
-    const count = runnnig[resourceId]
-    return setTimeout(() => {
-      res.sendStatus(count === runnnig[resourceId] ? 503 : 204)
-    }, 500)
-  }
-  runnnig[resourceId] = 1
 
   const documentRef = admin.firestore().doc(`running/${storeId}`)
   documentRef.get()
@@ -62,7 +52,6 @@ exports.post = ({ appSdk, admin }, req, res) => {
         }).catch(console.error)
 
         const uncountRequest = (count = 0, isHandling) => {
-          delete runnnig[resourceId]
           const data = { count }
           if (isHandling === true) {
             data[key] = true
@@ -119,7 +108,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         isRunningKey = documentSnapshot.get(key)
         if (runningCount > 3) {
           const err = new Error('Too much requests')
-          if (isRunningKey) {
+          if (trigger.resource === 'applications') {
             err.name = SKIP_TRIGGER_NAME
           }
           return reject(err)
@@ -304,7 +293,6 @@ exports.post = ({ appSdk, admin }, req, res) => {
     })
 
     .catch(err => {
-      delete runnnig[resourceId]
       if (err.name === SKIP_TRIGGER_NAME) {
         // trigger ignored due to current running process
         res.status(203).send(err.message || ECHO_SKIP)
