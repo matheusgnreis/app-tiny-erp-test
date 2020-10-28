@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.11](https://github.com/ecomplus/application-starter/compare/v1.2.10...v1.2.11) (2020-10-28)
+
+
+### Bug Fixes
+
+* **scheduled-sync:** fix getting running proccess from firestore (doc .get) ([4029de6](https://github.com/ecomplus/application-starter/commit/4029de63629892447847b642c64cea9cbf34aa0d))
+
 ### [1.2.10](https://github.com/ecomplus/application-starter/compare/v1.2.9...v1.2.10) (2020-10-28)
 
 
