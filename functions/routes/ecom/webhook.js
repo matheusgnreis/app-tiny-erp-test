@@ -50,6 +50,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         }).catch(console.error)
 
         const uncountRequest = isHandling => {
+          unsubscribe()
           const upset = data => {
             documentRef.set(data, { merge: true }).catch(console.error)
           }
@@ -65,13 +66,14 @@ exports.post = ({ appSdk, admin }, req, res) => {
           reject(err)
         }
 
+        const checkProcessKey = () => {
+          return documentSnapshot.exists &&
+            !(documentSnapshot.get(initKey) > timestamp) &&
+            !(documentSnapshot.get(key) >= trigger.datetime)
+        }
+
         const proceed = () => {
-          unsubscribe()
-          if (
-            !documentSnapshot.exists ||
-            documentSnapshot.get(initKey) > timestamp ||
-            documentSnapshot.get(key) >= trigger.datetime
-          ) {
+          if (!checkProcessKey()) {
             const err = new Error('Concurrent request with same key')
             err.statusCode = 203
             handleReject(err)
@@ -79,7 +81,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
             resolve({
               documentRef,
               key,
-              uncountRequest
+              uncountRequest,
+              checkProcessKey
             })
           }
         }
@@ -116,7 +119,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
       countAndProceed()
     }))
 
-    .then(({ documentRef, key, uncountRequest }) => {
+    .then(({ documentRef, key, uncountRequest, checkProcessKey }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -199,6 +202,9 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           nextId.length &&
                           handler
                         ) {
+                          if (!checkProcessKey()) {
+                            break
+                          }
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
@@ -275,7 +281,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         res.status(err.statusCode).send(err.message)
       } else {
         setTimeout(() => {
-          res.status(502)
+          res.status(503)
           const { message } = err
           res.send({
             error: 'FIRESTORE_ERROR',
