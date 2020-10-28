@@ -216,14 +216,15 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           handler
                         ) {
                           key += `_${handlerName}_${nextId.replace(/[~./:;]+/g, '_')}`
+                          const timestamp = Date.now()
                           const documentSnapshot = validateDocSnapshot()
-                          if (!documentSnapshot || documentSnapshot.get(key)) {
+                          if (!documentSnapshot || timestamp - documentSnapshot.get(key) < 20000) {
                             break
                           }
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
-                          uncountRequest(true, { [key]: true })
+                          uncountRequest(true, { [key]: timestamp })
 
                           return handler(
                             { appSdk, storeId, auth },
