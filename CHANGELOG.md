@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.12](https://github.com/ecomplus/application-starter/compare/v1.2.11...v1.2.12) (2020-10-28)
+
+
+### Bug Fixes
+
+* **scheduled-sync:** syntax fix, documentSnapshot in place of document ([5b79020](https://github.com/ecomplus/application-starter/commit/5b79020722e9ad86be6e2f40efb9af2188dcb145))
+
 ### [1.2.11](https://github.com/ecomplus/application-starter/compare/v1.2.10...v1.2.11) (2020-10-28)
 
 
