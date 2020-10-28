@@ -144,6 +144,9 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               .then(documentSnapshot => {
                 if (documentSnapshot.exists) {
                   const data = documentSnapshot.data()
+                  if (data[queueEntry.key] === false) {
+                    queueEntry.mustUpdateAppQueue = false
+                  }
                   return queueEntry.documentRef.set({
                     count: data.count > 0 ? data.count - 1 : 0,
                     [queueEntry.key]: false
