@@ -124,7 +124,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
             const err = new Error('Too much requests')
             return reject(err)
           }
-        } else if (docAge > 60000) {
+        } else if (docAge > 30000) {
           return countAndProceed(true)
         }
       }
