@@ -33,6 +33,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               console.log(`#${storeId} ${productId} => ${err.response.status}`)
               return null
             }
+            console.error(err)
             throw err
           })
 
