@@ -36,6 +36,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
       let runningCount, runningKey
       const key = `${trigger.resource}_${resourceId}`
       const initKey = `${key}_init`
+      const timestamp = Date.now()
 
       const countAndProceed = canResetDoc => {
         if (!runningCount) {
@@ -43,7 +44,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
         }
         documentRef.set({
           count: runningCount + 1,
-          [initKey]: Date.now()
+          [initKey]: timestamp
         }, {
           merge: !canResetDoc
         }).catch(console.error)
@@ -61,8 +62,13 @@ exports.post = ({ appSdk, admin }, req, res) => {
           reject(err)
         }
 
-        const proceed = ({ runningCount, runningKey }) => {
-          if (runningKey > trigger.datetime) {
+        const proceed = () => {
+          unsubscribe()
+          if (
+            !documentSnapshot.exists ||
+            documentSnapshot.get(initKey) > timestamp ||
+            runningKey > trigger.datetime
+          ) {
             const err = new Error('Concurrent request with same key')
             err.statusCode = 203
             handleReject(err, runningCount)
@@ -76,27 +82,18 @@ exports.post = ({ appSdk, admin }, req, res) => {
           }
         }
 
-        if (runningCount > 0) {
-          setTimeout(() => {
-            documentRef.get().then(documentSnapshot => {
-              const proceedData = documentSnapshot.exists
-                ? {
-                  runningCount: documentSnapshot.get('count') || 0,
-                  runningKey: documentSnapshot.get(key)
-                }
-                : {
-                  runningCount: 0
-                }
-              proceed(proceedData)
-            }).catch(handleReject)
-          }, runningCount * 1500)
-        } else {
-          proceed({ runningCount, runningKey })
-        }
+        const proceedTimer = setTimeout(proceed, runningCount * 1500 + 150)
+
+        const unsubscribe = documentRef.onSnapshot(newDocumentSnapshot => {
+          documentSnapshot = newDocumentSnapshot
+          proceed()
+          clearTimeout(proceedTimer)
+        }, err => {
+          console.log(`Snapshop watcher error: ${err}`)
+        })
       }
 
       if (documentSnapshot.exists) {
-        const timestamp = Date.now()
         const docAge = timestamp - documentSnapshot.updateTime.toDate().getTime()
         if (docAge < 15000) {
           runningKey = documentSnapshot.get(key)
