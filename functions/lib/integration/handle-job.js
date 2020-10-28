@@ -147,12 +147,14 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
                   if (data[queueEntry.key] === false) {
                     queueEntry.mustUpdateAppQueue = false
                   }
-                  return queueEntry.documentRef.set({
-                    count: data.count > 0 ? data.count - 1 : 0,
-                    [queueEntry.key]: false
-                  }, {
-                    merge: true
-                  })
+                  setTimeout(() => {
+                    queueEntry.documentRef.set({
+                      count: data.count > 0 ? data.count - 1 : 0,
+                      [queueEntry.key]: false
+                    }, {
+                      merge: true
+                    }).catch(console.error)
+                  }, queueEntry.mustUpdateAppQueue ? 900 : 400)
                 }
               })
               .then(checkUpdateQueue)
