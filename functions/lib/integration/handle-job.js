@@ -128,7 +128,7 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
               if (retrying) {
                 retrying
                   .then(result => {
-                    if (result !== null) {
+                    if (result === null) {
                       updateQueue()
                     }
                   })
