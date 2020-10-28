@@ -69,17 +69,33 @@ exports.post = ({ appSdk, admin }, req, res) => {
         merge: true
       }).catch(console.error)
 
+      const uncountRequest = (count = 0, isHandled) => {
+        const data = {
+          count,
+          [initKey]: false
+        }
+        if (isHandled === true) {
+          data[key] = true
+        }
+        documentRef.set(data, { merge: true }).catch(console.error)
+      }
+
+      const handleReject = (err, count = runningCount) => {
+        uncountRequest(count)
+        reject(err)
+      }
+
       const proceed = ({ runningCount, isRunningKey }) => {
         if (isRunningKey) {
           const err = new Error('Concurrent request with same key')
           err.name = SKIP_TRIGGER_NAME
-          reject(err)
+          handleReject(err, runningCount)
         } else {
           resolve({
             documentRef,
             key,
-            initKey,
-            runningCount
+            runningCount,
+            uncountRequest
           })
         }
       }
@@ -96,14 +112,14 @@ exports.post = ({ appSdk, admin }, req, res) => {
                 runningCount: 0
               }
             proceed(proceedData)
-          }).catch(reject)
+          }).catch(handleReject)
         }, runningCount * 1500)
       } else {
         proceed({ runningCount, isRunningKey })
       }
     }))
 
-    .then(({ documentRef, key, initKey, runningCount }) => {
+    .then(({ documentRef, key, runningCount, uncountRequest }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -189,14 +205,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
-
-                          documentRef.set({
-                            count: runningCount,
-                            [key]: true,
-                            [initKey]: false
-                          }, {
-                            merge: true
-                          }).catch(console.error)
+                          uncountRequest(runningCount, true)
 
                           const resetFallback = setTimeout(() => {
                             console.log(`<<TIMEOUT>> ${debugFlag}`)
@@ -234,12 +243,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
             }
 
             // console.log('> Skip webhook:', JSON.stringify(appData))
-            documentRef.set({
-              count: runningCount,
-              [initKey]: false
-            }, {
-              merge: true
-            }).catch(console.error)
+            uncountRequest(runningCount)
             // nothing to do
             return {}
           })
