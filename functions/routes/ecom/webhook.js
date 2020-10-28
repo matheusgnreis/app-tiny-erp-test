@@ -1,5 +1,6 @@
-// read configured E-Com Plus app data
+// read/update configured E-Com Plus app data
 const getAppData = require('./../../lib/store-api/get-app-data')
+const updateAppData = require('./../../lib/store-api/update-app-data')
 
 // async integration handlers
 const integrationHandlers = {
@@ -106,7 +107,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
           proceed()
           clearTimeout(proceedTimer)
         }, err => {
-          console.log(`Snapshop watcher error: ${err}`)
+          console.error(`Snapshot watcher error: ${err}`)
         })
       }
 
@@ -124,14 +125,14 @@ exports.post = ({ appSdk, admin }, req, res) => {
             const err = new Error('Too much requests')
             return reject(err)
           }
-        } else if (docAge > 30000) {
+        } else if (docAge > 20000) {
           return countAndProceed(true)
         }
       }
       countAndProceed()
     }))
 
-    .then(({ documentRef, key, uncountRequest, validateDocSnapshot }) => {
+    .then(({ documentRef, key, initKey, uncountRequest, validateDocSnapshot }) => {
       // get app configured options
       appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
@@ -216,14 +217,37 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           handler
                         ) {
                           key += `_${handlerName}_${nextId.replace(/[~./:;]+/g, '_')}`
+                          const timestamp = Date.now()
                           const documentSnapshot = validateDocSnapshot()
-                          if (!documentSnapshot || documentSnapshot.get(key)) {
+                          if (!documentSnapshot || timestamp - documentSnapshot.get(key) < 10000) {
                             break
                           }
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
-                          uncountRequest(true, { [key]: true })
+                          uncountRequest(true, { [key]: timestamp })
+
+                          if (ids.length > 1) {
+                            const queueFallback = () => {
+                              updateAppData({ appSdk, storeId, auth }, {
+                                __rand: String(Math.random())
+                              }).catch(console.error)
+                            }
+
+                            const fallbackTimer = setTimeout(() => {
+                              unsubscribe()
+                              queueFallback()
+                            }, 20000)
+
+                            const unsubscribe = documentRef.onSnapshot(documentSnapshot => {
+                              if (documentSnapshot.exists && documentSnapshot.get(initKey) > timestamp) {
+                                clearTimeout(fallbackTimer)
+                                unsubscribe()
+                              }
+                            }, err => {
+                              console.error(`Snapshot watcher error: ${err}`)
+                            })
+                          }
 
                           return handler(
                             { appSdk, storeId, auth },
