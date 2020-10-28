@@ -93,7 +93,13 @@ exports.post = ({ appSdk, admin }, req, res) => {
           }
         }
 
-        const proceedTimer = setTimeout(proceed, runningCount * 1500 + (runningKey ? 450 : 150))
+        let delay = runningCount * 1500
+        if (runningKey) {
+          delay += Math.floor(Math.random() * (1500 - 500)) + 500
+        } else {
+          delay += 150
+        }
+        const proceedTimer = setTimeout(proceed, delay)
 
         const unsubscribe = documentRef.onSnapshot(newDocumentSnapshot => {
           documentSnapshot = newDocumentSnapshot
