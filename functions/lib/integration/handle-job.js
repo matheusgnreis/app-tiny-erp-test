@@ -149,7 +149,7 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
                   }
                   setTimeout(() => {
                     queueEntry.documentRef.set({
-                      count: data.count > 0 ? data.count - 1 : 0,
+                      _count: data._count > 0 ? data._count - 1 : 0,
                       [queueEntry.key]: false
                     }, {
                       merge: true

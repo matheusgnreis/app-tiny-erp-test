@@ -43,7 +43,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
           runningCount = 0
         }
         documentRef.set({
-          count: runningCount + 1,
+          _count: runningCount + 1,
           [initKey]: timestamp
         }, {
           merge: !canResetDoc
@@ -62,7 +62,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
           if (isHandling === true) {
             upset({ [key]: trigger.datetime })
           } else {
-            upset({ count: documentSnapshot.get('count') || 0 })
+            upset({ _count: documentSnapshot.get('_count') || 0 })
           }
         }
 
@@ -119,7 +119,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
             err.statusCode = 204
             return reject(err)
           }
-          runningCount = documentSnapshot.get('count')
+          runningCount = documentSnapshot.get('_count')
           if (runningCount > 3 || timestamp - documentSnapshot.get(initKey) < 1000) {
             const err = new Error('Too much requests')
             return reject(err)
