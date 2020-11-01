@@ -10,6 +10,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
   return appSdk.apiRequest(storeId, `/orders/${orderId}.json`, 'GET', null, auth)
     .then(({ response }) => {
       const order = response.data
+      if (!order.financial_status) {
+        return null
+      }
       const tiny = new Tiny(tinyToken)
 
       const job = tiny.post('/pedidos.pesquisa.php', { numeroEcommerce: String(order.number) })
@@ -53,6 +56,16 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     })
 
     .catch(err => {
+      if (err.response) {
+        const { status } = err.response
+        if (status >= 400 && status < 500) {
+          const msg = `O pedido ${orderId} não existe (:${status})`
+          const err = new Error(msg)
+          err.isConfigError = true
+          handleJob({ appSdk, storeId }, queueEntry, Promise.reject(err))
+          return null
+        }
+      }
       errorHandling(err)
       throw err
     })
