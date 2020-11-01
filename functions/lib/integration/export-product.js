@@ -48,6 +48,16 @@ module.exports = ({ appSdk, storeId }, tinyToken, queueEntry, appData, canCreate
     })
 
     .catch(err => {
+      if (err.response) {
+        const { status } = err.response
+        if (status >= 400 && status < 500) {
+          const msg = `O produto ${productId} não existe (:${status})`
+          const err = new Error(msg)
+          err.isConfigError = true
+          handleJob({ appSdk, storeId }, queueEntry, Promise.reject(err))
+          return null
+        }
+      }
       errorHandling(err)
       throw err
     })
