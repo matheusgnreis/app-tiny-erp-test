@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.14](https://github.com/ecomplus/application-starter/compare/v1.2.13...v1.2.14) (2020-11-01)
+
+
+### Bug Fixes
+
+* **export-order:** ignoring orders with no financial status ([#15](https://github.com/ecomplus/application-starter/issues/15)) ([78f3b9c](https://github.com/ecomplus/application-starter/commit/78f3b9cf63a277a110ad5bade134bf88b6f45610))
+* **export-product:** handling error exporting not found product ([e1fb16e](https://github.com/ecomplus/application-starter/commit/e1fb16e8c97ed1a63337109390ac142a70c6859b))
+
 ### [1.2.13](https://github.com/ecomplus/application-starter/compare/v1.2.12...v1.2.13) (2020-10-28)
 
 
