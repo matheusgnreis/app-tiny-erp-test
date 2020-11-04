@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.15](https://github.com/ecomplus/application-starter/compare/v1.2.14...v1.2.15) (2020-11-04)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#16](https://github.com/ecomplus/application-starter/issues/16)) ([6c941d2](https://github.com/ecomplus/application-starter/commit/6c941d26898030534cde7a65535222b39c982d2e))
+* **import-order:** accept tracking url without tracking code ([4668199](https://github.com/ecomplus/application-starter/commit/46681996e0713c270142f7015d2c7dfe073c5eef))
+* **import-order:** accept tracking url without tracking code (set from link) ([cd80d38](https://github.com/ecomplus/application-starter/commit/cd80d3845faceea45f02c3c1406e9c55ed5f6e78))
+* **import-order:** normalize tiny order status (situacao) to parse ([6761ddd](https://github.com/ecomplus/application-starter/commit/6761ddd02184c846d272d9a44c1c26ac7e457c38))
+
 ### [1.2.14](https://github.com/ecomplus/application-starter/compare/v1.2.13...v1.2.14) (2020-11-01)
 
 
