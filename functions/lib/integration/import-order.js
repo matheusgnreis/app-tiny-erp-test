@@ -21,7 +21,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
   const getTinyOrder = tinyOrderId => {
     return tiny.post('/pedido.obter.php', { id: Number(tinyOrderId) })
       .then(({ pedido }) => {
-        const { situacao } = pedido
+        const situacao = typeof pedido.situacao === 'string'
+          ? pedido.situacao.toLowerCase()
+          : null
 
         const documentRef = firestore().doc(`tiny_orders/${storeId}_${tinyOrderId}`)
         return documentRef.get().then(documentSnapshot => {
