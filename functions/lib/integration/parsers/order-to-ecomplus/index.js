@@ -10,11 +10,14 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
       (tinyOrder.codigo_rastreamento || tinyOrder.url_rastreamento) &&
       (!shippingLine.tracking_codes || !shippingLine.tracking_codes.length)
     ) {
-      const tracking = {
-        code: tinyOrder.codigo_rastreamento || ''
-      }
+      let link
       if (tinyOrder.url_rastreamento) {
-        tracking.link = tinyOrder.url_rastreamento
+        link = tinyOrder.url_rastreamento
+      }
+      const tracking = {
+        code: String(tinyOrder.codigo_rastreamento) ||
+          link.replace(/^https?:\/\/[^/]+/, '').replace(/^[^?]+\?/, '').substring(0, 70),
+        link
       }
       shippingLine.tracking_codes = [tracking]
       partialOrder.shipping_lines = shippingLines
