@@ -7,11 +7,11 @@ module.exports = (tinyOrder, shippingLines, tiny) => new Promise((resolve, rejec
   if (shippingLines && shippingLines.length) {
     const shippingLine = shippingLines[0]
     if (
-      tinyOrder.codigo_rastreamento &&
+      (tinyOrder.codigo_rastreamento || tinyOrder.url_rastreamento) &&
       (!shippingLine.tracking_codes || !shippingLine.tracking_codes.length)
     ) {
       const tracking = {
-        code: tinyOrder.codigo_rastreamento
+        code: tinyOrder.codigo_rastreamento || ''
       }
       if (tinyOrder.url_rastreamento) {
         tracking.link = tinyOrder.url_rastreamento
