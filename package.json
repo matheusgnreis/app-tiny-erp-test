@@ -1,7 +1,7 @@
 {
   "name": "@ecomplus/app-tiny-erp",
   "private": true,
-  "version": "1.2.15",
+  "version": "1.2.16",
   "description": "Boilerplate for E-Com Plus apps with Firebase Cloud Functions",
   "main": "functions/index.js",
   "scripts": {
