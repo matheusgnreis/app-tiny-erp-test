@@ -140,3 +140,9 @@ exports.updateTokens = functions.pubsub.schedule(cron).onRun(() => {
   })
 })
 console.log(`-- Sheduled update E-Com Plus tokens '${cron}'`)
+
+// schedule sync from Tiny API to local Firestore and Store API
+const syncFromTiny = require('./lib/integration/sync-from-tiny')
+const syncCron = 'every 3 mins'
+exports.scheduledSync = functions.pubsub.schedule(syncCron).onRun(syncFromTiny)
+console.log(`-- Sheduled active sync from Tiny API '${syncCron}'`)
