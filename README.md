@@ -1,6 +1,6 @@
 # App Tiny ERP
 
-[![Deploy](https://github.com/ecomplus/app-tiny-erp/workflows/Deploy/badge.svg)](https://github.com/ecomplus/app-tiny-erp/actions?workflow=Deploy) [![Call refresh tokens](https://github.com/ecomplus/app-tiny-erp/workflows/Call%20refresh%20tokens/badge.svg)](https://github.com/ecomplus/app-tiny-erp/actions?workflow=Call+refresh+tokens) [![Publish](https://github.com/ecomplus/app-tiny-erp/workflows/Publish/badge.svg)](https://github.com/ecomplus/app-tiny-erp/actions?workflow=Publish) [![License GPL](https://img.shields.io/badge/License-GPL-orange.svg)](https://opensource.org/licenses/GPL)
+[![Deploy](https://github.com/ecomplus/app-tiny-erp/workflows/Deploy/badge.svg)](https://github.com/ecomplus/app-tiny-erp/actions?workflow=Deploy) [![Publish](https://github.com/ecomplus/app-tiny-erp/workflows/Publish/badge.svg)](https://github.com/ecomplus/app-tiny-erp/actions?workflow=Publish) [![License GPL](https://img.shields.io/badge/License-GPL-orange.svg)](https://opensource.org/licenses/GPL)
 
 E-Com Plus app to integrate Tiny ERP
 
