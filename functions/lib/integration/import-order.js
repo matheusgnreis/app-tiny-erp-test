@@ -39,7 +39,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           if (pedido.numero_ecommerce) {
             listEndpoint += `&number=${pedido.numero_ecommerce}`
           } else {
-            listEndpoint += `hidden_metafields.value=${tinyOrderId}_tiny`
+            listEndpoint += `&hidden_metafields.value=${tinyOrderId}_tiny`
           }
           return appSdk.apiRequest(storeId, listEndpoint, 'GET', null, auth)
 
