@@ -1,6 +1,10 @@
 const getAppData = require('../../lib/store-api/get-app-data')
 const updateAppData = require('../../lib/store-api/update-app-data')
 
+exports.get = ({ appSdk, admin }, req, res) => {
+  return res.sendStatus(200)
+}
+
 exports.post = ({ appSdk, admin }, req, res) => {
   const tinyToken = req.query.token
   const storeId = parseInt(req.query.store_id, 10)
