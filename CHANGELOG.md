@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/ecomplus/application-starter/compare/v1.3.0...v1.4.0) (2020-12-10)
+
+
+### Features
+
+* **tiny-webhook:** also handling products notifications ([#4](https://github.com/ecomplus/application-starter/issues/4)) ([ca71860](https://github.com/ecomplus/application-starter/commit/ca71860293a49042934b039ebb268e9f7bf811bc))
+
 ## [1.3.0](https://github.com/ecomplus/application-starter/compare/v1.2.17...v1.3.0) (2020-12-10)
 
 
