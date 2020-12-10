@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/ecomplus/application-starter/compare/v1.2.17...v1.3.0) (2020-12-10)
+
+
+### Features
+
+* **tiny-webhooks:** handling order updates and stock webhooks from tiny erp ([#4](https://github.com/ecomplus/application-starter/issues/4)) ([1774433](https://github.com/ecomplus/application-starter/commit/17744330e637d2a7f901d63c8bb1b1e4f18c41ee))
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#18](https://github.com/ecomplus/application-starter/issues/18)) ([7eac2b9](https://github.com/ecomplus/application-starter/commit/7eac2b94cb18dd08550acb02d0edcfc6778a48f9))
+* **import-order:** fix endpoint to try matching order by metafield value ([90396d6](https://github.com/ecomplus/application-starter/commit/90396d673f4135f365479e5c2b99283e3d2746de))
+* **import-order:** prevent error with undefined 'shippingLine.invoices' ([1c17c43](https://github.com/ecomplus/application-starter/commit/1c17c439d0b509b46cd687aa8ff6bfbfff5a07f7))
+
 ### [1.2.17](https://github.com/ecomplus/application-starter/compare/v1.2.16...v1.2.17) (2020-11-05)
 
 
