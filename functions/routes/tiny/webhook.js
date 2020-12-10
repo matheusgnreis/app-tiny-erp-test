@@ -10,18 +10,12 @@ exports.post = ({ appSdk, admin }, req, res) => {
   const storeId = parseInt(req.query.store_id, 10)
 
   if (storeId > 100 && typeof tinyToken === 'string' && tinyToken && req.body) {
-    console.log(req.body)
-    return res.sendStatus(200)
-    let { retorno } = req.body
-    if (!retorno && typeof req.body.data === 'string') {
-      try {
-        const data = JSON.parse(req.body.data)
-        retorno = data.retorno
-      } catch (e) {
-      }
-    }
-
-    if (retorno) {
+    const { dados } = req.body
+    if (dados) {
+      /*
+      TODO: check Tiny server IPs
+      const clientIp = req.get('x-forwarded-for') || req.connection.remoteAddress
+      */
       return appSdk.getAuth(storeId).then(auth => {
         return getAppData({ appSdk, storeId, auth })
 
@@ -29,77 +23,51 @@ exports.post = ({ appSdk, admin }, req, res) => {
             if (appData.tiny_api_token !== tinyToken) {
               return res.sendStatus(401)
             }
-            let { estoques, pedidos } = retorno
-            if (Array.isArray(estoques)) {
-              if (Array.isArray(estoques[0])) {
-                estoques = estoques[0]
-                for (let i = 1; i < estoques.length; i++) {
-                  estoques = estoques.concat(estoques[i])
-                }
-              }
 
-              if (estoques.length) {
-                let skus = appData.___importation && appData.___importation.skus
-                if (!Array.isArray(skus)) {
-                  skus = []
-                }
-                const promises = []
-                estoques.forEach(({ estoque }) => {
-                  if (estoque && estoque.codigo) {
-                    const sku = String(estoque.codigo)
-                    promises.push(new Promise(resolve => {
-                      admin.firestore().collection('bling_stock_updates').add({
-                        ref: `${storeId}_${tinyToken}_${sku}`,
-                        estoque
-                      })
-                        .then(() => {
-                          if (!skus.includes(sku)) {
-                            skus.push(sku)
-                          }
-                          resolve()
-                        })
-                        .catch(console.error)
-                    }))
-                  }
-                })
-
-                if (promises.length) {
-                  return Promise.all(promises).then(() => {
-                    console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
-                    return updateAppData({ appSdk, storeId }, {
-                      ___importation: {
-                        ...appData.___importation,
-                        skus
-                      }
-                    })
-                  })
-                }
-              }
-            }
-
-            if (Array.isArray(pedidos)) {
+            const { idVendaTiny, idProduto } = dados
+            if (idVendaTiny) {
               let orderNumbers = appData.___importation && appData.___importation.order_numbers
               if (!Array.isArray(orderNumbers)) {
                 orderNumbers = []
               }
-              let hasNewOrder = false
-              pedidos.forEach(({ pedido }) => {
-                if (pedido && pedido.numero) {
-                  const orderNumber = String(pedido.numero)
-                  if (!orderNumbers.includes(orderNumber)) {
-                    orderNumbers.push(orderNumber)
-                    hasNewOrder = true
-                  }
-                }
-              })
+              const orderNumber = `id:${idVendaTiny}`
 
-              if (hasNewOrder) {
+              if (!orderNumbers.includes(orderNumber)) {
+                orderNumbers.push(orderNumber)
                 console.log(`> #${storeId} order numbers: ${JSON.stringify(orderNumbers)}`)
                 return updateAppData({ appSdk, storeId }, {
                   ___importation: {
                     ...appData.___importation,
                     order_numbers: orderNumbers
                   }
+                })
+              }
+            }
+
+            if (idProduto && dados.sku) {
+              let skus = appData.___importation && appData.___importation.skus
+              if (!Array.isArray(skus)) {
+                skus = []
+              }
+              const sku = dados.skuMapeamento || dados.sku
+
+              if (!skus.includes(sku)) {
+                return admin.firestore().collection('tiny_stock_updates').add({
+                  ref: `${storeId}_${tinyToken}_${sku}`,
+                  produto: {
+                    ...dados,
+                    id: idProduto,
+                    codigo: dados.sku
+                  }
+                }).then(() => {
+                  skus.push(sku)
+                  console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
+                  return updateAppData({ appSdk, storeId }, {
+                    ___importation: {
+                      ...appData.___importation,
+                      skus
+                    }
+                  })
                 })
               }
             }
