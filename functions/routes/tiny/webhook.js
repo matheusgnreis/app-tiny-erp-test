@@ -97,12 +97,12 @@ exports.post = ({ appSdk, admin }, req, res) => {
             }
             return res.sendStatus(200)
           })
-
-          .catch(err => {
-            console.error(err)
-            res.sendStatus(502)
-          })
       })
+
+        .catch(err => {
+          console.error(err)
+          res.sendStatus(502)
+        })
     } else {
       return res.sendStatus(400)
     }
