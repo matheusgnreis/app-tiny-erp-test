@@ -11,11 +11,14 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
   return firestore().collection('tiny_stock_updates')
     .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
-    .limit(10)
     .get().then(querySnapshot => {
-      let tinyStockUpdate
+      let tinyStockUpdate, lastUpdateTime
       querySnapshot.forEach(documentSnapshot => {
-        tinyStockUpdate = documentSnapshot.data()
+        const updateTime = documentSnapshot.updateTime.toDate().getTime()
+        if (!lastUpdateTime || updateTime > lastUpdateTime) {
+          lastUpdateTime = updateTime
+          tinyStockUpdate = documentSnapshot.data()
+        }
         documentSnapshot.ref.delete().catch(console.error)
       })
       return tinyStockUpdate
@@ -24,18 +27,18 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     .then(tinyStockUpdate => {
       const findingProduct = productId
         ? ecomClient.store({
-          storeId,
-          url: `/products/${productId}.json`
-        })
-          .then(({ data }) => data)
-          .catch(err => {
-            if (err.response && err.response.status >= 400 && err.response.status < 500) {
-              console.log(`#${storeId} ${productId} => ${err.response.status}`)
-              return null
-            }
-            console.error(err)
-            throw err
+            storeId,
+            url: `/products/${productId}.json`
           })
+            .then(({ data }) => data)
+            .catch(err => {
+              if (err.response && err.response.status >= 400 && err.response.status < 500) {
+                console.log(`#${storeId} ${productId} => ${err.response.status}`)
+                return null
+              }
+              console.error(err)
+              throw err
+            })
 
         : ecomClient.search({
           storeId,
@@ -180,11 +183,11 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                           })
                           return isQueuedVariations
                             ? updateAppData({ appSdk, storeId, auth }, {
-                              __importation: {
-                                ...appData.__importation,
-                                skus
-                              }
-                            })
+                                __importation: {
+                                  ...appData.__importation,
+                                  skus
+                                }
+                              })
                             : true
                         })
                     }).catch(console.error)
