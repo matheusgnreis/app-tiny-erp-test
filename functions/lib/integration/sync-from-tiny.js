@@ -40,7 +40,7 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
             .catch(error => {
               if (!error.response || error.response.status !== 404) {
                 const err = new Error('Tiny stock list error')
-                const { config, response } = err
+                const { config, response } = error
                 err.storeId = storeId
                 err.config = config
                 if (response) {
