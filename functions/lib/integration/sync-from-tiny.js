@@ -45,7 +45,7 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                 err.config = config
                 if (response) {
                   const { status, data } = response
-                  if (data.retorno.codigo_erro === '8') {
+                  if (data && data.retorno && data.retorno.codigo_erro === '8') {
                     console.log(`Tiny stock list is [BLOCKED] for #${storeId}`)
                     return false
                   }
