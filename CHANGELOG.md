@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/ecomplus/application-starter/compare/v1.4.1...v1.5.0) (2021-01-18)
+
+
+### Features
+
+* **sync-from-tiny:** queue retry from 'tiny_stock_updates' coll saved skus ([a7e3bfb](https://github.com/ecomplus/application-starter/commit/a7e3bfb0b52d3a0154d24166300395a2f4d49474))
+
 ### [1.4.1](https://github.com/ecomplus/application-starter/compare/v1.4.0...v1.4.1) (2020-12-21)
 
 
