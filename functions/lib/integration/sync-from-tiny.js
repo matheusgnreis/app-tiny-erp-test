@@ -45,6 +45,10 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                 err.config = config
                 if (response) {
                   const { status, data } = response
+                  if (data.retorno.codigo_erro === '8') {
+                    console.log(`Tiny stock list is [BLOCKED] for #${storeId}`)
+                    return false
+                  }
                   err.response = {
                     status,
                     data: JSON.stringify(data)
@@ -56,48 +60,54 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
             })
 
             .then(payload => {
-              if (!payload) {
-                return
+              let skus = appData.___importation && appData.___importation.skus
+              if (!Array.isArray(skus)) {
+                skus = []
               }
-              const { produtos } = payload
-              if (produtos && produtos.length) {
-                let skus = appData.___importation && appData.___importation.skus
-                if (!Array.isArray(skus)) {
-                  skus = []
+              const addSku = produto => {
+                const sku = String(produto.codigo)
+                if (!skus.includes(sku)) {
+                  skus.push(sku)
+                  hasNewSku = true
                 }
-                const promises = []
-                produtos.forEach(({ produto }) => {
+              }
+              let hasNewSku = false
+              const promises = []
+
+              const collectionRef = firestore().collection('tiny_stock_updates')
+              if (payload && payload.produtos && payload.produtos.length) {
+                payload.produtos.forEach(({ produto }) => {
                   if (produto.codigo) {
                     promises.push(new Promise(resolve => {
-                      firestore().collection('tiny_stock_updates').add({
+                      collectionRef.add({
+                        storeId,
                         ref: `${storeId}_${tinyToken}_${produto.codigo}`,
                         produto
-                      })
-                        .then(() => {
-                          const sku = String(produto.codigo)
-                          if (!skus.includes(sku)) {
-                            skus.push(sku)
-                          }
-                          resolve()
-                        })
-                        .catch(console.error)
+                      }).then(() => {
+                        addSku(produto)
+                      }).catch(console.error).finally(resolve)
                     }))
                   }
                 })
+              } else if (payload !== false) {
+                promises.push(
+                  collectionRef.where('storeId', '==', storeId)
+                    .get().then(querySnapshot => querySnapshot.forEach(documentSnapshot => {
+                      addSku(documentSnapshot.get('produto'))
+                    }))
+                )
+              }
 
-                if (promises.length) {
-                  return Promise.all(promises).then(() => {
-                    console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
-                    return updateAppData({ appSdk, storeId }, {
-                      ___importation: {
-                        ...appData.___importation,
-                        skus
-                      }
-                    })
+              if (hasNewSku) {
+                return Promise.all(promises).then(() => {
+                  console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
+                  return updateAppData({ appSdk, storeId }, {
+                    ___importation: {
+                      ...appData.___importation,
+                      skus
+                    }
                   })
-                } else {
-                  return Promise.resolve()
-                }
+                })
               }
 
               let hasWaitingQueue = false

@@ -53,6 +53,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
                 if (!skus.includes(sku)) {
                   return admin.firestore().collection('tiny_stock_updates').add({
+                    storeId,
                     ref: `${storeId}_${tinyToken}_${sku}`,
                     produto: {
                       id: dados.idProduto,
