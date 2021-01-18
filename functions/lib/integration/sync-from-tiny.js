@@ -60,6 +60,9 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
             })
 
             .then(payload => {
+              if (payload === false) {
+                return
+              }
               let skus = appData.___importation && appData.___importation.skus
               if (!Array.isArray(skus)) {
                 skus = []
@@ -89,13 +92,15 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                     }))
                   }
                 })
-              } else if (payload !== false) {
-                promises.push(
+              } else {
+                promises.push(new Promise(resolve => {
                   collectionRef.where('storeId', '==', storeId)
-                    .get().then(querySnapshot => querySnapshot.forEach(documentSnapshot => {
-                      addSku(documentSnapshot.get('produto'))
-                    }))
-                )
+                    .get().then(querySnapshot => {
+                      querySnapshot.forEach(documentSnapshot => {
+                        addSku(documentSnapshot.get('produto'))
+                      })
+                    }).catch(console.error).finally(resolve)
+                }))
               }
 
               if (hasNewSku) {
