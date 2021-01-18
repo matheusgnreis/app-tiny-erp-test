@@ -67,10 +67,12 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
               if (!Array.isArray(skus)) {
                 skus = []
               }
+              let hasNewSku = false
               const addSku = produto => {
                 const sku = String(produto.codigo)
                 if (!skus.includes(sku)) {
                   skus.push(sku)
+                  hasNewSku = true
                 }
               }
               const promises = []
@@ -101,13 +103,16 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
 
               if (promises.length) {
                 return Promise.all(promises).then(() => {
-                  console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
-                  return updateAppData({ appSdk, storeId }, {
-                    ___importation: {
-                      ...appData.___importation,
-                      skus
-                    }
-                  })
+                  if (hasNewSku) {
+                    console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
+                    return updateAppData({ appSdk, storeId }, {
+                      ___importation: {
+                        ...appData.___importation,
+                        skus
+                      }
+                    })
+                  }
+                  return true
                 })
               }
 
