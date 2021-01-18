@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.1](https://github.com/ecomplus/application-starter/compare/v1.5.0...v1.5.1) (2021-01-18)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#23](https://github.com/ecomplus/application-starter/issues/23)) ([3e9200d](https://github.com/ecomplus/application-starter/commit/3e9200da404c6b9bbe4db8a9886a3658b5d88b6f))
+* **sync-from-tiny:** fix checking promises to wait before saving skus ([e25a3cf](https://github.com/ecomplus/application-starter/commit/e25a3cff30ee2bdffdd821f2757468bd66078059))
+* **sync-from-tiny:** try fix reading skus from 'tiny_stock_updates' to queue again ([c2bce15](https://github.com/ecomplus/application-starter/commit/c2bce156497351829938b5803869f26d3442c6cb))
+
 ## [1.5.0](https://github.com/ecomplus/application-starter/compare/v1.4.1...v1.5.0) (2021-01-18)
 
 
