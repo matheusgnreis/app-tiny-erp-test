@@ -71,10 +71,8 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                 const sku = String(produto.codigo)
                 if (!skus.includes(sku)) {
                   skus.push(sku)
-                  hasNewSku = true
                 }
               }
-              let hasNewSku = false
               const promises = []
 
               const collectionRef = firestore().collection('tiny_stock_updates')
@@ -93,17 +91,15 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                   }
                 })
               } else {
-                promises.push(new Promise(resolve => {
+                promises.push(
                   collectionRef.where('storeId', '==', storeId)
-                    .get().then(querySnapshot => {
-                      querySnapshot.forEach(documentSnapshot => {
-                        addSku(documentSnapshot.get('produto'))
-                      })
-                    }).catch(console.error).finally(resolve)
-                }))
+                    .get().then(querySnapshot => querySnapshot.forEach(documentSnapshot => {
+                      addSku(documentSnapshot.get('produto'))
+                    }))
+                )
               }
 
-              if (hasNewSku) {
+              if (promises.length) {
                 return Promise.all(promises).then(() => {
                   console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
                   return updateAppData({ appSdk, storeId }, {
