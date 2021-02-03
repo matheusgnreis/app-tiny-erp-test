@@ -34,7 +34,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
               if (!orderNumbers.includes(orderNumber)) {
                 orderNumbers.push(orderNumber)
                 console.log(`> #${storeId} order numbers: ${JSON.stringify(orderNumbers)}`)
-                return updateAppData({ appSdk, storeId }, {
+                return updateAppData({ appSdk, storeId, auth }, {
                   ___importation: {
                     ...appData.___importation,
                     order_numbers: orderNumbers
@@ -63,7 +63,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                   }).then(() => {
                     skus.push(sku)
                     console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
-                    return updateAppData({ appSdk, storeId }, {
+                    return updateAppData({ appSdk, storeId, auth }, {
                       ___importation: {
                         ...appData.___importation,
                         skus
@@ -101,6 +101,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
       })
 
         .catch(err => {
+          err.storeId = storeId
+          err.tinyToken = tinyToken
           console.error(err)
           res.sendStatus(502)
         })
