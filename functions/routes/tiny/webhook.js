@@ -94,6 +94,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                   parseTinyItem(variacao.id ? variacao : variacao.variacao)
                 })
               }
+              console.log(JSON.stringify({ mapeamentos }))
               return res.status(200).send({ mapeamentos })
             }
             return res.sendStatus(200)
