@@ -83,10 +83,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                 if (tinyItem) {
                   const { idMapeamento, id, codigo, sku } = tinyItem
                   mapeamentos.push({
-                    mapeamento: {
-                      idMapeamento: parseInt(idMapeamento || id, 10),
-                      skuMapeamento: codigo || sku
-                    }
+                    idMapeamento: idMapeamento || id,
+                    skuMapeamento: codigo || sku
                   })
                 }
               }
@@ -96,8 +94,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                   parseTinyItem(variacao.id ? variacao : variacao.variacao)
                 })
               }
-              // console.log(JSON.stringify({ mapeamentos }))
-              return res.status(200).send({ mapeamentos })
+              return res.status(200).send(mapeamentos)
             }
             return res.sendStatus(200)
           })
