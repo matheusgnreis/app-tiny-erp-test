@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.3](https://github.com/ecomplus/application-starter/compare/v1.5.2...v1.5.3) (2021-02-04)
+
+
+### Bug Fixes
+
+* **deps:** update @ecomplus/application-sdk to 22.0.0-firestore.1.14.2 ([a3cb253](https://github.com/ecomplus/application-starter/commit/a3cb2530b17556d6ebee6c1e4637aaee85e82889))
+* **tiny-webhook:** fix response for products mapping (tiny expected response schema) ([8148a28](https://github.com/ecomplus/application-starter/commit/8148a2828a0cfb0f9b179978802c881e931cfba1))
+* **tiny-webhook:** fix response for products mapping (try following tiny sample instead of doc) ([6fc3433](https://github.com/ecomplus/application-starter/commit/6fc3433ba9b42081a6ad3f62ee3bd3aab3090986))
+
 ### [1.5.2](https://github.com/ecomplus/application-starter/compare/v1.5.1...v1.5.2) (2021-01-18)
 
 ### [1.5.1](https://github.com/ecomplus/application-starter/compare/v1.5.0...v1.5.1) (2021-01-18)
