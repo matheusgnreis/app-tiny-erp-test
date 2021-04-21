@@ -146,3 +146,9 @@ const syncFromTiny = require('./lib/integration/sync-from-tiny')
 const syncCron = 'every 3 mins'
 exports.scheduledSync = functions.pubsub.schedule(syncCron).onRun(syncFromTiny)
 console.log(`-- Sheduled active sync from Tiny API '${syncCron}'`)
+
+// delete old stored Tiny order states
+const clearOrderStates = require('./lib/integration/clear-order-states')
+const clearStatesCron = '10 17 * * *'
+exports.scheduledClear = functions.pubsub.schedule(clearStatesCron).onRun(clearOrderStates)
+console.log(`-- Sheduled clearing order stored states '${clearStatesCron}'`)
