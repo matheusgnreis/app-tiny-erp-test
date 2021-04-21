@@ -1,5 +1,6 @@
 const getAppData = require('../../lib/store-api/get-app-data')
 const updateAppData = require('../../lib/store-api/update-app-data')
+const importProduct = require('../../lib/integration/import-product')
 
 exports.get = ({ appSdk, admin }, req, res) => {
   return res.sendStatus(200)
@@ -17,7 +18,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
       const clientIp = req.get('x-forwarded-for') || req.connection.remoteAddress
       */
       return appSdk.getAuth(storeId).then(auth => {
-        return getAppData({ appSdk, storeId, auth })
+        const appClient = { appSdk, storeId, auth }
+        return getAppData(appClient)
 
           .then(appData => {
             if (appData.tiny_api_token !== tinyToken) {
@@ -34,7 +36,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
               if (!orderNumbers.includes(orderNumber)) {
                 orderNumbers.push(orderNumber)
                 console.log(`> #${storeId} order numbers: ${JSON.stringify(orderNumbers)}`)
-                return updateAppData({ appSdk, storeId, auth }, {
+                return updateAppData(appClient, {
                   ___importation: {
                     ...appData.___importation,
                     order_numbers: orderNumbers
@@ -45,32 +47,57 @@ exports.post = ({ appSdk, admin }, req, res) => {
 
             if (tipo === 'produto' || tipo === 'estoque') {
               if ((dados.id || dados.idProduto) && (dados.codigo || dados.sku)) {
-                let skus = appData.___importation && appData.___importation.skus
-                if (!Array.isArray(skus)) {
-                  skus = []
-                }
-                const sku = String(dados.skuMapeamento || dados.sku || dados.codigo)
-
-                if (!skus.includes(sku)) {
-                  return admin.firestore().collection('tiny_stock_updates').add({
+                return new Promise((resolve, reject) => {
+                  const nextId = String(dados.skuMapeamento || dados.sku || dados.codigo)
+                  const tinyStockUpdate = {
                     storeId,
-                    ref: `${storeId}_${tinyToken}_${sku}`,
+                    ref: `${storeId}_${tinyToken}_${nextId}`,
                     produto: {
                       id: dados.idProduto,
                       codigo: dados.sku,
                       ...dados
                     }
-                  }).then(() => {
-                    skus.push(sku)
-                    console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
-                    return updateAppData({ appSdk, storeId, auth }, {
-                      ___importation: {
-                        ...appData.___importation,
-                        skus
+                  }
+                  console.log(`> Tiny webhook: #${storeId} ${nextId} => ${tinyStockUpdate.produto.saldo}`)
+
+                  const saveToQueue = () => {
+                    let skus = appData.___importation && appData.___importation.skus
+                    if (!Array.isArray(skus)) {
+                      skus = []
+                    }
+
+                    if (!skus.includes(nextId)) {
+                      return admin.firestore().collection('tiny_stock_updates').add(tinyStockUpdate)
+                        .then(() => {
+                          skus.push(nextId)
+                          console.log(`> #${storeId} SKUs: ${JSON.stringify(skus)}`)
+                          return updateAppData(appClient, {
+                            ___importation: {
+                              ...appData.___importation,
+                              skus
+                            }
+                          })
+                        })
+                        .then(resolve)
+                        .catch(reject)
+                    }
+                    resolve(null)
+                  }
+
+                  const queueEntry = {
+                    nextId,
+                    tinyStockUpdate,
+                    isNotQueued: true,
+                    cb: (err, isDone) => {
+                      if (!err && isDone) {
+                        return resolve(true)
                       }
-                    })
-                  })
-                }
+                      saveToQueue()
+                    }
+                  }
+                  importProduct(appClient, tinyToken, queueEntry, appData, false, true)
+                    .catch(saveToQueue)
+                })
               }
             }
             return null

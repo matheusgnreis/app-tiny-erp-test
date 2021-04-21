@@ -9,20 +9,29 @@ const handleJob = require('./handle-job')
 module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, isHiddenQueue) => {
   const [sku, productId] = String(queueEntry.nextId).split(';:')
 
-  return firestore().collection('tiny_stock_updates')
-    .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
-    .get().then(querySnapshot => {
-      let tinyStockUpdate, lastUpdateTime
-      querySnapshot.forEach(documentSnapshot => {
-        const updateTime = documentSnapshot.updateTime.toDate().getTime()
-        if (!lastUpdateTime || updateTime > lastUpdateTime) {
-          lastUpdateTime = updateTime
-          tinyStockUpdate = documentSnapshot.data()
-        }
-        documentSnapshot.ref.delete().catch(console.error)
+  return new Promise((resolve, reject) => {
+    if (queueEntry.tinyStockUpdate) {
+      resolve(queueEntry.tinyStockUpdate)
+      return
+    }
+
+    firestore().collection('tiny_stock_updates')
+      .where('ref', '==', `${storeId}_${tinyToken}_${sku}`)
+      .get()
+      .then(querySnapshot => {
+        let tinyStockUpdate, lastUpdateTime
+        querySnapshot.forEach(documentSnapshot => {
+          const updateTime = documentSnapshot.updateTime.toDate().getTime()
+          if (!lastUpdateTime || updateTime > lastUpdateTime) {
+            lastUpdateTime = updateTime
+            tinyStockUpdate = documentSnapshot.data()
+          }
+          documentSnapshot.ref.delete().catch(console.error)
+        })
+        resolve(tinyStockUpdate)
       })
-      return tinyStockUpdate
-    })
+      .catch(reject)
+  })
 
     .then(tinyStockUpdate => {
       const findingProduct = productId
