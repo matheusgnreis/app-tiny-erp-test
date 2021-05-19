@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.5](https://github.com/ecomplus/application-starter/compare/v1.5.4...v1.5.5) (2021-05-19)
+
+
+### Bug Fixes
+
+* **export-order:** fix preventing new orders exports when option disabled ([#48](https://github.com/ecomplus/application-starter/issues/48)) ([b04e0ff](https://github.com/ecomplus/application-starter/commit/b04e0ff18206f1331994b2e7212fe84f71d0896e))
+
 ### [1.5.4](https://github.com/ecomplus/application-starter/compare/v1.5.3...v1.5.4) (2021-04-22)
 
 
