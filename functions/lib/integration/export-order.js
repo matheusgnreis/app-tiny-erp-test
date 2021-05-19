@@ -29,12 +29,13 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             originalTinyOrder = pedidos.find(({ pedido }) => order.number === Number(pedido.numero_ecommerce))
             if (originalTinyOrder) {
               originalTinyOrder = originalTinyOrder.pedido
-            } else if (!canCreateNew) {
-              return null
             }
           }
-          const tinyOrder = parseOrder(order, appData, storeId)
           if (!originalTinyOrder) {
+            if (!canCreateNew) {
+              return null
+            }
+            const tinyOrder = parseOrder(order, appData, storeId)
             console.log(`#${storeId} ${JSON.stringify(tinyOrder)}`)
             return tiny.post('/pedido.incluir.php', {
               pedido: {
