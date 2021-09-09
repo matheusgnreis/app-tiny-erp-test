@@ -81,7 +81,6 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     cost_price: tinyProduct.preco_custo,
     price: tinyProduct.preco_promocional || tinyProduct.preco,
     base_price: tinyProduct.preco,
-    warranty: tinyProduct.garantia,
     body_html: tinyProduct.descricao_complementar
   }
 
@@ -94,6 +93,9 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     }
   }
 
+  if (tinyProduct.garantia) {
+    product.warranty = tinyProduct.garantia
+  }
   if (tinyProduct.unidade_por_caixa) {
     product.min_quantity = Number(tinyProduct.unidade_por_caixa)
   }
