@@ -156,6 +156,15 @@ const app = {
       },
       hide: true
     },
+    approved_orders_only: {
+      schema: {
+        type: 'boolean',
+        default: true,
+        title: 'Apenas pedidos aprovados',
+        description: 'Criar pedido no Bling após aprovação'
+      },
+      hide: true
+    },
     new_products: {
       schema: {
         type: 'boolean',

@@ -24,6 +24,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         })
 
         .then(({ pedidos }) => {
+          const tinyStatus = parseStatus(order)
           let originalTinyOrder
           if (Array.isArray(pedidos)) {
             originalTinyOrder = pedidos.find(({ pedido }) => order.number === Number(pedido.numero_ecommerce))
@@ -31,9 +32,18 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               originalTinyOrder = originalTinyOrder.pedido
             }
           }
+
           if (!originalTinyOrder) {
             if (!canCreateNew) {
               return null
+            }
+            if (appData.approved_orders_only) {
+              switch (tinyStatus) {
+                case 'aberto':
+                case 'cancelado':
+                  console.log(`#${storeId} ${orderId} skipped with status "${tinyStatus}"`)
+                  return null
+              }
             }
             const tinyOrder = parseOrder(order, appData, storeId)
             console.log(`#${storeId} ${JSON.stringify(tinyOrder)}`)
@@ -44,7 +54,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             })
           }
 
-          const tinyStatus = parseStatus(order)
           if (tinyStatus) {
             return tiny.post('/pedido.alterar.situacao', {
               id: originalTinyOrder.id,
