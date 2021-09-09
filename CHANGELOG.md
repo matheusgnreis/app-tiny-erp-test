@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/ecomplus/application-starter/compare/v1.5.5...v1.6.0) (2021-09-09)
+
+
+### Features
+
+* **admin-settings:** support option to export approved orders only [[#49](https://github.com/ecomplus/application-starter/issues/49)] ([907644d](https://github.com/ecomplus/application-starter/commit/907644dce870e11f836cd0e015208354fc7431e7))
+* **export-order:** write discount coupon to tiny order obs ([933eb7a](https://github.com/ecomplus/application-starter/commit/933eb7a22ad3ee561096eb2ec7706b94839d7df4))
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#50](https://github.com/ecomplus/application-starter/issues/50)) ([77036c4](https://github.com/ecomplus/application-starter/commit/77036c4b5f68d05f056c7ec0a4087c8a95351ad8))
+* **deps:** update all non-major dependencies ([#56](https://github.com/ecomplus/application-starter/issues/56)) ([b80fd3e](https://github.com/ecomplus/application-starter/commit/b80fd3edcb49cc916b0e0cab677625c8ef6c703d))
+* **deps:** update dependency dotenv to v10 ([#51](https://github.com/ecomplus/application-starter/issues/51)) ([88dec6a](https://github.com/ecomplus/application-starter/commit/88dec6a435329d5eec04da1e4410c315ed248a6c))
+* **product-to-ecomplus:** prevent null `warranty` while importing from tiny ([d0b90ea](https://github.com/ecomplus/application-starter/commit/d0b90ea0c7431d276e6cc35d6fbd30cad7106692))
+
 ### [1.5.5](https://github.com/ecomplus/application-starter/compare/v1.5.4...v1.5.5) (2021-05-19)
 
 
