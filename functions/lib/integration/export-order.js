@@ -14,6 +14,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         return null
       }
       const tiny = new Tiny(tinyToken)
+      console.log(`#${storeId} ${orderId} searching order ${order.number}`)
 
       const job = tiny.post('/pedidos.pesquisa.php', { numeroEcommerce: String(order.number) })
         .catch(err => {
@@ -52,6 +53,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 pedido: tinyOrder
               }
             })
+          } else {
+            console.log(`#${storeId} ${orderId} found with tiny status ${tinyStatus}`)
           }
 
           if (tinyStatus) {
