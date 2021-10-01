@@ -159,7 +159,7 @@ const app = {
     approved_orders_only: {
       schema: {
         type: 'boolean',
-        default: true,
+        default: false,
         title: 'Apenas pedidos aprovados',
         description: 'Criar pedido no Bling após aprovação'
       },
