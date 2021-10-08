@@ -147,6 +147,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 return appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth)
               }
               return null
+            } else if (!tinyProduct) {
+              return null
             }
 
             return tiny.post('/produto.obter.php', { id: tinyProduct.id })
