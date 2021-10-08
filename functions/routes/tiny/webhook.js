@@ -1,6 +1,7 @@
 const getAppData = require('../../lib/store-api/get-app-data')
 const updateAppData = require('../../lib/store-api/update-app-data')
 const importProduct = require('../../lib/integration/import-product')
+const importOrder = require('../../lib/integration/import-order')
 
 exports.get = ({ appSdk, admin }, req, res) => {
   return res.sendStatus(200)
@@ -34,13 +35,32 @@ exports.post = ({ appSdk, admin }, req, res) => {
               const orderNumber = `id:${dados.idVendaTiny}`
 
               if (!orderNumbers.includes(orderNumber)) {
-                orderNumbers.push(orderNumber)
-                console.log(`> #${storeId} order numbers: ${JSON.stringify(orderNumbers)}`)
-                return updateAppData(appClient, {
-                  ___importation: {
-                    ...appData.___importation,
-                    order_numbers: orderNumbers
+                return new Promise((resolve, reject) => {
+                  console.log(`> Tiny webhook: #${storeId} order ${orderNumber}`)
+
+                  const saveToQueue = () => {
+                    orderNumbers.push(orderNumber)
+                    console.log(`> #${storeId} order numbers: ${JSON.stringify(orderNumbers)}`)
+                    return updateAppData(appClient, {
+                      ___importation: {
+                        ...appData.___importation,
+                        order_numbers: orderNumbers
+                      }
+                    }).then(resolve).catch(reject)
                   }
+
+                  const queueEntry = {
+                    nextId: orderNumber,
+                    isNotQueued: true,
+                    cb: (err, isDone) => {
+                      if (!err && isDone) {
+                        return resolve(true)
+                      }
+                      saveToQueue()
+                    }
+                  }
+                  importOrder(appClient, tinyToken, queueEntry, appData, false, true)
+                    .catch(saveToQueue)
                 })
               }
             }
