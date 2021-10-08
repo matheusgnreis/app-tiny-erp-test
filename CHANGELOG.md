@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/ecomplus/application-starter/compare/v1.6.0...v1.6.1) (2021-10-08)
+
+
+### Bug Fixes
+
+* **admin-settings:** `approved_orders_only` defaults to true ([702b627](https://github.com/ecomplus/application-starter/commit/702b62794dd1fa4dda7873d0097815519c08688f))
+* **export-product:** tiny product `codigo` with up to 30 chars ([#70](https://github.com/ecomplus/application-starter/issues/70)) ([c017a7e](https://github.com/ecomplus/application-starter/commit/c017a7edc6cc209896eb00856c8502256329146d))
+* **import-product:** end process when product should not be updated and `tinyProduct` not set ([addd669](https://github.com/ecomplus/application-starter/commit/addd6698cff26aadf7db309b101a9cbcb5d9d1f4))
+
 ## [1.6.0](https://github.com/ecomplus/application-starter/compare/v1.5.5...v1.6.0) (2021-09-09)
 
 
