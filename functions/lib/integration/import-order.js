@@ -24,20 +24,21 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         const situacao = typeof pedido.situacao === 'string'
           ? pedido.situacao.toLowerCase()
           : null
-        console.log(`#${storeId} import order ${pedido.numero_ecommerce}, ${pedido.id} e status: ${situacao}`)
+        const orderNumber = pedido.numero_ecommerce
+        console.log(`#${storeId} import order n${orderNumber} (${tinyOrderId}) => ${situacao}`)
         const documentRef = firestore().doc(`tiny_orders/${storeId}_${tinyOrderId}`)
         return documentRef.get().then(documentSnapshot => {
           if (
             documentSnapshot.exists &&
             documentSnapshot.get('situacao') === situacao
           ) {
-            console.log(`>> Ignoring Tiny order #${tinyOrderId} with same status`)
+            console.log(`>> Ignoring Tiny order n${orderNumber} (${tinyOrderId}) with same status`)
             return null
           }
 
           let listEndpoint = '/orders.json?limit=1&fields=_id,payments_history,fulfillments,shipping_lines'
-          if (pedido.numero_ecommerce) {
-            listEndpoint += `&number=${pedido.numero_ecommerce}`
+          if (orderNumber) {
+            listEndpoint += `&number=${orderNumber}`
           } else {
             listEndpoint += `&hidden_metafields.value=${tinyOrderId}_tiny`
           }
@@ -74,6 +75,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     data.status = newStatus
                     const endpoint = `/orders/${order._id}/${subresource}.json`
                     promises.push(appSdk.apiRequest(storeId, endpoint, 'POST', data, auth))
+                    console.log(`#${storeId} ${order._id} updated to ${newStatus} from Tiny (${tinyOrderId})`)
                   }
                 })
 
@@ -101,12 +103,10 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
   if (typeof tinyOrderNumber === 'string' && tinyOrderNumber.startsWith('id:')) {
     job = getTinyOrder(tinyOrderNumber.substring(3))
   } else {
-    console.log(`#${storeId} Order ${tinyOrderNumber} do not have id`)
     job = tiny.post('/pedidos.pesquisa.php', { numero: tinyOrderNumber })
       .then(({ pedidos }) => {
         const tinyOrder = pedidos.find(({ pedido }) => Number(tinyOrderNumber) === Number(pedido.numero))
         if (tinyOrder) {
-          console.log(`#${storeId} Order without ID - ${tinyOrder}`)
           return getTinyOrder(tinyOrder.pedido.id)
         } else {
           return null
