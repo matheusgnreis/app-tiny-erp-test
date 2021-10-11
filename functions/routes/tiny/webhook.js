@@ -46,7 +46,11 @@ exports.post = ({ appSdk, admin }, req, res) => {
                         ...appData.___importation,
                         order_numbers: orderNumbers
                       }
-                    }).then(resolve).catch(reject)
+                    })
+                      .then(() => {
+                        resolve(503)
+                      })
+                      .catch(reject)
                   }
 
                   const queueEntry = {
@@ -123,7 +127,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
             return null
           })
 
-          .then(payload => {
+          .then(statusCode => {
             if (tipo === 'produto') {
               const mapeamentos = []
               const parseTinyItem = tinyItem => {
@@ -143,7 +147,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
               }
               return res.status(200).send(mapeamentos)
             }
-            return res.sendStatus(200)
+            return res.sendStatus(typeof statusCode === 'number' ? statusCode : 200)
           })
       })
 
