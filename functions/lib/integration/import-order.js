@@ -25,14 +25,14 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           ? pedido.situacao.toLowerCase()
           : null
         const orderNumber = pedido.numero_ecommerce
-        console.log(`#${storeId} import order n${orderNumber} (${tinyOrderId}) => ${situacao}`)
+        console.log(`#${storeId} import order n${orderNumber} ${tinyOrderId} => ${situacao}`)
         const documentRef = firestore().doc(`tiny_orders/${storeId}_${tinyOrderId}`)
         return documentRef.get().then(documentSnapshot => {
           if (
             documentSnapshot.exists &&
             documentSnapshot.get('situacao') === situacao
           ) {
-            console.log(`>> Ignoring Tiny order n${orderNumber} (${tinyOrderId}) with same status`)
+            console.log(`>> Ignoring Tiny order n${orderNumber} ${tinyOrderId} with same status`)
             return null
           }
 
@@ -75,7 +75,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     data.status = newStatus
                     const endpoint = `/orders/${order._id}/${subresource}.json`
                     promises.push(appSdk.apiRequest(storeId, endpoint, 'POST', data, auth))
-                    console.log(`#${storeId} ${order._id} updated to ${newStatus} from Tiny (${tinyOrderId})`)
+                    console.log(`#${storeId} ${order._id} updated to ${newStatus} from Tiny ${tinyOrderId}`)
                   }
                 })
 
