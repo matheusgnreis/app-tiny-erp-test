@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.2](https://github.com/ecomplus/application-starter/compare/v1.6.1...v1.6.2) (2021-10-11)
+
+
+### Bug Fixes
+
+* **handle-job:** prevent trying `then` when null job, and debug it ([53663be](https://github.com/ecomplus/application-starter/commit/53663be8ee144d83e5d867d9d23ea1114fc6ef15))
+* **tiny-webhook:** return 503 when sync order import is not successful ([fae1a02](https://github.com/ecomplus/application-starter/commit/fae1a02e913eeb3b0b5173857c8ae01823f3d3ea))
+
 ### [1.6.1](https://github.com/ecomplus/application-starter/compare/v1.6.0...v1.6.1) (2021-10-08)
 
 
