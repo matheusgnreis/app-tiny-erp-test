@@ -178,25 +178,29 @@ const log = ({ appSdk, storeId }, queueEntry, payload) => {
 }
 
 const handleJob = (appSession, queueEntry, job) => {
-  job
-    .then(payload => {
-      if (payload && typeof payload.then === 'function') {
-        handleJob(appSession, queueEntry, payload)
-      } else if (!queueEntry.isNotQueued) {
-        log(appSession, queueEntry, payload)
-      } else if (typeof queueEntry.cb === 'function') {
-        queueEntry.cb(null, true)
-      }
-      return true
-    })
-    .catch(err => {
-      if (!queueEntry.isNotQueued) {
-        return log(appSession, queueEntry, err)
-      }
-      if (typeof queueEntry.cb === 'function') {
-        queueEntry.cb(err, false)
-      }
-    })
+  if (job && typeof job.then === 'function') {
+    job
+      .then(payload => {
+        if (payload && typeof payload.then === 'function') {
+          handleJob(appSession, queueEntry, payload)
+        } else if (!queueEntry.isNotQueued) {
+          log(appSession, queueEntry, payload)
+        } else if (typeof queueEntry.cb === 'function') {
+          queueEntry.cb(null, true)
+        }
+        return true
+      })
+      .catch(err => {
+        if (!queueEntry.isNotQueued) {
+          return log(appSession, queueEntry, err)
+        }
+        if (typeof queueEntry.cb === 'function') {
+          queueEntry.cb(err, false)
+        }
+      })
+  } else {
+    console.log(`< Queue entry ${JSON.stringify(queueEntry)} with no job to handle`)
+  }
 }
 
 module.exports = handleJob
