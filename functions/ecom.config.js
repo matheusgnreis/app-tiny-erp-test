@@ -368,13 +368,7 @@ procedures.push({
   title: app.title,
 
   triggers: [
-    // Receive notifications when new order is created:
-    {
-      resource: 'orders',
-      action: 'create',
-    },
-
-    // Receive notifications when order financial/fulfillment status changes:
+    // Receive notifications order new or edited with financial/fulfillment status:
     {
       resource: 'orders',
       field: 'financial_status',
