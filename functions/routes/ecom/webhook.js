@@ -148,7 +148,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
             }
 
             /* DO YOUR CUSTOM STUFF HERE */
-            console.log(`> Webhook #${storeId} ${resourceId} [${trigger.resource}]`)
+            console.log(`> Webhook #${storeId} ${resourceId} [${trigger.resource}] ${JSON.stringify(trigger.body)}`)
 
             const tinyToken = appData.tiny_api_token
             if (typeof tinyToken === 'string' && tinyToken) {
