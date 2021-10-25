@@ -11,11 +11,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     .then(({ response }) => {
       const order = response.data
       if (!order.financial_status) {
-        console.log(`#${storeId} ${orderId} skipped with no financial status: ${JSON.stringify({
-          order,
-          reqConfig: response.config,
-          resHeaders: response.headers
-        })}`)
+        console.log(`#${storeId} ${orderId} skipped with no financial status`)
         return null
       }
       const tiny = new Tiny(tinyToken)
