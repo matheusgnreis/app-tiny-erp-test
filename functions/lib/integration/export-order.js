@@ -15,7 +15,11 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         return null
       }
       const tiny = new Tiny(tinyToken)
-      console.log(`#${storeId} ${orderId} searching order ${order.number}: ${JSON.stringify(order)}`)
+      console.log(`#${storeId} ${orderId} searching order ${order.number}: ${JSON.stringify({
+        order,
+        url: response.config?.url,
+        headers: response.headers
+      })}`)
 
       const job = tiny.post('/pedidos.pesquisa.php', { numeroEcommerce: String(order.number) })
         .catch(err => {
