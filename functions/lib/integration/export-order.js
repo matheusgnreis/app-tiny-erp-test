@@ -11,15 +11,15 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
     .then(({ response }) => {
       const order = response.data
       if (!order.financial_status) {
-        console.log(`#${storeId} ${orderId} skipped with no financial status`)
+        console.log(`#${storeId} ${orderId} skipped with no financial status: ${JSON.stringify({
+          order,
+          url: response.config?.url,
+          headers: response.headers
+        })}`)
         return null
       }
       const tiny = new Tiny(tinyToken)
-      console.log(`#${storeId} ${orderId} searching order ${order.number}: ${JSON.stringify({
-        order,
-        url: response.config?.url,
-        headers: response.headers
-      })}`)
+      console.log(`#${storeId} ${orderId} searching order ${order.number}`)
 
       const job = tiny.post('/pedidos.pesquisa.php', { numeroEcommerce: String(order.number) })
         .catch(err => {
