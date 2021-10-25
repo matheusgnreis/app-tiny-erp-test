@@ -1,3 +1,4 @@
+const axios = require('axios')
 const errorHandling = require('../store-api/error-handling')
 const Tiny = require('../tiny/constructor')
 const parseOrder = require('./parsers/order-to-tiny/')
@@ -13,7 +14,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
       if (!order.financial_status) {
         console.log(`#${storeId} ${orderId} skipped with no financial status: ${JSON.stringify({
           order,
-          url: response.config?.url,
+          url: axios.getUri(response.config),
           headers: response.headers
         })}`)
         return null
