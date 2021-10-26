@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.3](https://github.com/ecomplus/application-starter/compare/v1.6.2...v1.6.3) (2021-10-26)
+
+
+### Bug Fixes
+
+* **ecom-config:** remove procedure trigger by order create (keep order + status only) ([69ed8c3](https://github.com/ecomplus/application-starter/commit/69ed8c336c31f8162d18f5a06225e4fbde001978))
+
 ### [1.6.2](https://github.com/ecomplus/application-starter/compare/v1.6.1...v1.6.2) (2021-10-11)
 
 
