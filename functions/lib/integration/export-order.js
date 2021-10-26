@@ -19,9 +19,11 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
       const job = tiny.post('/pedidos.pesquisa.php', { numeroEcommerce: String(order.number) })
         .catch(err => {
-          if (err.response && err.response.status === 404) {
+          const status = err.response && err.response.status
+          if (status === 404) {
             return {}
           }
+          console.log(`#${storeId} ${orderId} search on tiny ends with status ${status}`)
           throw err
         })
 
