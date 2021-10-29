@@ -218,23 +218,33 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           key += `_${handlerName}_${nextId.replace(/[~./:;]+/g, '_')}`
                           const timestamp = Date.now()
                           const documentSnapshot = validateDocSnapshot()
-                          if (!documentSnapshot || timestamp - documentSnapshot.get(key) < 20000) {
-                            break
-                          }
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
+                          let delayMs = 0
+                          if (documentSnapshot) {
+                            delayMs = timestamp - documentSnapshot.get(key)
+                            if (delayMs < 20000 && trigger.resource === 'applications') {
+                              console.log(`> Skipping ${debugFlag}`)
+                              break
+                            }
+                          }
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
                           uncountRequest(true, { [key]: timestamp })
 
-                          return handler(
-                            { appSdk, storeId, auth },
-                            tinyToken,
-                            queueEntry,
-                            appData,
-                            canCreateNew,
-                            isHiddenQueue
-                          )
-                            .then(() => ({ appData, action, queue }))
+                          return new Promise((resolve, reject) => {
+                            setTimeout(() => {
+                              handler(
+                                { appSdk, storeId, auth },
+                                tinyToken,
+                                queueEntry,
+                                appData,
+                                canCreateNew,
+                                isHiddenQueue
+                              )
+                                .then(() => resolve({ appData, action, queue }))
+                                .catch(reject)
+                            }, delayMs)
+                          })
                         }
                       }
                     }
