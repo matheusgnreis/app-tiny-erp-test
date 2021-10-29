@@ -216,23 +216,25 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           handler
                         ) {
                           key += `_${handlerName}_${nextId.replace(/[~./:;]+/g, '_')}`
-                          const timestamp = Date.now()
                           const documentSnapshot = validateDocSnapshot()
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
                           let delayMs = 0
-                          if (documentSnapshot) {
-                            delayMs = timestamp - documentSnapshot.get(key)
-                            if (delayMs < 20000 && trigger.resource === 'applications') {
+                          if (!documentSnapshot || Date.now() - documentSnapshot.get(key) < 20000) {
+                            if (trigger.resource === 'applications') {
                               console.log(`> Skipping ${debugFlag}`)
                               break
+                            } else {
+                              delayMs = 6000
                             }
                           }
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, documentRef, mustUpdateAppQueue }
-                          uncountRequest(true, { [key]: timestamp })
 
                           return new Promise((resolve, reject) => {
                             setTimeout(() => {
+                              uncountRequest(true, {
+                                [key]: Date.now()
+                              })
                               handler(
                                 { appSdk, storeId, auth },
                                 tinyToken,
