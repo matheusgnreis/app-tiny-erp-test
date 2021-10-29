@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.4](https://github.com/ecomplus/application-starter/compare/v1.6.3...v1.6.4) (2021-10-29)
+
+
+### Bug Fixes
+
+* **ecom-webhook:** delay (but not skip) webhooks by orders/products resources ([b1db289](https://github.com/ecomplus/application-starter/commit/b1db28997f7175552b8c6a4b3bcc52f07c867008))
+
 ### [1.6.3](https://github.com/ecomplus/application-starter/compare/v1.6.2...v1.6.3) (2021-10-26)
 
 
