@@ -26,7 +26,7 @@ module.exports = order => {
       return 'enviado'
     case 'delivered':
       return 'entregue'
-    case 'returned'
+    case 'returned':
       return 'cancelado'
   }
 
