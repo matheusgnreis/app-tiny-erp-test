@@ -53,22 +53,16 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           storeId,
           url: '/items.json',
           data: {
+            size: 1,
             query: {
               bool: {
-                should: [{
-                  term: { sku }
-                }, {
-                  nested: {
-                    path: 'variations',
-                    query: {
-                      bool: {
-                        filter: [{
-                          term: { 'variations.sku': sku }
-                        }]
-                      }
-                    }
-                  }
-                }]
+                must: {
+                  term: { skus: sku }
+                },
+                should: [
+                  { term: { visible: true } },
+                  { term: { available: true } }
+                ]
               }
             }
           }
