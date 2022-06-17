@@ -1,4 +1,6 @@
 require('dotenv').config()
+const path = require('path')
+const fs = require('fs')
 
 const {
   FIREBASE_TOKEN,
@@ -17,17 +19,31 @@ const config = [
   `pkg.name=${name}`,
   `server.operator_token=${SERVER_OPERATOR_TOKEN}`
 ]
+
+
+const env = [
+  `NAME="${name}"`,
+  `VERSION="${version}"`,
+  `SERVER_OPERATOR_TOKEN="${SERVER_OPERATOR_TOKEN}"`
+]
+
 if (SERVER_BASE_URI) {
-  config.push(`server.base_uri=${SERVER_BASE_URI}`)
+  // config.push(`server.base_uri=${SERVER_BASE_URI}`)
+  env.push(`SERVER_BASE_URI="${SERVER_BASE_URI}"`)
 }
 
-client.functions.config.set(config, { project })
-  .then(() => client.deploy({
-    project,
-    only: 'functions',
-    token: FIREBASE_TOKEN,
-    force: true
-  }))
+
+const envDir = path.resolve(__dirname, '../functions')
+fs.writeFileSync(`${envDir}/.env`, env.join('\n'), 'utf-8')
+
+
+console.log('Config OK')
+client.deploy({
+  project,
+  only: 'functions',
+  token: FIREBASE_TOKEN,
+  force: true
+})
 
   .then(() => {
     console.log(

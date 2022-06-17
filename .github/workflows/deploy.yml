@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -49,6 +49,7 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           SERVER_OPERATOR_TOKEN: ${{ secrets.SERVER_OPERATOR_TOKEN }}
+          SERVER_BASE_URI: ${{ secrets.SERVER_BASE_URI }}
         run: npm run deploy
 
   update-app-json:
@@ -58,13 +59,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Write README with base URI
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          SERVER_BASE_URI: ${{ secrets.SERVER_BASE_URI }}
         run: |
-          echo "App base URI: https://us-central1-$FIREBASE_PROJECT_ID.cloudfunctions.net/app/" \
+          echo "App base URI: $SERVER_BASE_URI" \
             > ./assets/README
 
       - name: Run Wget and write to JSON file
@@ -73,7 +75,7 @@ jobs:
         run: |
           sleep 20
           wget -O ./assets/application.json \
-            https://us-central1-$FIREBASE_PROJECT_ID.cloudfunctions.net/app/
+            $SERVER_BASE_URI
 
       - name: Config Git and check diff
         run: |
