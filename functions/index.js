@@ -8,11 +8,12 @@ const recursiveReadDir = require('./lib/recursive-read-dir')
 // Firebase SDKs to setup cloud functions and access Firestore database
 const admin = require('firebase-admin')
 const functions = require('firebase-functions')
+const functionsV2 = require('firebase-functions/v2')
 admin.initializeApp()
 
 // web server with Express
 const express = require('express')
-const bodyParser = require('body-parser')
+const bodyParser = express
 const server = express()
 const router = express.Router()
 const routes = './routes'
@@ -129,7 +130,7 @@ recursiveReadDir(routesDir).filter(filepath => filepath.endsWith('.js')).forEach
 server.use(router)
 server.use(express.static('public'))
 
-exports[functionName] = functions.https.onRequest(server)
+exports[functionName] = functionsV2.https.onRequest(server)
 console.log(`-- Starting '${app.title}' E-Com Plus app with Function '${functionName}'`)
 
 // schedule update tokens job
