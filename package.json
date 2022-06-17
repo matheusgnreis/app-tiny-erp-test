@@ -38,7 +38,7 @@
     "dotenv": "^10.0.0",
     "firebase-admin": "^10.3.0",
     "firebase-tools": "^11.0.1",
-    "uglify-js": "^3.14.4"
+    "uglify-js": "^3.16.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^15.0.0",
