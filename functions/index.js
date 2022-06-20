@@ -13,7 +13,7 @@ admin.initializeApp()
 
 // web server with Express
 const express = require('express')
-const bodyParser = express
+const bodyParser = require('body-parser')
 const server = express()
 const router = express.Router()
 const routes = './routes'
@@ -130,7 +130,8 @@ recursiveReadDir(routesDir).filter(filepath => filepath.endsWith('.js')).forEach
 server.use(router)
 server.use(express.static('public'))
 
-exports[functionName] = functionsV2.https.onRequest(server)
+exports[functionName] = functions.https.onRequest(server)
+exports[`${functionName}v2`] = functionsV2.https.onRequest(server)
 console.log(`-- Starting '${app.title}' E-Com Plus app with Function '${functionName}'`)
 
 // schedule update tokens job

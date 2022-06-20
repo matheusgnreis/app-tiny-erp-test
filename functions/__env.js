@@ -20,7 +20,8 @@ const functionName = server && server.functionName ? server.functionName : 'app'
 module.exports = {
   functionName,
   operatorToken: server && server.operator_token,
-  baseUri: (server && server.base_uri) || process.env.SERVER_BASE_URI,
+  baseUri: process.env.SERVER_BASE_URI ||
+    `https://us-central1-${process.env.GCLOUD_PROJECT}.cloudfunctions.net/${functionName}`,
   pkg: {
     ...pkg
   }
