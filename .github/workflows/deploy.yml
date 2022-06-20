@@ -18,10 +18,9 @@ jobs:
     if: |
       github.event.head_commit.message != 'Initial commit' &&
       !contains(github.event.head_commit.message, '[skip ci]')
-
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -35,7 +34,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
       - name: Install root dependencies
         run: npm i --only=production
 
@@ -49,7 +47,6 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           SERVER_OPERATOR_TOKEN: ${{ secrets.SERVER_OPERATOR_TOKEN }}
-          SERVER_BASE_URI: ${{ secrets.SERVER_BASE_URI }}
         run: npm run deploy
 
   update-app-json:
@@ -59,24 +56,21 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Write README with base URI
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          SERVER_BASE_URI: ${{ secrets.SERVER_BASE_URI }}
         run: |
-          echo "App base URI: $SERVER_BASE_URI" \
+          echo "App base URI: https://us-central1-$FIREBASE_PROJECT_ID.cloudfunctions.net/app/" \
             > ./assets/README
-
       - name: Run Wget and write to JSON file
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         run: |
           sleep 20
           wget -O ./assets/application.json \
-            $SERVER_BASE_URI
-
+            https://us-central1-$FIREBASE_PROJECT_ID.cloudfunctions.net/app/
       - name: Config Git and check diff
         run: |
           git config --local user.email 'action@github.com'
@@ -89,7 +83,6 @@ jobs:
         if: steps.git_diff.outputs.diff == 1
         run: |
           git commit -m 'chore(assets): update application body [skip ci]'
-
       - name: Push changes
         if: steps.git_diff.outputs.diff == 1
         uses: ad-m/github-push-action@master
@@ -120,7 +113,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
       - name: Install dependencies
         if: steps.pkg_version.outputs.publish == 1
         run: npm ci --only=production
