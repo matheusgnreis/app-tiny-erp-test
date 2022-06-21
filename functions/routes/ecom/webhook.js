@@ -1,3 +1,5 @@
+/* eslint-disable no-loop-func */
+/* eslint-disable promise/no-nesting */
 // read configured E-Com Plus app data
 const getAppData = require('./../../lib/store-api/get-app-data')
 
@@ -124,13 +126,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           handler
                         ) {
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
-                          let delayMs = 0
-                          if (trigger.resource === 'applications') {
-                            console.log(`> Skipping ${debugFlag}`)
-                            break
-                          } else {
-                            delayMs = 6000
-                          }
+                          let delayMs = 6000
+
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, mustUpdateAppQueue }
 
