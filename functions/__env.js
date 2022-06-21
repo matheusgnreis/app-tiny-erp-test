@@ -1,7 +1,5 @@
 // setup server and app options from Functions config (and mocks)
 
-require('dotenv').config()
-
 const pkg = {
   name: process.env.NAME,
   version: process.env.VERSION,
