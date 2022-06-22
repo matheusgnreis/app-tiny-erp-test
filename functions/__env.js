@@ -16,10 +16,9 @@ if (!pkg || !pkg.name) {
 }
 if (!server || !server.operator_token) {
   server = {
-    operator_token: process.env.SERVER_OPERATOR_TOKEN
-  }
-  if (process.env.FUNCTION_NAME) {
-    server.functionName = process.env.FUNCTION_NAME
+    operator_token: process.env.SERVER_OPERATOR_TOKEN,
+    base_uri: process.env.SERVER_BASE_URI,
+    functionName: process.env.FUNCTION_NAME
   }
 }
 const functionName = server.functionName || 'app'

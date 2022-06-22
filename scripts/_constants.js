@@ -15,4 +15,4 @@ if (!project) {
 
 exports.project = project
 
-exports.baseUri = SERVER_BASE_URI || `https://us-central1-${project}.cloudfunctions.net/app/`
+exports.baseUri = SERVER_BASE_URI || 'https://appv2-gqnsyuqg6q-uc.a.run.app/'

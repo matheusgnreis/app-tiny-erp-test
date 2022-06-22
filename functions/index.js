@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { functionName, operatorToken } = require('./__env')
+const { functionName, operatorToken, baseUri } = require('./__env')
 
 const path = require('path')
 const recursiveReadDir = require('./lib/recursive-read-dir')
@@ -62,6 +62,14 @@ router.get('/', (req, res) => {
   // pretty print application body
   server.set('json spaces', 2)
   require(`${routes}/`)(req, res)
+})
+
+router.get('/is_v2', (req, res) => {
+  server.set('json spaces', 2)
+  res.send({
+    is: Boolean(process.env.IS_FUNCTIONS_V2),
+    baseUri
+  })
 })
 
 const prepareAppSdk = () => {
