@@ -1,5 +1,5 @@
-/* eslint-disable no-loop-func */
-/* eslint-disable promise/no-nesting */
+/* eslint-disable no-loop-func, promise/no-nesting */
+const { baseUri, operatorToken } = require('./../../__env')
 // read configured E-Com Plus app data
 const getAppData = require('./../../lib/store-api/get-app-data')
 
@@ -19,7 +19,7 @@ const SKIP_TRIGGER_NAME = 'SkipTrigger'
 const ECHO_SUCCESS = 'SUCCESS'
 const ECHO_SKIP = 'SKIP'
 const ECHO_API_ERROR = 'STORE_API_ERR'
-const handlingIds = [];
+const handlingIds = []
 
 const removeFromQueue = (resourceId) => {
   console.log(handlingIds)
@@ -29,6 +29,14 @@ const removeFromQueue = (resourceId) => {
 
 exports.post = ({ appSdk, admin }, req, res) => {
   // receiving notification from Store API
+  if (req.get('host') && !baseUri.includes(req.get('host'))) {
+    console.log('>>> Proxy to function v2')
+    const axios = require('axios')
+    return axios.post(req.url, req.body, {
+      baseURL: baseUri,
+      headers: { 'x-operator-token': operatorToken }
+    })
+  }
   const { storeId } = req
 
   /**
@@ -126,7 +134,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
                           handler
                         ) {
                           const debugFlag = `#${storeId} ${action}/${queue}/${nextId}`
-                          let delayMs = 6000
+                          const delayMs = 6000
 
                           console.log(`> Starting ${debugFlag}`)
                           const queueEntry = { action, queue, nextId, key, mustUpdateAppQueue }
@@ -168,7 +176,7 @@ exports.post = ({ appSdk, admin }, req, res) => {
             } else {
               res.send(ECHO_SUCCESS)
             }
-            return{}
+            return {}
           })
       })
       .catch(err => {
