@@ -259,6 +259,6 @@
       "hide": true
     }
   },
-  "auth_callback_uri": "https://us-central1-ecom-tiny.cloudfunctions.net/app/ecom/auth-callback",
+  "auth_callback_uri": "https://appv2-gqnsyuqg6q-uc.a.run.app//ecom/auth-callback",
   "version": "1.6.5"
 }
