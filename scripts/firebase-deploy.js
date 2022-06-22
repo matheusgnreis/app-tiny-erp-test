@@ -23,8 +23,7 @@ fs.writeFileSync(path.resolve(__dirname, '../functions/.env'), `
 NAME=${name}
 VERSION=${version}
 SERVER_OPERATOR_TOKEN=${SERVER_OPERATOR_TOKEN}
-SERVER_BASE_URI=${baseUri}
-IS_FUNCTIONS_V2=true`)
+SERVER_BASE_URI=${baseUri}`)
 
 client.functions.config.set(config, { project })
   .then(() => client.deploy({

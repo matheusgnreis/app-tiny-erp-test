@@ -64,10 +64,10 @@ router.get('/', (req, res) => {
   require(`${routes}/`)(req, res)
 })
 
-router.get('/is_v2', (req, res) => {
+router.get('/_me', (req, res) => {
   server.set('json spaces', 2)
   res.send({
-    is: Boolean(process.env.IS_FUNCTIONS_V2),
+    host: req.get('host'),
     baseUri
   })
 })
