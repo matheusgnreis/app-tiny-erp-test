@@ -27,15 +27,26 @@ const removeFromQueue = (resourceId) => {
   handlingIds.splice(handlingIndex, 1)
 }
 
-exports.post = ({ appSdk, admin }, req, res) => {
+exports.post = async ({ appSdk, admin }, req, res) => {
   // receiving notification from Store API
   if (req.get('host') && !baseUri.includes(req.get('host'))) {
     console.log('>>> Proxy to function v2')
     const axios = require('axios')
-    return axios.post(req.url, req.body, {
-      baseURL: baseUri,
-      headers: { 'x-operator-token': operatorToken }
-    })
+    try {
+      await axios.post(req.url, req.body, {
+        baseURL: baseUri,
+        headers: { 'x-operator-token': operatorToken }
+      })
+      return res.status(200).send('OK')
+    } catch (error) {
+      const err = new Error('Error proxying to function v2')
+      err.config = error.config
+      err.response = {
+        status: error.response.status,
+        data: error.response.data
+      }
+      console.error(err)
+    }
   }
   const { storeId } = req
 
