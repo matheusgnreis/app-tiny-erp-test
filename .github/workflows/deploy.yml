@@ -85,6 +85,7 @@ jobs:
         if: steps.git_diff.outputs.diff == 1
         run: |
           git commit -m 'chore(assets): update application body [skip ci]'
+
       - name: Push changes
         if: steps.git_diff.outputs.diff == 1
         uses: ad-m/github-push-action@master
