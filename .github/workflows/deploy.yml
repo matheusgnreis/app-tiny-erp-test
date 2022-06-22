@@ -73,6 +73,7 @@ jobs:
           sleep 20
           wget -O ./assets/application.json \
             https://us-central1-$FIREBASE_PROJECT_ID.cloudfunctions.net/app/
+
       - name: Config Git and check diff
         run: |
           git config --local user.email 'action@github.com'
