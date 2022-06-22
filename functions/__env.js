@@ -1,5 +1,27 @@
 // setup server and app options from Functions config (and mocks)
-const { pkg, server } = require('firebase-functions').config()
+let pkg, server
+try {
+  const config = require('firebase-functions').config()
+  pkg = config.pkg
+  server = config.server
+} catch (e) {
+  //
+}
+
+if (!pkg || !pkg.name) {
+  pkg = {
+    name: process.env.NAME,
+    version: process.env.VERSION
+  }
+}
+if (!server || !server.operator_token) {
+  server = {
+    operator_token: process.env.SERVER_OPERATOR_TOKEN
+  }
+  if (process.env.FUNCTION_NAME) {
+    server.functionName = process.env.FUNCTION_NAME
+  }
+}
 const functionName = server.functionName || 'app'
 
 module.exports = {
