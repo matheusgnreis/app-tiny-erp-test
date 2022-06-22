@@ -29,13 +29,17 @@ const removeFromQueue = (resourceId) => {
 
 exports.post = async ({ appSdk, admin }, req, res) => {
   // receiving notification from Store API
+  const { storeId } = req
   if (req.get('host') && !baseUri.includes(req.get('host'))) {
     console.log('>>> Proxy to function v2')
     const axios = require('axios')
     try {
       await axios.post(req.url, req.body, {
         baseURL: baseUri,
-        headers: { 'x-operator-token': operatorToken }
+        headers: {
+          'x-store-id': storeId,
+          'x-operator-token': operatorToken
+        }
       })
       return res.status(200).send('OK')
     } catch (error) {
@@ -48,7 +52,6 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       console.error(err)
     }
   }
-  const { storeId } = req
 
   /**
    * Treat E-Com Plus trigger body here
