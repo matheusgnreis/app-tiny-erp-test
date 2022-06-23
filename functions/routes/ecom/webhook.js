@@ -222,7 +222,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         }
       })
   } else {
-    console.log(`# In Execution Id: #${resourceId} > ${JSON.stringify(trigger)} <`)
+    console.log(`# Skipped in execution #${resourceId} [${trigger.resource} - ${trigger.action}]`)
     res.status(203).send('Concurrent request with same ResourceId')
   }
 }
