@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/ecomplus/application-starter/compare/v1.6.5...v2.0.0) (2022-06-23)
+
+
+### Features
+
+* **parse-order-status:** add returned status as cancel ([#81](https://github.com/ecomplus/application-starter/issues/81)) ([5f8d179](https://github.com/ecomplus/application-starter/commit/5f8d179a9960a35f2cdbfdf931dfea3d43742b98))
+
+
+### Bug Fixes
+
+* **deps:** install @google-cloud/firestore again :confused: ([7e34e5b](https://github.com/ecomplus/application-starter/commit/7e34e5b678171ccf0a287a40fc3ff9981d05c8ac))
+* **deps:** remove @google-cloud/firestore from direct function dependencies ([ecc73c5](https://github.com/ecomplus/application-starter/commit/ecc73c55a964a71a968b21b0390c351767113fc9))
+* **deps:** update all non-major dependencies ([#82](https://github.com/ecomplus/application-starter/issues/82)) ([beb1446](https://github.com/ecomplus/application-starter/commit/beb1446a4e13cebc46c2eab8946b69fb0edf7845))
+* **deps:** update all non-major dependencies ([#89](https://github.com/ecomplus/application-starter/issues/89)) ([62ea56c](https://github.com/ecomplus/application-starter/commit/62ea56c18d60223d89b58c987a4e209b6896b5d0))
+* **deps:** update dependency firebase-admin to v10 ([#85](https://github.com/ecomplus/application-starter/issues/85)) ([17eee22](https://github.com/ecomplus/application-starter/commit/17eee22000a5464faaa62ea02cb6a009fe6750b3))
+* **import-product:** add id on picture when parsing tiny `imagem_externa` ([#86](https://github.com/ecomplus/application-starter/issues/86)) ([d4e9932](https://github.com/ecomplus/application-starter/commit/d4e99325cf31015367bbe5aea5e7861f7593159c))
+* **import-product:** query by `skus` and prefer visible/available items ([819b231](https://github.com/ecomplus/application-starter/commit/819b2315082efe3695c1094e8c8b14d3159cd807))
+* **parse-status:** js syntax fix ([5ba8556](https://github.com/ecomplus/application-starter/commit/5ba85564345080e92bbf978a5bdcc6ac18879fca))
+* **webhook:** debug proxy to v2 error and continue as fallback ([8bc939a](https://github.com/ecomplus/application-starter/commit/8bc939a461166ae19c01cdc28bdf5406237790a4))
+* **webhook:** proxy requests on function v1 to new v2 ([ca2ea01](https://github.com/ecomplus/application-starter/commit/ca2ea018713bda4066e3d554b18c87b3be7a9196))
+* **webhook:** proxy to function v2 with x-store-id header ([b2d9b28](https://github.com/ecomplus/application-starter/commit/b2d9b28b6debd1d97eb43876879fe6c9811d9d1f))
+
 ### [1.6.5](https://github.com/ecomplus/application-starter/compare/v1.6.4...v1.6.5) (2021-10-29)
 
 
