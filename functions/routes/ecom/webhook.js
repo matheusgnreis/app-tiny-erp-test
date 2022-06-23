@@ -34,14 +34,15 @@ exports.post = async ({ appSdk, admin }, req, res) => {
     console.log('>>> Proxy to function v2')
     const axios = require('axios')
     try {
-      await axios.post(req.url, req.body, {
+      const { status, data } = await axios.post(req.url, req.body, {
         baseURL: baseUri,
         headers: {
           'x-store-id': storeId,
           'x-operator-token': operatorToken
         }
       })
-      return res.status(200).send('OK')
+      console.log(`>>> Webhook proxy response: ${status} ${data}`)
+      return res.status(status).send(data)
     } catch (error) {
       const err = new Error('Error proxying to function v2')
       err.config = error.config
