@@ -5,7 +5,7 @@ module.exports = order => {
     case 'under_analysis':
     case 'unknown':
     case 'authorized':
-    case 'partially_paid'
+    case 'partially_paid':
       return 'aberto'
     case 'voided':
     case 'refunded':
@@ -31,7 +31,7 @@ module.exports = order => {
       return 'cancelado'
   }
 
-  if (financialStatus && (financialStatus.current === 'paid')) {
+  if (financialStatus && financialStatus.current === 'paid') {
     return 'aprovado'
   }
   return 'aberto'
