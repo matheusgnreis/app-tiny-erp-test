@@ -259,6 +259,6 @@
       "hide": true
     }
   },
-  "auth_callback_uri": "https://appv2-gqnsyuqg6q-uc.a.run.app//ecom/auth-callback",
-  "version": "2.0.0"
+  "auth_callback_uri": "https://appv2-gqnsyuqg6q-uc.a.run.app/ecom/auth-callback",
+  "version": "3.0.0"
 }

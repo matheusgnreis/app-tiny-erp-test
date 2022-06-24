@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/ecomplus/application-starter/compare/v2.0.0...v3.0.0) (2022-06-23)
+
+
+### Bug Fixes
+
+* **Base Uri:** fix base uri bug ([d55681b](https://github.com/ecomplus/application-starter/commit/d55681b18ff138b1942681c7c93756c1de729f48))
+
 ## [2.0.0](https://github.com/ecomplus/application-starter/compare/v1.6.5...v2.0.0) (2022-06-23)
 
 
