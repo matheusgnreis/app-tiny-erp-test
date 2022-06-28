@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/ecomplus/application-starter/compare/v3.0.1...v3.1.0) (2022-06-28)
+
+
+### Features
+
+* **import:** import new product from tiny ([#110](https://github.com/ecomplus/application-starter/issues/110)) ([584ca51](https://github.com/ecomplus/application-starter/commit/584ca51227428b035de8052986316e0959a64281))
+
 ### [3.0.1](https://github.com/ecomplus/application-starter/compare/v3.0.0...v3.0.1) (2022-06-24)
 
 
