@@ -21,8 +21,12 @@ module.exports = context => {
     .then(querySnapshot => {
       console.log(`> Deleted ${querySnapshot.size} Tiny order states`)
       return delOldDocs('integration_retries', 'd', date.toISOString())
-        .then(querySnapshot => {
-          console.log(`> Deleted ${querySnapshot.size} integration retries`)
-        })
+    })
+    .then(querySnapshot => {
+      console.log(`> Deleted ${querySnapshot.size} integration retries`)
+      return delOldDocs('tiny_stock_updates', 'updatedAt', date.toISOString())
+    })
+    .then(querySnapshot => {
+      console.log(`> Deleted ${querySnapshot.size} Tiny stock entries`)
     })
 }
