@@ -137,16 +137,8 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
               }
 
               if (hasWaitingQueue) {
-                return firestore().doc(`running/${storeId}`).get().then(documentSnapshot => {
-                  if (
-                    !documentSnapshot.exists ||
-                    Date.now() - documentSnapshot.updateTime.toDate().getTime() > 1000 * 60 * 3
-                  ) {
-                    console.log(`> #${storeId} Random trigger`)
-                    return updateAppData({ appSdk, storeId }, {
-                      __rand: String(Math.random())
-                    })
-                  }
+                return updateAppData({ appSdk, storeId }, {
+                  __rand: String(Math.random())
                 })
               }
             })
