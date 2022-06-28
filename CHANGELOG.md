@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.1](https://github.com/ecomplus/application-starter/compare/v3.0.0...v3.0.1) (2022-06-24)
+
+
+### Bug Fixes
+
+* **export-order:** properly handle partially paid status ([3df9692](https://github.com/ecomplus/application-starter/commit/3df96923e0f23852bd67f66422d68a2348824ffe))
+* financial status already have current ([#109](https://github.com/ecomplus/application-starter/issues/109)) ([06604e7](https://github.com/ecomplus/application-starter/commit/06604e72e89abe467f594ccccf9f1ea8fc393d77))
+* **parse-status:** Do not send to tiny partially_paid as paid ([3fd5508](https://github.com/ecomplus/application-starter/commit/3fd5508c8a8f2ebbe71d0866047717e490152bc6))
+
 ## [3.0.0](https://github.com/ecomplus/application-starter/compare/v2.0.0...v3.0.0) (2022-06-23)
 
 
