@@ -121,6 +121,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
           const handleTinyStock = ({ produto, tipo }, tinyProduct) => {
             let quantity = Number(produto.saldo) || Number(produto.estoqueAtual)
+            if (produto.saldoReservado) {
+              quantity -= Number(produto.saldoReservado)
+            }
             if (product && (!appData.update_product || variationId)) {
               if (!isNaN(quantity)) {
                 if (quantity < 0) {
