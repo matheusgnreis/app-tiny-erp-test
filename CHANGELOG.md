@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.1](https://github.com/ecomplus/application-starter/compare/v3.1.0...v3.1.1) (2022-07-08)
+
+
+### Bug Fixes
+
+* **import-product:** subtracting `saldoReservado` from quantitiy ([#113](https://github.com/ecomplus/application-starter/issues/113)) ([290f01b](https://github.com/ecomplus/application-starter/commit/290f01b5ee5285456a2e285c1a89bfe138336ba8))
+
 ## [3.1.0](https://github.com/ecomplus/application-starter/compare/v3.0.1...v3.1.0) (2022-06-28)
 
 
