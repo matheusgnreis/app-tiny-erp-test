@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.2](https://github.com/ecomplus/application-starter/compare/v3.1.1...v3.1.2) (2022-09-05)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([f25957f](https://github.com/ecomplus/application-starter/commit/f25957f8a6429d4642fb72b8df7b1e2502414c97))
+* **export-order:** check if has updated by tiny before send ([#120](https://github.com/ecomplus/application-starter/issues/120)) ([3f2d6b3](https://github.com/ecomplus/application-starter/commit/3f2d6b354a03458e6480e6c86c2213ac82ace7f3))
+* **export-orders:** properly checking last status and prevent integration loop ([b10c49d](https://github.com/ecomplus/application-starter/commit/b10c49da66d3593128fd0bf8bef33522f54a2252))
+* path function ([#122](https://github.com/ecomplus/application-starter/issues/122)) ([ccff0b4](https://github.com/ecomplus/application-starter/commit/ccff0b4e477178612697934b4038d54091a2e7ad))
+
 ### [3.1.1](https://github.com/ecomplus/application-starter/compare/v3.1.0...v3.1.1) (2022-07-08)
 
 
