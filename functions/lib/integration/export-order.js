@@ -2,6 +2,7 @@ const errorHandling = require('../store-api/error-handling')
 const Tiny = require('../tiny/constructor')
 const parseOrder = require('./parsers/order-to-tiny/')
 const parseStatus = require('./parsers/order-to-tiny/status')
+const getOrderUpdateType = require('./helpers/get-order-update-type')
 const handleJob = require('./handle-job')
 
 module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew) => {
@@ -16,6 +17,18 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
       }
       const tiny = new Tiny(tinyToken)
       console.log(`#${storeId} ${orderId} searching order ${order.number}`)
+      if (getOrderUpdateType(order) === 'fulfillment') {
+        const fulfillmentStatus = order.fulfillment_status && order.fulfillment_status.current
+        if (fulfillmentStatus && Array.isArray(order.fulfillments)) {
+          const fulfillmentFromTiny = order.fulfillments.find(({ status, flags }) => {
+            return status === fulfillmentStatus && flags && flags.includes('from-tiny')
+          })
+          if (fulfillmentFromTiny) {
+            console.log(`#${storeId} ${orderId} skipped to not send status came by tiny`)
+            return null
+          }
+        }
+      }
 
       const job = tiny.post('/pedidos.pesquisa.php', { numeroEcommerce: String(order.number) })
         .catch(err => {
@@ -59,6 +72,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           } else {
             console.log(`#${storeId} ${orderId} found with tiny status ${tinyStatus}`)
           }
+
 
           if (tinyStatus) {
             return tiny.post('/pedido.alterar.situacao', {

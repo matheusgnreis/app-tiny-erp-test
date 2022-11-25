@@ -28,7 +28,7 @@ app.store_app = storeApp
 
 const dirPublic = path.resolve(__dirname, '../functions/public')
 if (fs.existsSync(path.resolve(dirPublic, 'icon.png'))) {
-  app.icon = `${baseUri}icon.png`
+  app.icon = `${baseUri}/icon.png`
 }
 try {
   app.description = fs.readFileSync(path.resolve(dirPublic, 'description.md'), 'utf8')

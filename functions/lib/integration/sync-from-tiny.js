@@ -85,7 +85,8 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
                       collectionRef.add({
                         storeId,
                         ref: `${storeId}_${tinyToken}_${produto.codigo}`,
-                        produto
+                        produto,
+                        updatedAt: firestore.Timestamp.fromDate(new Date())
                       }).then(() => {
                         addSku(produto)
                       }).catch(console.error).finally(resolve)

@@ -81,7 +81,8 @@ exports.post = ({ appSdk, admin }, req, res) => {
                       id: dados.idProduto,
                       codigo: dados.sku,
                       ...dados
-                    }
+                    },
+                    updatedAt: admin.firestore.Timestamp.fromDate(new Date())
                   }
                   console.log(`> Tiny webhook: #${storeId} ${nextId} => ${tinyStockUpdate.produto.saldo}`)
 
