@@ -38,6 +38,7 @@ const fetchTinyStockUpdates = ({ appSdk, storeId }) => {
 
           tiny.post('/lista.atualizacoes.estoque', { dataAlteracao: formatDate(starDate) })
             .catch(error => {
+              console.log('>> Debug error =>  ', error, ' <<')
               if (!error.response || error.response.status !== 404) {
                 const err = new Error('Tiny stock list error')
                 const { config, response } = error
