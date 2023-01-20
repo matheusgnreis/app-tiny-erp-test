@@ -30,7 +30,7 @@ module.exports = (order, appData, storeId) => {
       ['province_code', 'uf', 30]
     ].forEach(([addressField, tinyField, maxLength]) => {
       if (address[addressField]) {
-        tinyObject[tinyField] = String(address[addressField]).substring(0, maxLength)
+        tinyObject[tinyField] = String(address[addressField]).substring(0, maxLength).replace('&', 'e')
       }
     })
   }
