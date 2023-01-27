@@ -116,14 +116,13 @@ module.exports = (order, appData, storeId) => {
       default:
         tinyOrder.forma_pagamento = 'multiplas'
     }
-    if (storeId === 51324 && (transaction.payment_method.name.toLowerCase() === 'pix')) {
-      tinyOrder.forma_pagamento = 'pix'
-    } 
     if (!tinyOrder.meio_pagamento && transaction.payment_method.name) {
       tinyOrder.meio_pagamento = transaction.payment_method.name.substring(0, 100)
     }
   }
-
+  if (storeId === 51324 && (order.payment_method_label.toLowerCase() === 'pix')) {
+    tinyOrder.forma_pagamento = 'pix'
+  } 
   if (order.shipping_method_label) {
     tinyOrder.forma_frete = order.shipping_method_label
   }
