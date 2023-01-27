@@ -117,7 +117,11 @@ module.exports = (order, appData, storeId) => {
         tinyOrder.forma_pagamento = 'multiplas'
     }
     if (!tinyOrder.meio_pagamento && transaction.payment_method.name) {
-      tinyOrder.meio_pagamento = transaction.payment_method.name.substring(0, 100)
+      if (Number(storeId) === 51324) {
+        tinyOrder.meio_pagamento = 'Pagar.me'
+      } else {
+        tinyOrder.meio_pagamento = transaction.payment_method.name.substring(0, 100)
+      }
     }
   }
 
