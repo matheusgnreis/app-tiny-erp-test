@@ -161,7 +161,7 @@ console.log(`-- Sheduled active sync from Tiny API '${syncCron}'`)
 
 // delete old stored Tiny order states
 const clearTinyStates = require('./lib/integration/clear-tiny-states')
-const clearStatesCron = '10 17 * * *'
+const clearStatesCron = '16 59 * * *'
 exports.scheduledClear = functions.pubsub.schedule(clearStatesCron).onRun(clearTinyStates)
 console.log(`-- Sheduled clearing Tiny stored states '${clearStatesCron}'`)
 
