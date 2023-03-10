@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/ecomplus/application-starter/compare/v3.1.2...v3.2.0) (2023-03-10)
+
+
+### Features
+
+* **import-order:** search tiny order by `numeroEcommerce` with prefix 'ecom:' ([#141](https://github.com/ecomplus/application-starter/issues/141)) ([a061685](https://github.com/ecomplus/application-starter/commit/a061685aa2f5864cfd23f7720162d9cdcdf1880c))
+
+
+### Bug Fixes
+
+* **Base Uri:** fix base Uri bug ([01f79c9](https://github.com/ecomplus/application-starter/commit/01f79c96b92bb5636f5d539b8fef2044ff0058e6))
+* **clear:** properly delete old stock entries by timestamp ([2204ac2](https://github.com/ecomplus/application-starter/commit/2204ac276ab60156072ad1cd26a992bbcfdb5c39))
+* **export-order:** parse buyer name to avoid invalid chars ([#127](https://github.com/ecomplus/application-starter/issues/127)) ([475fd03](https://github.com/ecomplus/application-starter/commit/475fd038060e2ff9351b86765e27f5e1c2478ac5))
+* **pub-sub:** fix pubsub not repeating and authentication error ([77c91e6](https://github.com/ecomplus/application-starter/commit/77c91e65334709f2021cab3432c60b20f66a4760))
+* **tiny-webhooks:** using pub/sub to queue tiny webhook events ([#130](https://github.com/ecomplus/application-starter/issues/130)) ([a6587c5](https://github.com/ecomplus/application-starter/commit/a6587c5b2b020c5295d0992354edfbdfce4799a0))
+
 ### [3.1.2](https://github.com/ecomplus/application-starter/compare/v3.1.1...v3.1.2) (2022-09-05)
 
 
