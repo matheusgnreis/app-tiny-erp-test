@@ -11,6 +11,13 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
   return appSdk.apiRequest(storeId, `/orders/${orderId}.json`, 'GET', null, auth)
     .then(({ response }) => {
       const order = response.data
+      if (order._id !== orderId) {
+        const msg = `#${storeId} ${orderId} retrieved mixed object (${order._id} ${order.number})`
+        const err = new Error(msg)
+        console.error(err)
+        handleJob({ appSdk, storeId }, queueEntry, Promise.reject(err))
+        return null
+      }
       if (!order.financial_status) {
         console.log(`#${storeId} ${orderId} skipped with no financial status`)
         return null
