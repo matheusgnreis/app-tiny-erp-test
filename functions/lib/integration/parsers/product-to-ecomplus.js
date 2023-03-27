@@ -139,7 +139,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
       product.variations = []
       tinyProduct.variacoes.forEach(({ variacao }) => {
-        const { codigo, preco, grade } = variacao
+        const { codigo, preco, grade, estoqueAtual } = variacao
         if (grade) {
           const specifications = {}
           const specTexts = []
@@ -167,7 +167,8 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
               name: `${name} / ${specTexts.join(' / ')}`.substring(0, 100),
               sku: codigo,
               specifications,
-              price: parseFloat(preco || 0)
+              price: parseFloat(preco || 0),
+              quantity: estoqueAtual || 0
             })
           }
         }
@@ -194,7 +195,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
         product.pictures = []
       }
       const promises = []
-      tinyProduct.anexos.forEach(({ anexo }) => {
+      tinyProduct.anexos.reverse().forEach(({ anexo }) => {
         if (typeof anexo === 'string' && anexo.startsWith('http')) {
           promises.push(tryImageUpload(storeId, auth, anexo, product))
         }
