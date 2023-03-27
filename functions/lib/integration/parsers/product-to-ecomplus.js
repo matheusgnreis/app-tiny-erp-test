@@ -9,7 +9,7 @@ const removeAccents = str => str.replace(/áàãâÁÀÃÂ/g, 'a')
   .replace(/úÚ/g, 'u')
   .replace(/çÇ/g, 'c')
 
-const tryImageUpload = (storeId, auth, originImgUrl, product) => new Promise(resolve => {
+const tryImageUpload = (storeId, auth, originImgUrl, product, index) => new Promise(resolve => {
   axios.get(originImgUrl, {
     responseType: 'arraybuffer'
   })
@@ -65,7 +65,11 @@ const tryImageUpload = (storeId, auth, originImgUrl, product) => new Promise(res
     })
 }).then(picture => {
   if (product && product.pictures) {
-    product.pictures.push(picture)
+    if (index == 0 || index) {
+      product.pictures[index] = picture
+    } else {
+      product.pictures.push(picture)
+    }
   }
   return picture
 })
@@ -195,9 +199,9 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
         product.pictures = []
       }
       const promises = []
-      tinyProduct.anexos.reverse().forEach(({ anexo }) => {
+      tinyProduct.anexos.forEach(({ anexo }, i) => {
         if (typeof anexo === 'string' && anexo.startsWith('http')) {
-          promises.push(tryImageUpload(storeId, auth, anexo, product))
+          promises.push(tryImageUpload(storeId, auth, anexo, product, i))
         }
       })
       return Promise.all(promises).then(() => resolve(product))
