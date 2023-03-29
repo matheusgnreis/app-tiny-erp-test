@@ -62,9 +62,6 @@ module.exports = async (
         }
 
         if (tipo === 'produto' || tipo === 'estoque') {
-          if (storeId == 1095) {
-            console.log('Importação produto', dados)
-          }
           if ((dados.id || dados.idProduto) && (dados.codigo || dados.sku)) {
             return new Promise((resolve, reject) => {
               const nextId = String(dados.skuMapeamento || dados.sku || dados.codigo)
@@ -91,6 +88,10 @@ module.exports = async (
                   }
                   throw err
                 }
+              }
+              if (storeId == 1095) {
+                console.log('Importação produto', JSON.stringify(dados))
+                console.log('Query entry', JSON.stringify(queueEntry))
               }
               importProduct(appClient, tinyToken, queueEntry, appData, false, true)
             })
