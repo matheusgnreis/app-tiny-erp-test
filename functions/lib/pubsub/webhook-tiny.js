@@ -89,10 +89,6 @@ module.exports = async (
                   throw err
                 }
               }
-              if (storeId == 1095) {
-                console.log('Importação produto', JSON.stringify(dados))
-                console.log('Query entry', JSON.stringify(queueEntry))
-              }
               importProduct(appClient, tinyToken, queueEntry, appData, false, true)
             })
           }
