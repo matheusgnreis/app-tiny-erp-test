@@ -8,6 +8,8 @@ const handleJob = require('./handle-job')
 
 module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, isHiddenQueue) => {
   const [sku, productId] = String(queueEntry.nextId).split(';:')
+  console.log(sku, productId)
+  console.log(JSON.stringify(queueEntry))
 
   return new Promise((resolve, reject) => {
     if (queueEntry.tinyStockUpdate) {
@@ -68,6 +70,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           }
         }).then(({ data }) => {
           const hit = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]
+          console.log('Encontrou produto', JSON.stringify(hit))
           if (hit) {
             const { _id, _source } = hit
             if (_source.variations && _source.variations.length) {
@@ -120,6 +123,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           const tiny = new Tiny(tinyToken)
 
           const handleTinyStock = ({ produto, tipo }, tinyProduct) => {
+            console.log('Tiny product', JSON.stringify(tinyProduct))
             let quantity = Number(produto.saldo) || Number(produto.estoqueAtual)
             if (produto.saldoReservado) {
               quantity -= Number(produto.saldoReservado)
