@@ -74,10 +74,19 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           if (hit) {
             const { _id, _source } = hit
             if (_source.variations && _source.variations.length) {
+              console.log('tem variações')
               return ecomClient.store({
                 storeId,
                 url: `/products/${_id}.json`
-              }).then(({ data }) => data)
+              }).then(({ data }) => {
+                console.log('Busquei produto', JSON.stringify(data))
+                return data
+              }).catch(() => {
+                return {
+                  _id,
+                  ..._source
+                }
+              })
             }
             return {
               _id,
