@@ -128,7 +128,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           const tiny = new Tiny(tinyToken)
 
           const handleTinyStock = ({ produto, tipo }, tinyProduct) => {
-            console.log('Tiny product', JSON.stringify(tinyProduct), JSON.stringify(produto), JSON.stringify(tipo))
+            console.log('Tiny product', JSON.stringify(produto))
             let quantity = Number(produto.saldo) || Number(produto.estoqueAtual)
             if (produto.saldoReservado) {
               quantity -= Number(produto.saldoReservado)
@@ -141,7 +141,10 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                   const variacao = variacaoObj && variacaoObj.variacao
                     ? variacaoObj.variacao
                     : variacaoObj
+                  console.log('Variacao', JSON.stringify(variacao))
+                  console.log('variations', JSON.stringify(product.variations))
                   variationToUpdate = product.variations.find(variation => variacao.codigo === variation.sku)
+                  console.log('Variação encontrada', variationToUpdate)
                   variationIdUpdate = variationToUpdate && variationIdUpdate._id
                   if (variationIdUpdate) {
                     let endpoint = `/products/${productId || product._id}`
