@@ -260,7 +260,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             job = handleTinyStock(tinyStockUpdate)
           } else {
             if (tinyStockUpdate.tipo === 'produto') {
-              job = handleTinyStock({ produto: {} }, tinyStockUpdate)
+              job = handleTinyStock({ produto: {} }, tinyStockUpdate.produto)
             }
             job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
               .then(({ produtos }) => {
