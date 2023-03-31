@@ -171,7 +171,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               return null
             }
             console.log('obter de novo')
-            return tiny.post('/produto.obter.php', { id: tinyProduct.id })
+            if (tinyProduct && !tinyProduct.estoqueAtual) {
+              return tiny.post('/produto.obter.php', { id: tinyProduct.id })
               .then(({ produto }) => {
                 console.log('compare', JSON.stringify(tinyProduct), JSON.stringify(produto))
                 let method, endpoint
@@ -230,6 +231,21 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                   return promise
                 })
               })
+            }
+            let method, endpoint
+            let productId = product && product._id
+            if (productId) {
+              method = 'PATCH'
+              endpoint = `/products/${productId}.json`
+            } else if (tipo === 'produto' || !tipo) {
+                method = 'POST'
+                endpoint = '/products.json'
+            } else {
+                return null
+            }
+              return parseProduct(produto, storeId, auth, method === 'POST').then(product => {
+                return appSdk.apiRequest(storeId, endpoint, method, product, auth)
+              })
           }
 
           console.log(`#${storeId} ${JSON.stringify({ sku, productId, hasVariations, variationId })}`)
@@ -237,6 +253,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           if (tinyStockUpdate && isHiddenQueue && productId) {
             job = handleTinyStock(tinyStockUpdate)
           } else {
+            if (tinyStockUpdate.tipo === 'produto') {
+              job = handleTinyStock({ produto: {} }, tinyStockUpdate)
+            }
             job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
               .then(({ produtos }) => {
                 if (Array.isArray(produtos)) {
