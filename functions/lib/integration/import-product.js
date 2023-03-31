@@ -176,10 +176,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               return null
             }
             console.log('obter de novo')
-            if (tinyProduct && !tinyProduct.estoqueAtual) {
+            if (tinyProduct && !Object.hasOwnProperty.call(tinyProduct, 'estoqueAtual')) {
               return tiny.post('/produto.obter.php', { id: tinyProduct.id })
               .then(({ produto }) => {
-                console.log('compare', JSON.stringify(tinyProduct), JSON.stringify(produto))
                 let method, endpoint
                 let productId = product && product._id
                 if (productId) {
