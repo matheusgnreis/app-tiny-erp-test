@@ -141,10 +141,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                   const variacao = variacaoObj && variacaoObj.variacao
                     ? variacaoObj.variacao
                     : variacaoObj
-                  console.log('Variacao', JSON.stringify(variacao))
-                  console.log('variations', JSON.stringify(product.variations))
                   variationToUpdate = product.variations.find(variation => variacao.codigo === variation.sku)
-                  console.log('Variação encontrada', JSON.stringify(variationToUpdate))
                   variationIdUpdate = variationToUpdate && variationToUpdate._id
                   if (variationIdUpdate) {
                     let endpoint = `/products/${product._id}`
@@ -155,7 +152,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     promisesVariations.push(appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth))
                   }
                 })
-                return Promise.all(promisesVariations).then(() => resolve())
+                return Promise.all(promisesVariations).then(() => console.log('editou tudo'))
               }
               if (!isNaN(quantity)) {
                 if (quantity < 0) {
