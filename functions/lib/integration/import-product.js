@@ -144,8 +144,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                   console.log('Variacao', JSON.stringify(variacao))
                   console.log('variations', JSON.stringify(product.variations))
                   variationToUpdate = product.variations.find(variation => variacao.codigo === variation.sku)
-                  console.log('Variação encontrada', variationToUpdate)
-                  variationIdUpdate = variationToUpdate && variationIdUpdate._id
+                  console.log('Variação encontrada', JSON.stringify(variationToUpdate))
+                  variationIdUpdate = variationToUpdate && variationToUpdate._id
                   if (variationIdUpdate) {
                     let endpoint = `/products/${productId || product._id}`
                     if (variationIdUpdate) {
