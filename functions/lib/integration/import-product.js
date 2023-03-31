@@ -7,7 +7,7 @@ const parseProduct = require('./parsers/product-to-ecomplus')
 const handleJob = require('./handle-job')
 
 module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, isHiddenQueue) => {
-  const [sku, productId] = String(queueEntry.nextId).split(';:')
+  let [sku, productId] = String(queueEntry.nextId).split(';:')
 
   return new Promise((resolve, reject) => {
     if (queueEntry.tinyStockUpdate) {
@@ -88,7 +88,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
       return findingProduct
         .then(product => {
-          console.log('Produto encontrado', product)
+          console.log('Produto encontrado', JSON.stringify(product))
           const hasVariations = product && product.variations && product.variations.length
           console.log('Tem variações?', hasVariations)
           if (hasVariations) {
@@ -124,15 +124,36 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             return payload
           }
           const { product, variationId, hasVariations } = payload
+          productId = product && product._id
           const tiny = new Tiny(tinyToken)
 
           const handleTinyStock = ({ produto, tipo }, tinyProduct) => {
-            console.log('Tiny product', JSON.stringify(tinyProduct))
+            console.log('Tiny product', JSON.stringify(tinyProduct), JSON.stringify(produto), JSON.stringify(tipo))
             let quantity = Number(produto.saldo) || Number(produto.estoqueAtual)
             if (produto.saldoReservado) {
               quantity -= Number(produto.saldoReservado)
             }
             if (product && (!appData.update_product || variationId)) {
+              if (product.variations && product.variations.length && !variationId) {
+                const promisesVariations = []
+                let variationToUpdate, variationIdUpdate, endpointUpdate
+                produto.variacoes.forEach(variacaoObj => {
+                  const variacao = variacaoObj && variacaoObj.variacao
+                    ? variacaoObj.variacao
+                    : variacaoObj
+                  variationToUpdate = product.variations.find(variation => variacao.codigo === variation.sku)
+                  variationIdUpdate = variationToUpdate && variationIdUpdate._id
+                  if (variationIdUpdate) {
+                    let endpoint = `/products/${productId || product._id}`
+                    if (variationIdUpdate) {
+                      endpoint += `/variations/${variationIdUpdate}`
+                    }
+                    quantity = variationToUpdate.estoqueAtual ? variationToUpdate.estoqueAtual : 0
+                    promisesVariations.push(appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth))
+                  }
+                })
+                return Promise.all(promises).then(() => resolve())
+              }
               if (!isNaN(quantity)) {
                 if (quantity < 0) {
                   quantity = 0

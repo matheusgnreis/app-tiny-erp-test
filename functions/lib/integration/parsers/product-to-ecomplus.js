@@ -142,7 +142,10 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
   if (isNew) {
     if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
       product.variations = []
-      tinyProduct.variacoes.forEach(({ variacao }) => {
+      tinyProduct.variacoes.forEach(variacaoObj => {
+        const variacao = variacaoObj && variacaoObj.variacao
+          ? variacaoObj.variacao
+          : variacaoObj
         console.log('Encontrou variacao', JSON.stringify(variacao))
         const { codigo, preco, grade, estoqueAtual } = variacao
         if (grade) {
