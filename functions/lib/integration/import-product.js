@@ -129,6 +129,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
           const handleTinyStock = ({ produto, tipo }, tinyProduct) => {
             console.log('Tiny product', JSON.stringify(produto))
+            console.log('Tiny product webhook', JSON.stringify(tinyProduct))
             let quantity = Number(produto.saldo) || Number(produto.estoqueAtual)
             if (produto.saldoReservado) {
               quantity -= Number(produto.saldoReservado)
@@ -152,7 +153,11 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     promisesVariations.push(appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth))
                   }
                 })
-                return Promise.all(promisesVariations).then(() => console.log('editou tudo'))
+                console.log('promises', JSON.stringify({ promisesVariations }))
+                return Promise.all(promisesVariations).then(() => {
+                  console.log('deu tudo certo')
+                  return
+                })
               }
               if (!isNaN(quantity)) {
                 if (quantity < 0) {
@@ -234,6 +239,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             }
             let method, endpoint
             let productId = product && product._id
+
             if (productId) {
               method = 'PATCH'
               endpoint = `/products/${productId}.json`
