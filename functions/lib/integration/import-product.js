@@ -100,7 +100,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 hasVariations
               }
             } else if (isHiddenQueue && product._id) {
-              { product, hasVariations }
+              return { product, hasVariations }
             } else if (isHiddenQueue) {
               return null
             } else if (!appData.update_product) {
@@ -249,9 +249,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             } else {
                 return null
             }
-            return parseProduct(produto, storeId, auth, method === 'POST').then(product => {
+            return parseProduct(tinyProduct, storeId, auth, method === 'POST').then(product => {
               console.log('Parse', JSON.stringify(product))
-              return appSdk.apiRequest(storeId, endpoint, method, product, auth)
+              return appSdk.apiRequest(storeId, endpoint, method, tinyProduct, auth)
             })
           }
 
