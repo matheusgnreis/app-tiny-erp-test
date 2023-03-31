@@ -8,8 +8,6 @@ const handleJob = require('./handle-job')
 
 module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, canCreateNew, isHiddenQueue) => {
   const [sku, productId] = String(queueEntry.nextId).split(';:')
-  console.log(sku, productId)
-  console.log(JSON.stringify(queueEntry))
 
   return new Promise((resolve, reject) => {
     if (queueEntry.tinyStockUpdate) {
@@ -74,7 +72,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           if (hit) {
             const { _id, _source } = hit
             if (_source.variations && _source.variations.length) {
-              console.log('tem variações')
               return ecomClient.store({
                 storeId,
                 url: `/products/${_id}.json`
