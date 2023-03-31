@@ -155,7 +155,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     promisesVariations.push(appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth))
                   }
                 })
-                return Promise.all(promises).then(() => resolve())
+                return Promise.all(promisesVariations).then(() => resolve())
               }
               if (!isNaN(quantity)) {
                 if (quantity < 0) {
