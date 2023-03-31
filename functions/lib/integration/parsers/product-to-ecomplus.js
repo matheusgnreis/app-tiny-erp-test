@@ -170,6 +170,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
           }
 
           if (specTexts.length) {
+            console.log('estoque virtual', estoqueAtual)
             product.variations.push({
               _id: ecomUtils.randomObjectId(),
               name: `${name} / ${specTexts.join(' / ')}`.substring(0, 100),

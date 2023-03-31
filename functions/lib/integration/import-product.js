@@ -176,6 +176,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               return null
             }
             console.log('obter de novo')
+            console.log('check if', tinyProduct && !Object.hasOwnProperty.call(tinyProduct, 'estoqueAtual'))
             if (tinyProduct && !Object.hasOwnProperty.call(tinyProduct, 'estoqueAtual')) {
               return tiny.post('/produto.obter.php', { id: tinyProduct.id })
               .then(({ produto }) => {
@@ -248,9 +249,10 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             } else {
                 return null
             }
-              return parseProduct(produto, storeId, auth, method === 'POST').then(product => {
-                return appSdk.apiRequest(storeId, endpoint, method, product, auth)
-              })
+            return parseProduct(produto, storeId, auth, method === 'POST').then(product => {
+              console.log('Parse', JSON.stringify(product))
+              return appSdk.apiRequest(storeId, endpoint, method, product, auth)
+            })
           }
 
           console.log(`#${storeId} ${JSON.stringify({ sku, productId, hasVariations, variationId })}`)
@@ -260,30 +262,31 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           } else {
             if (tinyStockUpdate.tipo === 'produto') {
               job = handleTinyStock({ produto: {} }, tinyStockUpdate.produto)
-            }
-            job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
-              .then(({ produtos }) => {
-                if (Array.isArray(produtos)) {
-                  let tinyProduct = produtos.find(({ produto }) => sku === String(produto.codigo))
-                  if (tinyProduct) {
-                    tinyProduct = tinyProduct.produto
-                    if (!hasVariations || variationId) {
-                      if (tinyStockUpdate) {
-                        return handleTinyStock(tinyStockUpdate, tinyProduct)
+            } else {
+              job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
+                .then(({ produtos }) => {
+                  if (Array.isArray(produtos)) {
+                    let tinyProduct = produtos.find(({ produto }) => sku === String(produto.codigo))
+                    if (tinyProduct) {
+                      tinyProduct = tinyProduct.produto
+                      if (!hasVariations || variationId) {
+                        if (tinyStockUpdate) {
+                          return handleTinyStock(tinyStockUpdate, tinyProduct)
+                        }
+                        return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
+                          .then(tinyStock => handleTinyStock(tinyStock, tinyProduct))
+                      } else {
+                        return handleTinyStock({ produto: {} }, tinyProduct)
                       }
-                      return tiny.post('/produto.obter.estoque.php', { id: tinyProduct.id })
-                        .then(tinyStock => handleTinyStock(tinyStock, tinyProduct))
-                    } else {
-                      return handleTinyStock({ produto: {} }, tinyProduct)
                     }
                   }
-                }
 
-                const msg = `SKU ${sku} não encontrado no Tiny`
-                const err = new Error(msg)
-                err.isConfigError = true
-                throw new Error(err)
-              })
+                  const msg = `SKU ${sku} não encontrado no Tiny`
+                  const err = new Error(msg)
+                  err.isConfigError = true
+                  throw new Error(err)
+                })
+            }
           }
 
           handleJob({ appSdk, storeId }, queueEntry, job)
