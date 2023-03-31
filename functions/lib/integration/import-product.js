@@ -78,15 +78,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               return ecomClient.store({
                 storeId,
                 url: `/products/${_id}.json`
-              }).then(({ data }) => {
-                console.log('Busquei produto', JSON.stringify(data))
-                return data
-              }).catch(() => {
-                return {
-                  _id,
-                  ..._source
-                }
               })
+              .then(({ data }) => data)
             }
             return {
               _id,
@@ -98,7 +91,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
       return findingProduct
         .then(product => {
+          console.log('Produto encontrado', product)
           const hasVariations = product && product.variations && product.variations.length
+          console.log('Tem variações?', hasVariations)
           if (hasVariations) {
             const variation = product.variations.find(variation => sku === variation.sku)
             if (variation) {
@@ -107,6 +102,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 variationId: variation._id,
                 hasVariations
               }
+            } else if (isHiddenQueue && product._id) {
+              { product, hasVariations }
             } else if (isHiddenQueue) {
               return null
             } else if (!appData.update_product) {
@@ -122,6 +119,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         })
 
         .then(payload => {
+          console.log('Payload', JSON.stringify(payload))
           const dispatchNullJob = () => handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
           if (!payload) {
             console.log(`#${storeId} not found ${sku}`)
