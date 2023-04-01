@@ -221,9 +221,15 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
         product.pictures = []
       }
       const promises = []
-      tinyProduct.anexos.forEach(({ anexo }, i) => {
-        if (typeof anexo === 'string' && anexo.startsWith('http')) {
-          promises.push(tryImageUpload(storeId, auth, anexo, product, i))
+      tinyProduct.anexos.forEach((anexo, i) => {
+        let url 
+        if (anexo && anexo.anexo) {
+          url = anexo.anexo
+        } else if (anexo.url) {
+          url = anexo.url
+        }
+        if (typeof url === 'string' && url.startsWith('http')) {
+          promises.push(tryImageUpload(storeId, auth, url, product, i))
         }
       })
       return Promise.all(promises).then(() => resolve(product))

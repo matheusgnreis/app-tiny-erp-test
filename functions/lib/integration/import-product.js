@@ -251,7 +251,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             }
             return parseProduct(tinyProduct, storeId, auth, method === 'POST').then(product => {
               console.log('Parse', JSON.stringify(product))
-              return appSdk.apiRequest(storeId, endpoint, method, tinyProduct, auth)
+              return appSdk.apiRequest(storeId, endpoint, method, product, auth)
             })
           }
 
