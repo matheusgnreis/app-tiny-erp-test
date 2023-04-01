@@ -82,7 +82,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     available: tinyProduct.situacao === 'A',
     sku,
     name,
-    cost_price: Number(tinyProduct.preco_custo),
+    cost_price: Number(tinyProduct.preco_custo || 0),
     price: Number(tinyProduct.preco_promocional || tinyProduct.preco),
     base_price: Number(tinyProduct.preco),
     body_html: tinyProduct.descricao_complementar
