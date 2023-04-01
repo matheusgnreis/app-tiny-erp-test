@@ -151,9 +151,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     }
                     quantity = variationToUpdate.estoqueAtual ? variationToUpdate.estoqueAtual : 0
                     promisesVariations.push(appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth))
+                    console.log('promises', JSON.stringify(promisesVariations))
                   }
                 })
-                console.log('promises', JSON.stringify({ promisesVariations }))
                 return Promise.all(promisesVariations).then(() => {
                   console.log('deu tudo certo')
                   return
