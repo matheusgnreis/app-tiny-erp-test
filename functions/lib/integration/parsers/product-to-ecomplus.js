@@ -179,7 +179,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
                   text: gd.valor
                 }
                 const spec = {
-                  text: grade[tipo]
+                  text: grade[gd.chave]
                 }
                 specTexts.push(spec.text)
                 if (gridId !== 'colors') {
