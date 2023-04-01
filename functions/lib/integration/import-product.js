@@ -68,7 +68,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           }
         }).then(({ data }) => {
           const hit = Array.isArray(data.hits.hits) && data.hits.hits[0] && data.hits.hits[0]
-          console.log('Encontrou produto', JSON.stringify(hit))
           if (hit) {
             const { _id, _source } = hit
             if (_source.variations && _source.variations.length) {
@@ -88,9 +87,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
 
       return findingProduct
         .then(product => {
-          console.log('Produto encontrado', JSON.stringify(product))
           const hasVariations = product && product.variations && product.variations.length
-          console.log('Tem variações?', hasVariations)
           if (hasVariations) {
             const variation = product.variations.find(variation => sku === variation.sku)
             if (variation) {
@@ -116,7 +113,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
         })
 
         .then(payload => {
-          console.log('Payload', JSON.stringify(payload))
           const dispatchNullJob = () => handleJob({ appSdk, storeId }, queueEntry, Promise.resolve(null))
           if (!payload) {
             console.log(`#${storeId} not found ${sku}`)
@@ -128,8 +124,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           const tiny = new Tiny(tinyToken)
 
           const handleTinyStock = ({ produto, tipo }, tinyProduct, appSdk) => {
-            console.log('Tiny product', JSON.stringify(produto))
-            console.log('Tiny product webhook', JSON.stringify(tinyProduct))
             let quantity = Number(produto.saldo) || Number(produto.estoqueAtual)
             if (produto.saldoReservado) {
               quantity -= Number(produto.saldoReservado)
