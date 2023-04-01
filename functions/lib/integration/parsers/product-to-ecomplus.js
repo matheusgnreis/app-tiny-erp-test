@@ -178,9 +178,6 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
                 const spec = {
                   text: gd.valor
                 }
-                const spec = {
-                  text: grade[gd.chave]
-                }
                 specTexts.push(spec.text)
                 if (gridId !== 'colors') {
                   spec.value = removeAccents(spec.text.toLowerCase()).substring(0, 100)
