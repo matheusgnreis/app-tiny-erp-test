@@ -151,22 +151,42 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
         if (grade) {
           const specifications = {}
           const specTexts = []
-          for (const tipo in grade) {
-            if (grade[tipo]) {
-              const gridId = removeAccents(tipo.toLowerCase())
-                .replace(/\s+/g, '_')
-                .replace(/[^a-z0-9_]/g, '')
-                .substring(0, 30)
-                .padStart(2, 'i')
-              const spec = {
-                text: grade[tipo]
+          const gridIdFormat = text => {
+            return removeAccents(text.toLowerCase())
+            .replace(/\s+/g, '_')
+            .replace(/[^a-z0-9_]/g, '')
+            .substring(0, 30)
+            .padStart(2, 'i')
+          }
+          if (!Array.isArray(grade)) {
+            for (const tipo in grade) {
+              if (grade[tipo]) {
+                const gridId = gridIdFormat(tipo)
+                const spec = {
+                  text: grade[tipo]
+                }
+                specTexts.push(spec.text)
+                if (gridId !== 'colors') {
+                  spec.value = removeAccents(spec.text.toLowerCase()).substring(0, 100)
+                }
+                specifications[gridId] = [spec]
               }
-              specTexts.push(spec.text)
-              if (gridId !== 'colors') {
-                spec.value = removeAccents(spec.text.toLowerCase()).substring(0, 100)
-              }
-              specifications[gridId] = [spec]
             }
+          } else if (Array.isArray(grade)) {
+              grade.forEach(gd => {
+                const gridId = gd.chave
+                const spec = {
+                  text: gd.valor
+                }
+                const spec = {
+                  text: grade[tipo]
+                }
+                specTexts.push(spec.text)
+                if (gridId !== 'colors') {
+                  spec.value = removeAccents(spec.text.toLowerCase()).substring(0, 100)
+                }
+                specifications[gridId] = [spec]
+              })
           }
 
           if (specTexts.length) {
