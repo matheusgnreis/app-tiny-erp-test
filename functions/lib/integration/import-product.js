@@ -127,7 +127,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           productId = product && product._id
           const tiny = new Tiny(tinyToken)
 
-          const handleTinyStock = ({ produto, tipo }, tinyProduct) => {
+          const handleTinyStock = ({ produto, tipo }, tinyProduct, appSdk) => {
             console.log('Tiny product', JSON.stringify(produto))
             console.log('Tiny product webhook', JSON.stringify(tinyProduct))
             let quantity = Number(produto.saldo) || Number(produto.estoqueAtual)
@@ -175,8 +175,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             } else if (!tinyProduct) {
               return null
             }
-            console.log('obter de novo')
-            console.log('check if', tinyProduct && !Object.hasOwnProperty.call(tinyProduct, 'estoqueAtual'))
+            
             if (tinyProduct && !Object.hasOwnProperty.call(tinyProduct, 'estoqueAtual')) {
               return tiny.post('/produto.obter.php', { id: tinyProduct.id })
               .then(({ produto }) => {
@@ -258,7 +257,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           console.log(`#${storeId} ${JSON.stringify({ sku, productId, hasVariations, variationId })}`)
           let job
           if (tinyStockUpdate && isHiddenQueue && productId) {
-            job = handleTinyStock(tinyStockUpdate)
+            job = handleTinyStock(tinyStockUpdate, {}, handleTinyStock)
           } else {
             if (tinyStockUpdate.tipo === 'produto') {
               job = handleTinyStock({ produto: {} }, tinyStockUpdate.produto)
