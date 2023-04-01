@@ -174,7 +174,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
             }
           } else if (Array.isArray(grade)) {
               grade.forEach(gd => {
-                const gridId = gd.chave
+                const gridId = gridIdFormat(gd.chave)
                 const spec = {
                   text: gd.valor
                 }
