@@ -251,7 +251,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           console.log(`#${storeId} ${JSON.stringify({ sku, productId, hasVariations, variationId })}`)
           let job
           if (tinyStockUpdate && isHiddenQueue && productId) {
-            job = handleTinyStock(tinyStockUpdate, {}, handleTinyStock)
+            job = handleTinyStock(tinyStockUpdate, {}, appSdk)
           } else {
             if (tinyStockUpdate.tipo === 'produto') {
               job = handleTinyStock({ produto: {} }, tinyStockUpdate.produto)
