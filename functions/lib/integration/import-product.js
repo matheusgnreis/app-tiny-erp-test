@@ -123,7 +123,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           productId = product && product._id
           const tiny = new Tiny(tinyToken)
 
-          const handleTinyStock = ({ produto, tipo }, tinyProduct, appSdk) => {
+          const handleTinyStock = ({ produto, tipo }, tinyProduct) => {
             let quantity = Number(produto.saldo) || Number(produto.estoqueAtual)
             if (produto.saldoReservado) {
               quantity -= Number(produto.saldoReservado)
@@ -144,6 +144,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                       endpoint += `/variations/${variationIdUpdate}`
                     }
                     quantity = variationToUpdate.estoqueAtual ? variationToUpdate.estoqueAtual : 0
+                    console.log('endpoint', endpoint)
+                    console.log('quantity', quantity)
                     promisesVariations.push(appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth))
                     console.log('promises', JSON.stringify(promisesVariations))
                   }
@@ -243,7 +245,6 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 return null
             }
             return parseProduct(tinyProduct, storeId, auth, method === 'POST').then(product => {
-              console.log('Parse', JSON.stringify(product))
               return appSdk.apiRequest(storeId, endpoint, method, product, auth)
             })
           }
