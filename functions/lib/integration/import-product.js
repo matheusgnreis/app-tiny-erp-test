@@ -145,8 +145,8 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                     }
                     quantity = variationToUpdate.estoqueAtual ? variationToUpdate.estoqueAtual : 0
                     console.log('endpoint', endpoint)
-                    console.log('quantity', quantity)
-                    promisesVariations.push(appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth))
+                    console.log('quantity', quantity); let promiseUpdate = appSdk.apiRequest(storeId, endpoint, 'PUT', { quantity }, auth);
+                    promisesVariations.push(promiseUpdate)
                     console.log('promises', JSON.stringify(promisesVariations))
                   }
                 })
@@ -172,7 +172,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               return null
             }
             
-            if (tinyProduct && !Object.hasOwnProperty.call(tinyProduct, 'estoqueAtual')) {
+            if (tinyProduct && tipo !== 'produto') {
               return tiny.post('/produto.obter.php', { id: tinyProduct.id })
               .then(({ produto }) => {
                 let method, endpoint
@@ -180,7 +180,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
                 if (productId) {
                   method = 'PATCH'
                   endpoint = `/products/${productId}.json`
-                } else if (tipo === 'produto' || !tipo) {
+                } else if (!tipo) {
                   method = 'POST'
                   endpoint = '/products.json'
                 } else {
@@ -255,7 +255,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             job = handleTinyStock(tinyStockUpdate, {}, appSdk)
           } else {
             if (tinyStockUpdate.tipo === 'produto') {
-              job = handleTinyStock({ produto: {} }, tinyStockUpdate.produto)
+              job = handleTinyStock({ produto: {}, tipo: 'produto' }, tinyStockUpdate.produto)
             } else {
               job = tiny.post('/produtos.pesquisa.php', { pesquisa: sku })
                 .then(({ produtos }) => {
