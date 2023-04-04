@@ -82,10 +82,10 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     available: tinyProduct.situacao === 'A',
     sku,
     name,
-    cost_price: Number(tinyProduct.preco_custo || 0),
-    price: Number(tinyProduct.preco_promocional || tinyProduct.preco),
+    cost_price: Number(tinyProduct.preco_custo || tinyProduct.precoCusto),
+    price: Number(tinyProduct.preco_promocional || tinyProduct.precoPromocional || tinyProduct.preco),
     base_price: Number(tinyProduct.preco),
-    body_html: tinyProduct.descricao_complementar
+    body_html: tinyProduct.descricao_complementar || tinyProduct.descricaoComplementar
   }
 
   if (isNew) {
@@ -100,8 +100,8 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
   if (tinyProduct.garantia) {
     product.warranty = tinyProduct.garantia
   }
-  if (tinyProduct.unidade_por_caixa) {
-    product.min_quantity = Number(tinyProduct.unidade_por_caixa)
+  if (tinyProduct.unidade_por_caixa || tinyProduct.unidadePorCaixa) {
+    product.min_quantity = Number(tinyProduct.unidade_por_caixa || tinyProduct.unidadePorCaixa)
   }
   if (tinyProduct.ncm) {
     product.mpn = [tinyProduct.ncm]
@@ -109,12 +109,12 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
   const validateGtin = gtin => typeof gtin === 'string' && /^([0-9]{8}|[0-9]{12,14})$/.test(gtin)
   if (validateGtin(tinyProduct.gtin)) {
     product.gtin = [tinyProduct.gtin]
-    if (validateGtin(tinyProduct.gtin_embalagem)) {
-      product.gtin.push(tinyProduct.gtin_embalagem)
+    if (validateGtin(tinyProduct.gtin_embalagem || tinyProduct.gtinEmbalagem)) {
+      product.gtin.push(tinyProduct.gtin_embalagem || tinyProduct.gtinEmbalagem)
     }
   }
 
-  const weight = tinyProduct.peso_bruto || tinyProduct.peso_liquido
+  const weight = tinyProduct.peso_bruto || tinyProduct.peso_liquido || tinyProduct.pesoBruto || tinyProduct.pesoLiquido
   if (weight > 0) {
     product.weight = {
       unit: 'kg',
@@ -146,7 +146,6 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
         const variacao = variacaoObj && variacaoObj.variacao
           ? variacaoObj.variacao
           : variacaoObj
-        console.log('Encontrou variacao', JSON.stringify(variacao))
         const { codigo, preco, grade, estoqueAtual } = variacao
         if (grade) {
           const specifications = {}
@@ -185,9 +184,8 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
                 specifications[gridId] = [spec]
               })
           }
-
+          if (variacao.anexos && variacao.anexos.length) {console.log(JSON.stringify)}
           if (specTexts.length) {
-            console.log('estoque virtual', estoqueAtual)
             product.variations.push({
               _id: ecomUtils.randomObjectId(),
               name: `${name} / ${specTexts.join(' / ')}`.substring(0, 100),
