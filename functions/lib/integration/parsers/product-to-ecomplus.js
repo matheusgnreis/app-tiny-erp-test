@@ -188,10 +188,10 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
                 specifications[gridId] = [spec]
               })
           }
+          let pictureId
           if (Array.isArray(anexos) && anexos.length && Array.isArray(tinyProduct.anexos) && tinyProduct.anexos.length) {
-            let pictureId
+            pictureId = tinyProduct.anexos.length
             for (const anexo of anexos) {
-              pictureId = tinyProduct.anexos.length
               tinyProduct.anexos.push(anexo)
             }
           }
