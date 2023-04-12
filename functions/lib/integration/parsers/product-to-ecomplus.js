@@ -188,8 +188,10 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
                 specifications[gridId] = [spec]
               })
           }
-          if (anexos && anexos.length && tinyProduct.anexos) {
+          if (Array.isArray(anexos) && anexos.length && Array.isArray(tinyProduct.anexos) && tinyProduct.anexos.length) {
+            let pictureId
             for (const anexo of anexos) {
+              pictureId = tinyProduct.anexos.length
               tinyProduct.anexos.push(anexo)
             }
           }
@@ -200,7 +202,8 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
               sku: codigo,
               specifications,
               price: parseFloat(preco || 0),
-              quantity: estoqueAtual || 0
+              quantity: estoqueAtual || 0,
+              picture_id: pictureId
             })
           }
         }
@@ -238,7 +241,21 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
           promises.push(tryImageUpload(storeId, auth, url, product, i))
         }
       })
-      return Promise.all(promises).then(() => resolve(product))
+      return Promise.all(promises).then((images) => {
+        if (Array.isArray(product.variations) && product.variations.length) {
+          product.variations.forEach(variation => {
+            if (variation.picture_id) {
+              const variationImage = images[variation.picture_id]
+              if (variationImage._id) {
+                variation.picture_id = variationImage._id
+              } else {
+                delete variation.picture_id
+              }
+            }
+          })
+        }
+        return resolve(product)
+      })
     }
   }
 
