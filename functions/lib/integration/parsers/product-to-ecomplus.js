@@ -194,6 +194,8 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
             for (const anexo of anexos) {
               tinyProduct.anexos.push(anexo)
             }
+          } else if (Array.isArray(tinyProduct.anexos) && tinyProduct.anexos.length) {
+            pictureId = 0
           }
           if (specTexts.length) {
             product.variations.push({
