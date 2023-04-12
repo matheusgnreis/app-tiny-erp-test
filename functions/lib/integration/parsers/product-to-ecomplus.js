@@ -79,13 +79,16 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
   const sku = tinyProduct.codigo || String(tinyProduct.id)
   const name = (tinyProduct.nome || sku).trim()
   const isProduct = tipo === 'produto'
+  const getCorrectPrice = (price) => {
+    return Number(price) > 0 ? Number(price) : false
+  }
 
   const product = {
     available: tinyProduct.situacao === 'A',
     sku,
     name,
     cost_price: !isProduct ? Number(tinyProduct.preco_custo) : Number(tinyProduct.precoCusto),
-    price: !isProduct ? Number(tinyProduct.preco_promocional || tinyProduct.preco) : Number(tinyProduct.precoPromocional || tinyProduct.preco),
+    price: !isProduct ? Number(tinyProduct.preco_promocional || tinyProduct.preco) : Number(getCorrectPrice(tinyProduct.precoPromocional) || tinyProduct.preco),
     base_price: Number(tinyProduct.preco),
     body_html: tinyProduct.descricao_complementar || tinyProduct.descricaoComplementar
   }
@@ -186,34 +189,9 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
                 specifications[gridId] = [spec]
               })
           }
-          let pictureId
           if (anexos && anexos.length && tinyProduct.anexos) {
             for (const anexo of anexos) {
-              let indexAnexos = tinyProduct.anexos.length
-              if (!product.pictures) {
-                product.pictures = []
-              }
-              let promisesVariations = []
-              let url;
-              console.log('anexo', JSON.stringify(anexo));
-              if (anexo && anexo.anexo) {
-                url = anexo.anexo
-              } else if (anexo.url) {
-                url = anexo.url
-              }
-              if (typeof url === 'string' && url.startsWith('http')) {
-                console.log(url);
-                indexAnexos++
-                promisesVariations.push(tryImageUpload(storeId, auth, url, product, indexAnexos))
-              }
-              await Promise.all(promisesVariations).then((image, i) => {
-                console.log(image)
-                if (i === 0) {
-                  pictureId = image._id
-                } else if (i === (promisesVariations.length - 1)) {
-                  resolve('Finish Upload Images for Variation')
-                }
-              })
+              tinyProduct.anexos.push(anexo)
             }
           }
           if (specTexts.length) {
@@ -223,8 +201,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
               sku: codigo,
               specifications,
               price: parseFloat(preco || 0),
-              quantity: estoqueAtual || 0,
-              picture_id: pictureId
+              quantity: estoqueAtual || 0
             })
           }
         }
