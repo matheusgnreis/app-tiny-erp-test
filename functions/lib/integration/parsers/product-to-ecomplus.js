@@ -246,7 +246,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
       return Promise.all(promises).then((images) => {
         if (Array.isArray(product.variations) && product.variations.length) {
           product.variations.forEach(variation => {
-            if (variation.picture_id) {
+            if (variation.picture_id || variation.picture_id === 0) {
               const variationImage = images[variation.picture_id]
               if (variationImage._id) {
                 variation.picture_id = variationImage._id
