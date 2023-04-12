@@ -74,16 +74,18 @@ const tryImageUpload = (storeId, auth, originImgUrl, product, index) => new Prom
   return picture
 })
 
-module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((resolve, reject) => {
+module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise(async (resolve, reject) => {
+  console.log('Log produto', JSON.stringify(tinyProduct))
   const sku = tinyProduct.codigo || String(tinyProduct.id)
   const name = (tinyProduct.nome || sku).trim()
+  const isProduct = tipo === 'produto'
 
   const product = {
     available: tinyProduct.situacao === 'A',
     sku,
     name,
-    cost_price: Number(tinyProduct.preco_custo || tinyProduct.precoCusto),
-    price: Number(tinyProduct.preco_promocional || tinyProduct.precoPromocional || tinyProduct.preco),
+    cost_price: !isProduct ? Number(tinyProduct.preco_custo) : Number(tinyProduct.precoCusto),
+    price: !isProduct ? Number(tinyProduct.preco_promocional || tinyProduct.preco) : Number(tinyProduct.precoPromocional || tinyProduct.preco),
     base_price: Number(tinyProduct.preco),
     body_html: tinyProduct.descricao_complementar || tinyProduct.descricaoComplementar
   }
@@ -101,7 +103,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     product.warranty = tinyProduct.garantia
   }
   if (tinyProduct.unidade_por_caixa || tinyProduct.unidadePorCaixa) {
-    product.min_quantity = Number(tinyProduct.unidade_por_caixa || tinyProduct.unidadePorCaixa)
+    product.min_quantity = !isProduct ? Number(tinyProduct.unidade_por_caixa) : Number(tinyProduct.unidadePorCaixa)
   }
   if (tinyProduct.ncm) {
     product.mpn = [tinyProduct.ncm]
@@ -114,7 +116,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
     }
   }
 
-  const weight = tinyProduct.peso_bruto || tinyProduct.peso_liquido || tinyProduct.pesoBruto || tinyProduct.pesoLiquido
+  const weight = !isProduct ? (tinyProduct.peso_bruto || tinyProduct.peso_liquido) : (tinyProduct.pesoBruto || tinyProduct.pesoLiquido)
   if (weight > 0) {
     product.weight = {
       unit: 'kg',
@@ -142,11 +144,11 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
   if (isNew) {
     if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
       product.variations = []
-      tinyProduct.variacoes.forEach(variacaoObj => {
-        const variacao = variacaoObj && variacaoObj.variacao
+      tinyProduct.variacoes.forEach(async variacaoObj => {
+        const variacao = !isProduct
           ? variacaoObj.variacao
           : variacaoObj
-        const { codigo, preco, grade, estoqueAtual } = variacao
+        const { codigo, preco, grade, estoqueAtual, anexos } = variacao
         if (grade) {
           const specifications = {}
           const specTexts = []
@@ -184,7 +186,36 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
                 specifications[gridId] = [spec]
               })
           }
-          if (variacao.anexos && variacao.anexos.length) {console.log(JSON.stringify)}
+          let pictureId
+          if (anexos && anexos.length && tinyProduct.anexos) {
+            for (const anexo of anexos) {
+              let indexAnexos = tinyProduct.anexos.length
+              if (!product.pictures) {
+                product.pictures = []
+              }
+              let promisesVariations = []
+              let url;
+              console.log('anexo', JSON.stringify(anexo));
+              if (anexo && anexo.anexo) {
+                url = anexo.anexo
+              } else if (anexo.url) {
+                url = anexo.url
+              }
+              if (typeof url === 'string' && url.startsWith('http')) {
+                console.log(url);
+                indexAnexos++
+                promisesVariations.push(tryImageUpload(storeId, auth, url, product, indexAnexos))
+              }
+              await Promise.all(promisesVariations).then((image, i) => {
+                console.log(image)
+                if (i === 0) {
+                  pictureId = image._id
+                } else if (i === (promisesVariations.length - 1)) {
+                  resolve('Finish Upload Images for Variation')
+                }
+              })
+            }
+          }
           if (specTexts.length) {
             product.variations.push({
               _id: ecomUtils.randomObjectId(),
@@ -192,7 +223,8 @@ module.exports = (tinyProduct, storeId, auth, isNew = true) => new Promise((reso
               sku: codigo,
               specifications,
               price: parseFloat(preco || 0),
-              quantity: estoqueAtual || 0
+              quantity: estoqueAtual || 0,
+              picture_id: pictureId
             })
           }
         }
