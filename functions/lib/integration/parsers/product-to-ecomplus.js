@@ -74,8 +74,7 @@ const tryImageUpload = (storeId, auth, originImgUrl, product, index) => new Prom
   return picture
 })
 
-module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise(async (resolve, reject) => {
-  console.log('Log produto', JSON.stringify(tinyProduct))
+module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise((resolve, reject) => {
   const sku = tinyProduct.codigo || String(tinyProduct.id)
   const name = (tinyProduct.nome || sku).trim()
   const isProduct = tipo === 'produto'
@@ -147,7 +146,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
   if (isNew) {
     if (Array.isArray(tinyProduct.variacoes) && tinyProduct.variacoes.length) {
       product.variations = []
-      tinyProduct.variacoes.forEach(async variacaoObj => {
+      tinyProduct.variacoes.forEach(variacaoObj => {
         const variacao = !isProduct
           ? variacaoObj.variacao
           : variacaoObj
