@@ -92,6 +92,10 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
     body_html: tinyProduct.descricao_complementar || tinyProduct.descricaoComplementar
   }
 
+  if (tinyProduct.estoqueAtual) {
+    product.quantity = tinyProduct.estoqueAtual
+  }
+
   if (isNew) {
     if (tinyProduct.slug) {
       product.slug = tinyProduct.slug
