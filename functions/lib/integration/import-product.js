@@ -172,7 +172,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
               return null
             }
             
-            if (tinyProduct && tipo !== 'produto') {
+            if (tinyProduct && !product && tipo !== 'produto') {
               return tiny.post('/produto.obter.php', { id: tinyProduct.id })
               .then(({ produto }) => {
                 let method, endpoint
