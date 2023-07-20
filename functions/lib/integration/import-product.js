@@ -124,6 +124,9 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
           const tiny = new Tiny(tinyToken)
 
           const handleTinyStock = ({ produto, tipo }, tinyProduct) => {
+            console.log('Produto tiny', JSON.stringify(tinyProduct))
+            console.log('Produto tiny bloco', JSON.stringify(produto))
+            console.log('Produto tiny tipo', tipo)
             let quantity = Number(produto.saldo) || Number(produto.estoqueAtual)
             if (produto.saldoReservado) {
               quantity -= Number(produto.saldoReservado)
@@ -244,6 +247,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             } else {
                 return null
             }
+            console.log('Produto a ser criado')
             return parseProduct(tinyProduct, storeId, auth, method === 'POST', tipo).then(product => {
               return appSdk.apiRequest(storeId, endpoint, method, product, auth)
             })
