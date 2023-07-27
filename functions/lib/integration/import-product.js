@@ -244,6 +244,7 @@ module.exports = ({ appSdk, storeId, auth }, tinyToken, queueEntry, appData, can
             } else {
                 return null
             }
+            console.log('Produto', JSON.stringify(tinyProduct))
             return parseProduct(tinyProduct, storeId, auth, method === 'POST', tipo).then(product => {
               return appSdk.apiRequest(storeId, endpoint, method, product, auth)
             })
