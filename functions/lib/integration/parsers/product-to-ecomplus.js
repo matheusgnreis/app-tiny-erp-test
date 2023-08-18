@@ -79,7 +79,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
   const name = (tinyProduct.nome || sku).trim()
   const isProduct = tipo === 'produto'
   const getCorrectPrice = (price) => {
-    return Number(price) > 0 ? Number(price) : false
+    return Number(price) > 0 ? Number(price) : null
   }
 
   const product = {
@@ -92,9 +92,7 @@ module.exports = (tinyProduct, storeId, auth, isNew = true, tipo) => new Promise
     body_html: tinyProduct.descricao_complementar || tinyProduct.descricaoComplementar
   }
 
-  if (tinyProduct.estoqueAtual) {
-    product.quantity = tinyProduct.estoqueAtual
-  }
+  product.quantity = tinyProduct.estoqueAtual || 0
 
   if (isNew) {
     if (tinyProduct.seo) {
